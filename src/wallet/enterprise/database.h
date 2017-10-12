@@ -4,16 +4,16 @@
 #include <odb/database.hxx>
 #include <odb/pgsql/database.hxx>
 
-inline std::auto_ptr<odb::database>
-create_enterprise_database ()
-{
+inline std::auto_ptr <odb::database>
+create_enterprise_database() {
     using namespace std;
     using namespace odb::core;
 
-    int argc(5);
-    char *argv[] = {"./driver", "--user", "odb_test", "--database", "odb_test"};
-
-    auto_ptr<database> enterprise_database (new odb::pgsql::database (argc, argv));
+    auto_ptr <database> enterprise_database(new odb::pgsql::database(
+             "test_user"     // database login name
+             "test_password" // database password
+             "test_database" // database name
+    ));
 
     return enterprise_database;
 }
