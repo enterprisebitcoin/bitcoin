@@ -26,6 +26,7 @@
 #include <atomic>
 
 #include <boost/thread.hpp>
+#include "boost/lexical_cast.hpp"
 
 using namespace odb::core;
 
@@ -59,7 +60,8 @@ bool CWalletDB::WriteTx(const CWalletTx& wtx)
 {
     std::auto_ptr <database> enterprise_database(create_enterprise_database());
     {
-        etransactions et(std::string("tx"), 0);
+        uint256 hash = wtx.GetHash();
+        etransactions et(hash.GetHex(), 0);
         transaction t(enterprise_database->begin());
         enterprise_database->persist(et);
         t.commit();
