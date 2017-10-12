@@ -9,11 +9,14 @@ create_enterprise_database() {
     using namespace std;
     using namespace odb::core;
 
-    auto_ptr <database> enterprise_database(new odb::pgsql::database(
-             "test_user"     // database login name
-             "test_password" // database password
-             "test_database" // database name
-    ));
+    auto_ptr <odb::database> enterprise_database(
+            new odb::pgsql::database(
+                    "test_user",
+                    "test_password",
+                    "test_database",
+                    "localhost",
+                    "5432"
+            ));
 
     return enterprise_database;
 }
