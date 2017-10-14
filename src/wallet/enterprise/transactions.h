@@ -10,20 +10,33 @@
 
 class etransactions {
 public:
-    etransactions(const std::string &txid,
-                  unsigned int time)
-            : txid_(txid), time_(time) {
-    }
+    etransactions(const std::string& txid,
+                  unsigned int time);
 
-    const std::string &
-    txid() const {
+    const std::string&
+    txid () const
+    {
         return txid_;
     }
 
+    void
+    time (std::string& txid)
+    {
+        txid_ = txid;
+    }
+
     unsigned int
-    time() const {
+    time () const
+    {
         return time_;
     }
+
+    void
+    time (unsigned int time)
+    {
+        time_ = time;
+    }
+
 
 private:
     friend class odb::access;
