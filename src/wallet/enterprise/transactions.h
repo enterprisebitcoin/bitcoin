@@ -4,6 +4,8 @@
 #include <odb/core.hxx>
 #include <string>
 
+#include "version.h"
+
 #pragma db object
 
 class etransactions {

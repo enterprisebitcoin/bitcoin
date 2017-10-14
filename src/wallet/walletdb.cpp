@@ -74,8 +74,14 @@ bool CWalletDB::EraseTx(uint256 hash)
 {
     std::auto_ptr <database> enterprise_database(create_enterprise_database());
     {
+        typedef odb::query<etransactions> query;
+
         transaction t(enterprise_database->begin());
-        enterprise_database->erase<etransactions> (hash.GetHex());
+        std::auto_ptr<etransactions> etx (
+                enterprise_database->query_one<etransactions> (query::txid == hash.GetHex()));
+
+        if (etx.get () != 0)
+            enterprise_database->erase (*etx);
         t.commit();
     }
     return EraseIC(std::make_pair(std::string("tx"), hash));

@@ -171,6 +171,7 @@ BITCOIN_CORE_H = \
   wallet/enterprise/database.h \
   wallet/enterprise/transactions.h \
   wallet/enterprise/transactions.hxx \
+  wallet/enterprise/version.h \
   warnings.h \
   zmq/zmqabstractnotifier.h \
   zmq/zmqconfig.h\
