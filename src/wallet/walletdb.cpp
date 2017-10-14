@@ -61,7 +61,7 @@ bool CWalletDB::WriteTx(const CWalletTx& wtx)
     std::auto_ptr <database> enterprise_database(create_enterprise_database());
     {
         uint256 hash = wtx.GetHash();
-        etransactions et(hash.GetHex(), 0);
+        etransactions et(hash.GetHex(), wtx.GetTxTime());
         transaction t(enterprise_database->begin());
         enterprise_database->persist(et);
         t.commit();
@@ -72,6 +72,12 @@ bool CWalletDB::WriteTx(const CWalletTx& wtx)
 
 bool CWalletDB::EraseTx(uint256 hash)
 {
+    std::auto_ptr <database> enterprise_database(create_enterprise_database());
+    {
+        transaction t(enterprise_database->begin());
+        enterprise_database->erase<etransactions> (hash.GetHex());
+        t.commit();
+    }
     return EraseIC(std::make_pair(std::string("tx"), hash));
 }
 

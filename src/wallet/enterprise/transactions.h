@@ -9,8 +9,8 @@
 class etransactions {
 public:
     etransactions(const std::string &txid,
-                unsigned int satoshis)
-            : txid_(txid), satoshis_(satoshis) {
+                  unsigned int time)
+            : txid_(txid), time_(time) {
     }
 
     const std::string &
@@ -19,8 +19,8 @@ public:
     }
 
     unsigned int
-    satoshis() const {
-        return satoshis_;
+    time() const {
+        return time_;
     }
 
 private:
@@ -32,7 +32,7 @@ private:
     unsigned int id_;
 
     std::string txid_;
-    unsigned int satoshis_;
+    unsigned int time_;
 };
 
 #endif //ENTERPRISE_TRANSACTIONS_H
