@@ -2,8 +2,8 @@
 // compiler for C++.
 //
 
-#ifndef TRANSACTIONS_ODB_HXX
-#define TRANSACTIONS_ODB_HXX
+#ifndef OUTPUT_ENTRIES_ODB_HXX
+#define OUTPUT_ENTRIES_ODB_HXX
 
 #include <odb/version.hxx>
 
@@ -13,7 +13,7 @@
 
 #include <odb/pre.hxx>
 
-#include "transactions.h"
+#include "output_entries.h"
 
 #include <memory>
 #include <cstddef>
@@ -33,20 +33,20 @@
 
 namespace odb
 {
-  // eTransactions
+  // eOutputEntries
   //
   template <>
-  struct class_traits< ::eTransactions >
+  struct class_traits< ::eOutputEntries >
   {
     static const class_kind kind = class_object;
   };
 
   template <>
-  class access::object_traits< ::eTransactions >
+  class access::object_traits< ::eOutputEntries >
   {
     public:
-    typedef ::eTransactions object_type;
-    typedef ::eTransactions* pointer_type;
+    typedef ::eOutputEntries object_type;
+    typedef ::eOutputEntries* pointer_type;
     typedef odb::pointer_traits<pointer_type> pointer_traits;
 
     static const bool polymorphic = false;
@@ -86,10 +86,10 @@ namespace odb
 
 namespace odb
 {
-  // eTransactions
+  // eOutputEntries
   //
   template <typename A>
-  struct query_columns< ::eTransactions, id_pgsql, A >
+  struct query_columns< ::eOutputEntries, id_pgsql, A >
   {
     // id
     //
@@ -103,7 +103,7 @@ namespace odb
 
     static const id_type_ id;
 
-    // block_index
+    // etransaction_id
     //
     typedef
     pgsql::query_column<
@@ -111,35 +111,23 @@ namespace odb
         int,
         pgsql::id_integer >::query_type,
       pgsql::id_integer >
-    block_index_type_;
+    etransaction_id_type_;
 
-    static const block_index_type_ block_index;
+    static const etransaction_id_type_ etransaction_id;
 
-    // is_trusted
+    // vector
     //
     typedef
     pgsql::query_column<
       pgsql::value_traits<
-        bool,
-        pgsql::id_boolean >::query_type,
-      pgsql::id_boolean >
-    is_trusted_type_;
-
-    static const is_trusted_type_ is_trusted;
-
-    // size
-    //
-    typedef
-    pgsql::query_column<
-      pgsql::value_traits<
-        unsigned int,
+        int,
         pgsql::id_integer >::query_type,
       pgsql::id_integer >
-    size_type_;
+    vector_type_;
 
-    static const size_type_ size;
+    static const vector_type_ vector;
 
-    // time
+    // amount
     //
     typedef
     pgsql::query_column<
@@ -147,21 +135,33 @@ namespace odb
         ::int64_t,
         pgsql::id_bigint >::query_type,
       pgsql::id_bigint >
-    time_type_;
+    amount_type_;
 
-    static const time_type_ time;
+    static const amount_type_ amount;
 
-    // time_received
+    // category
     //
     typedef
     pgsql::query_column<
       pgsql::value_traits<
-        ::int64_t,
-        pgsql::id_bigint >::query_type,
-      pgsql::id_bigint >
-    time_received_type_;
+        ::std::string,
+        pgsql::id_string >::query_type,
+      pgsql::id_string >
+    category_type_;
 
-    static const time_received_type_ time_received;
+    static const category_type_ category;
+
+    // destination
+    //
+    typedef
+    pgsql::query_column<
+      pgsql::value_traits<
+        ::std::string,
+        pgsql::id_string >::query_type,
+      pgsql::id_string >
+    destination_type_;
+
+    static const destination_type_ destination;
 
     // txid
     //
@@ -177,49 +177,49 @@ namespace odb
   };
 
   template <typename A>
-  const typename query_columns< ::eTransactions, id_pgsql, A >::id_type_
-  query_columns< ::eTransactions, id_pgsql, A >::
+  const typename query_columns< ::eOutputEntries, id_pgsql, A >::id_type_
+  query_columns< ::eOutputEntries, id_pgsql, A >::
   id (A::table_name, "\"id\"", 0);
 
   template <typename A>
-  const typename query_columns< ::eTransactions, id_pgsql, A >::block_index_type_
-  query_columns< ::eTransactions, id_pgsql, A >::
-  block_index (A::table_name, "\"block_index\"", 0);
+  const typename query_columns< ::eOutputEntries, id_pgsql, A >::etransaction_id_type_
+  query_columns< ::eOutputEntries, id_pgsql, A >::
+  etransaction_id (A::table_name, "\"etransaction_id\"", 0);
 
   template <typename A>
-  const typename query_columns< ::eTransactions, id_pgsql, A >::is_trusted_type_
-  query_columns< ::eTransactions, id_pgsql, A >::
-  is_trusted (A::table_name, "\"is_trusted\"", 0);
+  const typename query_columns< ::eOutputEntries, id_pgsql, A >::vector_type_
+  query_columns< ::eOutputEntries, id_pgsql, A >::
+  vector (A::table_name, "\"vector\"", 0);
 
   template <typename A>
-  const typename query_columns< ::eTransactions, id_pgsql, A >::size_type_
-  query_columns< ::eTransactions, id_pgsql, A >::
-  size (A::table_name, "\"size\"", 0);
+  const typename query_columns< ::eOutputEntries, id_pgsql, A >::amount_type_
+  query_columns< ::eOutputEntries, id_pgsql, A >::
+  amount (A::table_name, "\"amount\"", 0);
 
   template <typename A>
-  const typename query_columns< ::eTransactions, id_pgsql, A >::time_type_
-  query_columns< ::eTransactions, id_pgsql, A >::
-  time (A::table_name, "\"time\"", 0);
+  const typename query_columns< ::eOutputEntries, id_pgsql, A >::category_type_
+  query_columns< ::eOutputEntries, id_pgsql, A >::
+  category (A::table_name, "\"category\"", 0);
 
   template <typename A>
-  const typename query_columns< ::eTransactions, id_pgsql, A >::time_received_type_
-  query_columns< ::eTransactions, id_pgsql, A >::
-  time_received (A::table_name, "\"time_received\"", 0);
+  const typename query_columns< ::eOutputEntries, id_pgsql, A >::destination_type_
+  query_columns< ::eOutputEntries, id_pgsql, A >::
+  destination (A::table_name, "\"destination\"", 0);
 
   template <typename A>
-  const typename query_columns< ::eTransactions, id_pgsql, A >::txid_type_
-  query_columns< ::eTransactions, id_pgsql, A >::
+  const typename query_columns< ::eOutputEntries, id_pgsql, A >::txid_type_
+  query_columns< ::eOutputEntries, id_pgsql, A >::
   txid (A::table_name, "\"txid\"", 0);
 
   template <typename A>
-  struct pointer_query_columns< ::eTransactions, id_pgsql, A >:
-    query_columns< ::eTransactions, id_pgsql, A >
+  struct pointer_query_columns< ::eOutputEntries, id_pgsql, A >:
+    query_columns< ::eOutputEntries, id_pgsql, A >
   {
   };
 
   template <>
-  class access::object_traits_impl< ::eTransactions, id_pgsql >:
-    public access::object_traits< ::eTransactions >
+  class access::object_traits_impl< ::eOutputEntries, id_pgsql >:
+    public access::object_traits< ::eOutputEntries >
   {
     public:
     struct id_image_type
@@ -237,30 +237,32 @@ namespace odb
       int id_value;
       bool id_null;
 
-      // block_index_
+      // etransaction_id_
       //
-      int block_index_value;
-      bool block_index_null;
+      int etransaction_id_value;
+      bool etransaction_id_null;
 
-      // is_trusted_
+      // vector_
       //
-      bool is_trusted_value;
-      bool is_trusted_null;
+      int vector_value;
+      bool vector_null;
 
-      // size_
+      // amount_
       //
-      int size_value;
-      bool size_null;
+      long long amount_value;
+      bool amount_null;
 
-      // time_
+      // category_
       //
-      long long time_value;
-      bool time_null;
+      details::buffer category_value;
+      std::size_t category_size;
+      bool category_null;
 
-      // time_received_
+      // destination_
       //
-      long long time_received_value;
-      bool time_received_null;
+      details::buffer destination_value;
+      std::size_t destination_size;
+      bool destination_null;
 
       // txid_
       //
@@ -380,17 +382,17 @@ namespace odb
   };
 
   template <>
-  class access::object_traits_impl< ::eTransactions, id_common >:
-    public access::object_traits_impl< ::eTransactions, id_pgsql >
+  class access::object_traits_impl< ::eOutputEntries, id_common >:
+    public access::object_traits_impl< ::eOutputEntries, id_pgsql >
   {
   };
 
-  // eTransactions
+  // eOutputEntries
   //
 }
 
-#include "transactions-odb.ixx"
+#include "output_entries-odb.ixx"
 
 #include <odb/post.hxx>
 
-#endif // TRANSACTIONS_ODB_HXX
+#endif // OUTPUT_ENTRIES_ODB_HXX

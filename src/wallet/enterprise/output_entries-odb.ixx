@@ -4,19 +4,19 @@
 
 namespace odb
 {
-  // eTransactions
+  // eOutputEntries
   //
 
   inline
-  access::object_traits< ::eTransactions >::id_type
-  access::object_traits< ::eTransactions >::
+  access::object_traits< ::eOutputEntries >::id_type
+  access::object_traits< ::eOutputEntries >::
   id (const object_type& o)
   {
     return o.id_;
   }
 
   inline
-  void access::object_traits< ::eTransactions >::
+  void access::object_traits< ::eOutputEntries >::
   callback (database& db, object_type& x, callback_event e)
   {
     ODB_POTENTIALLY_UNUSED (db);
@@ -25,7 +25,7 @@ namespace odb
   }
 
   inline
-  void access::object_traits< ::eTransactions >::
+  void access::object_traits< ::eOutputEntries >::
   callback (database& db, const object_type& x, callback_event e)
   {
     ODB_POTENTIALLY_UNUSED (db);
@@ -36,11 +36,11 @@ namespace odb
 
 namespace odb
 {
-  // eTransactions
+  // eOutputEntries
   //
 
   inline
-  void access::object_traits_impl< ::eTransactions, id_pgsql >::
+  void access::object_traits_impl< ::eOutputEntries, id_pgsql >::
   erase (database& db, const object_type& obj)
   {
     callback (db, obj, callback_event::pre_erase);
@@ -49,7 +49,7 @@ namespace odb
   }
 
   inline
-  void access::object_traits_impl< ::eTransactions, id_pgsql >::
+  void access::object_traits_impl< ::eOutputEntries, id_pgsql >::
   load_ (statements_type& sts,
          object_type& obj,
          bool)

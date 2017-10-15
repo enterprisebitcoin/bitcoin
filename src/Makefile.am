@@ -169,6 +169,8 @@ BITCOIN_CORE_H = \
   wallet/wallet.h \
   wallet/walletdb.h \
   wallet/enterprise/database.h \
+  wallet/enterprise/output_entries.h \
+  wallet/enterprise/output_entries.hxx \
   wallet/enterprise/transactions.h \
   wallet/enterprise/transactions.hxx \
   wallet/enterprise/version.h \

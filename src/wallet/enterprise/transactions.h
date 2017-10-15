@@ -10,9 +10,9 @@
 
 #pragma db object
 
-class etransactions {
+class eTransactions {
 public:
-    etransactions(
+    eTransactions(
             const int block_index,
             const bool is_trusted,
             const unsigned int size,
@@ -89,11 +89,15 @@ public:
         txid_ = txid;
     }
 
+    const unsigned int
+    id() const {
+        return id_;
+    }
 
 private:
     friend class odb::access;
 
-    etransactions() {}
+    eTransactions() {}
 
 #pragma db id auto
     unsigned int id_;

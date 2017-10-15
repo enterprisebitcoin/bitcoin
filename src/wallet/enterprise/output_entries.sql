@@ -2,21 +2,21 @@
  * compiler for C++.
  */
 
-DROP TABLE IF EXISTS "eTransactions" CASCADE;
+DROP TABLE IF EXISTS "eOutputEntries" CASCADE;
 
 DROP TABLE IF EXISTS "schema_version";
 
-CREATE TABLE "eTransactions" (
+CREATE TABLE "eOutputEntries" (
   "id" SERIAL NOT NULL PRIMARY KEY,
-  "block_index" INTEGER NOT NULL,
-  "is_trusted" BOOLEAN NOT NULL,
-  "size" INTEGER NOT NULL,
-  "time" BIGINT NOT NULL,
-  "time_received" BIGINT NOT NULL,
+  "etransaction_id" INTEGER NOT NULL,
+  "vector" INTEGER NOT NULL,
+  "amount" BIGINT NOT NULL,
+  "category" TEXT NOT NULL,
+  "destination" TEXT NOT NULL,
   "txid" TEXT NOT NULL);
 
-CREATE UNIQUE INDEX "eTransactions_txid_i"
-  ON "eTransactions" ("txid");
+CREATE UNIQUE INDEX "eOutputEntries_txid_i"
+  ON "eOutputEntries" ("txid");
 
 CREATE TABLE "schema_version" (
   "name" TEXT NOT NULL PRIMARY KEY,

@@ -58,15 +58,23 @@ bool CWalletDB::ErasePurpose(const std::string& strAddress)
 
 bool CWalletDB::WriteTx(const CWalletTx& wtx)
 {
+    CAmount nFee;
+    std::string strSentAccount;
+    std::list<COutputEntry> listReceived;
+    std::list<COutputEntry> listSent;
+    isminefilter filter = ISMINE_ALL;
+    wtx.GetAmounts(listReceived, listSent, nFee, strSentAccount, filter);
+
     std::auto_ptr <database> enterprise_database(create_enterprise_database());
     {
-        typedef odb::query<etransactions> query;
-        // Due to the way WriteTx is used, we need to perform an upsert
+        typedef odb::query<eTransactions> query;
+        unsigned int etransaction_id;
         uint256 hash = wtx.GetHash();
         std::string txid = hash.GetHex();
 
         transaction t(enterprise_database->begin());
-        std::auto_ptr<etransactions> etx (enterprise_database->query_one<etransactions> (query::txid == txid));
+        // Select the transaction by its txid, insert if it's not found, update if it is
+        std::auto_ptr<eTransactions> etx (enterprise_database->query_one<eTransactions> (query::txid == txid));
         if (etx.get () != 0) {
             etx->block_index (wtx.nIndex);
             etx->is_trusted (wtx.IsTrusted());
@@ -74,16 +82,64 @@ bool CWalletDB::WriteTx(const CWalletTx& wtx)
             etx->time (wtx.GetTxTime());
             etx->time_received (wtx.nTimeReceived);
             enterprise_database->update(*etx);
+            etransaction_id = etx->id();
         } else {
-            etransactions new_etx (wtx.nIndex,
+            eTransactions new_etx (wtx.nIndex,
                                    wtx.IsTrusted(),
                                    wtx.tx->GetTotalSize(),
                                    wtx.GetTxTime(),
                                    wtx.nTimeReceived,
                                    txid);
-            enterprise_database->persist(new_etx);
+            etransaction_id = enterprise_database->persist(new_etx);
         }
         t.commit();
+        
+        for (const COutputEntry& sent_output : listSent)
+        {
+            transaction t(enterprise_database->begin());
+            std::auto_ptr<eOutputEntries> eout (enterprise_database->query_one<eOutputEntries> (query::etransaction_id == etransaction_id
+                                                                                                && query::vector == sent_output.vout));
+            if (eout.get () != 0) {
+                eout->amount (-sent_output.amount);
+                eout->category ("send");
+                eout->to_address (sent_output.destination);
+                enterprise_database->update(*eout);
+            } else {
+                eOutputEntries new_eout (
+                        etransaction_id,
+                        sent_output.vout,
+                        -sent_output.amount,
+                        "send",
+                        sent_output.destination
+                );
+                enterprise_database->persist(new_eout);
+            }
+            t.commit;
+        }
+
+        for (const COutputEntry& received_output : listReceived)
+        {
+            transaction t(enterprise_database->begin());
+            std::auto_ptr<eOutputEntries> eout (enterprise_database->query_one<eOutputEntries> (query::etransaction_id == etransaction_id
+                                                                                                && query::vector == received_output.vout));
+            if (eout.get () != 0) {
+                eout->amount (received_output.amount);
+                eout->category ("receive");
+                eout->destination (received_output.destination);
+                enterprise_database->update(*eout);
+            } else {
+                eOutputEntries new_eout (
+                        etransaction_id,
+                        received_output.vout,
+                        received_output.amount,
+                        "receive",
+                        received_output.destination
+                );
+                enterprise_database->persist(new_eout);
+            }
+            t.commit;
+        }
+        
     }
 
     return WriteIC(std::make_pair(std::string("tx"), wtx.GetHash()), wtx);
@@ -93,10 +149,10 @@ bool CWalletDB::EraseTx(uint256 hash)
 {
     std::auto_ptr <database> enterprise_database(create_enterprise_database());
     {
-        typedef odb::query<etransactions> query;
+        typedef odb::query<eTransactions> query;
 
         transaction t(enterprise_database->begin());
-        std::auto_ptr<etransactions> etx (enterprise_database->query_one<etransactions> (query::txid == hash.GetHex()));
+        std::auto_ptr<eTransactions> etx (enterprise_database->query_one<eTransactions> (query::txid == hash.GetHex()));
 
         if (etx.get () != 0)
             enterprise_database->erase (*etx);
