@@ -7,6 +7,9 @@
       <primary-key auto="true">
         <column name="id"/>
       </primary-key>
+      <index name="etransactions_txid_i" type="UNIQUE">
+        <column name="txid"/>
+      </index>
     </table>
   </model>
 </changelog>

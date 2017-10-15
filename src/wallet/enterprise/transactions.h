@@ -11,7 +11,9 @@
 class etransactions {
 public:
     etransactions(const std::string &txid,
-                  unsigned int time);
+                  unsigned int time)
+    : txid_(txid), time_(time) {
+    }
 
     const std::string&
     txid () const
@@ -20,7 +22,7 @@ public:
     }
 
     void
-    time (std::string& txid)
+    txid (std::string& txid)
     {
         txid_ = txid;
     }
@@ -46,7 +48,9 @@ private:
 #pragma db id auto
     unsigned int id_;
 
+#pragma db unique
     std::string txid_;
+
     unsigned int time_;
 };
 

@@ -11,6 +11,9 @@ CREATE TABLE "etransactions" (
   "txid" TEXT NOT NULL,
   "time" INTEGER NOT NULL);
 
+CREATE UNIQUE INDEX "etransactions_txid_i"
+  ON "etransactions" ("txid");
+
 CREATE TABLE "schema_version" (
   "name" TEXT NOT NULL PRIMARY KEY,
   "version" BIGINT NOT NULL,

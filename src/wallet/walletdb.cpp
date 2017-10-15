@@ -65,18 +65,16 @@ bool CWalletDB::WriteTx(const CWalletTx& wtx)
         uint256 hash = wtx.GetHash();
         std::string txid = hash.ToString();
 
+        transaction t(enterprise_database->begin());
         std::auto_ptr<etransactions> etx (enterprise_database->query_one<etransactions> (query::txid == txid));
         if (etx.get () != 0) {
             etx->time (wtx.GetTxTime());
-            transaction t(enterprise_database->begin());
             enterprise_database->update(*etx);
-            t.commit();
         } else {
             etransactions new_etx (txid, wtx.GetTxTime());
-            transaction t(enterprise_database->begin());
             enterprise_database->persist(new_etx);
-            t.commit();
         }
+        t.commit();
     }
 
     return WriteIC(std::make_pair(std::string("tx"), wtx.GetHash()), wtx);
