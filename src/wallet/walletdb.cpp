@@ -16,9 +16,19 @@
 #include "utiltime.h"
 #include "wallet/wallet.h"
 
+#include "wallet/enterprise/database.h"
+#include "wallet/enterprise/transactions.h"
+#include "wallet/enterprise/transactions-odb.hxx"
+
+#include <odb/database.hxx>
+#include <odb/transaction.hxx>
+
 #include <atomic>
 
 #include <boost/thread.hpp>
+#include "boost/lexical_cast.hpp"
+
+using namespace odb::core;
 
 //
 // CWalletDB
@@ -48,11 +58,41 @@ bool CWalletDB::ErasePurpose(const std::string& strAddress)
 
 bool CWalletDB::WriteTx(const CWalletTx& wtx)
 {
+    std::auto_ptr <database> enterprise_database(create_enterprise_database());
+    {
+        typedef odb::query<etransactions> query;
+        // Due to the way WriteTx is used, we need to perform an upsert
+        uint256 hash = wtx.GetHash();
+        std::string txid = hash.ToString();
+
+        transaction t(enterprise_database->begin());
+        std::auto_ptr<etransactions> etx (enterprise_database->query_one<etransactions> (query::txid == txid));
+        if (etx.get () != 0) {
+            etx->time (wtx.GetTxTime());
+            enterprise_database->update(*etx);
+        } else {
+            etransactions new_etx (txid, wtx.GetTxTime());
+            enterprise_database->persist(new_etx);
+        }
+        t.commit();
+    }
+
     return WriteIC(std::make_pair(std::string("tx"), wtx.GetHash()), wtx);
 }
 
 bool CWalletDB::EraseTx(uint256 hash)
 {
+    std::auto_ptr <database> enterprise_database(create_enterprise_database());
+    {
+        typedef odb::query<etransactions> query;
+
+        transaction t(enterprise_database->begin());
+        std::auto_ptr<etransactions> etx (enterprise_database->query_one<etransactions> (query::txid == hash.ToString()));
+
+        if (etx.get () != 0)
+            enterprise_database->erase (*etx);
+        t.commit();
+    }
     return EraseIC(std::make_pair(std::string("tx"), hash));
 }
 
