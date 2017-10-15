@@ -70,6 +70,7 @@ bool CWalletDB::WriteTx(const CWalletTx& wtx)
     std::auto_ptr <database> enterprise_database(create_enterprise_database());
     {
         typedef odb::query<eTransactions> query;
+        typedef odb::query<eOutputEntries> output_query;
         unsigned int etransaction_id;
         uint256 hash = wtx.GetHash();
         std::string txid = hash.GetHex();
@@ -96,7 +97,6 @@ bool CWalletDB::WriteTx(const CWalletTx& wtx)
         }
         t.commit();
 
-        typedef odb::query<eOutputEntries> output_query;
         for (const COutputEntry& sent_output : listSent)
         {
             transaction t(enterprise_database->begin());
@@ -112,7 +112,7 @@ bool CWalletDB::WriteTx(const CWalletTx& wtx)
                         etransaction_id,
                         sent_output.vout,
                         -sent_output.amount,
-                        "send",
+                        std::string("send"),
                         EncodeDestination(sent_output.destination)
                 );
                 enterprise_database->persist(new_eout);
@@ -135,7 +135,7 @@ bool CWalletDB::WriteTx(const CWalletTx& wtx)
                         etransaction_id,
                         received_output.vout,
                         received_output.amount,
-                        "receive",
+                        std::string("receive"),
                         EncodeDestination(received_output.destination)
                 );
                 enterprise_database->persist(new_eout);

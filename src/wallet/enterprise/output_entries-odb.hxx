@@ -162,18 +162,6 @@ namespace odb
     destination_type_;
 
     static const destination_type_ destination;
-
-    // txid
-    //
-    typedef
-    pgsql::query_column<
-      pgsql::value_traits<
-        ::std::string,
-        pgsql::id_string >::query_type,
-      pgsql::id_string >
-    txid_type_;
-
-    static const txid_type_ txid;
   };
 
   template <typename A>
@@ -205,11 +193,6 @@ namespace odb
   const typename query_columns< ::eOutputEntries, id_pgsql, A >::destination_type_
   query_columns< ::eOutputEntries, id_pgsql, A >::
   destination (A::table_name, "\"destination\"", 0);
-
-  template <typename A>
-  const typename query_columns< ::eOutputEntries, id_pgsql, A >::txid_type_
-  query_columns< ::eOutputEntries, id_pgsql, A >::
-  txid (A::table_name, "\"txid\"", 0);
 
   template <typename A>
   struct pointer_query_columns< ::eOutputEntries, id_pgsql, A >:
@@ -264,12 +247,6 @@ namespace odb
       std::size_t destination_size;
       bool destination_null;
 
-      // txid_
-      //
-      details::buffer txid_value;
-      std::size_t txid_size;
-      bool txid_null;
-
       std::size_t version;
     };
 
@@ -312,7 +289,7 @@ namespace odb
 
     typedef pgsql::query_base query_base_type;
 
-    static const std::size_t column_count = 7UL;
+    static const std::size_t column_count = 6UL;
     static const std::size_t id_column_count = 1UL;
     static const std::size_t inverse_column_count = 0UL;
     static const std::size_t readonly_column_count = 0UL;

@@ -12,11 +12,7 @@ CREATE TABLE "eOutputEntries" (
   "vector" INTEGER NOT NULL,
   "amount" BIGINT NOT NULL,
   "category" TEXT NOT NULL,
-  "destination" TEXT NOT NULL,
-  "txid" TEXT NOT NULL);
-
-CREATE UNIQUE INDEX "eOutputEntries_txid_i"
-  ON "eOutputEntries" ("txid");
+  "destination" TEXT NOT NULL);
 
 CREATE TABLE "schema_version" (
   "name" TEXT NOT NULL PRIMARY KEY,

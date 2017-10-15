@@ -7,13 +7,9 @@
       <column name="amount" type="BIGINT" null="false"/>
       <column name="category" type="TEXT" null="false"/>
       <column name="destination" type="TEXT" null="false"/>
-      <column name="txid" type="TEXT" null="false"/>
       <primary-key auto="true">
         <column name="id"/>
       </primary-key>
-      <index name="eOutputEntries_txid_i" type="UNIQUE">
-        <column name="txid"/>
-      </index>
     </table>
   </model>
 </changelog>

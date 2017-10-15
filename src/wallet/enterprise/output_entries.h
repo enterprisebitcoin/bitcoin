@@ -96,9 +96,6 @@ private:
     std::string category_;
     std::string destination_;
 
-#pragma db unique
-    std::string txid_;
-
 };
 
 #endif //ENTERPRISE_OUTPUT_ENTRIES_H

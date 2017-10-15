@@ -51,7 +51,6 @@ namespace odb
     pgsql::int4_oid,
     pgsql::int8_oid,
     pgsql::text_oid,
-    pgsql::text_oid,
     pgsql::text_oid
   };
 
@@ -67,7 +66,6 @@ namespace odb
     pgsql::int4_oid,
     pgsql::int4_oid,
     pgsql::int8_oid,
-    pgsql::text_oid,
     pgsql::text_oid,
     pgsql::text_oid,
     pgsql::int4_oid
@@ -168,14 +166,6 @@ namespace odb
       grew = true;
     }
 
-    // txid_
-    //
-    if (t[6UL])
-    {
-      i.txid_value.capacity (i.txid_size);
-      grew = true;
-    }
-
     return grew;
   }
 
@@ -237,15 +227,6 @@ namespace odb
     b[n].capacity = i.destination_value.capacity ();
     b[n].size = &i.destination_size;
     b[n].is_null = &i.destination_null;
-    n++;
-
-    // txid_
-    //
-    b[n].type = pgsql::bind::text;
-    b[n].buffer = i.txid_value.data ();
-    b[n].capacity = i.txid_value.capacity ();
-    b[n].size = &i.txid_size;
-    b[n].is_null = &i.txid_null;
     n++;
   }
 
@@ -355,27 +336,6 @@ namespace odb
       grew = grew || (cap != i.destination_value.capacity ());
     }
 
-    // txid_
-    //
-    {
-      ::std::string const& v =
-        o.txid_;
-
-      bool is_null (false);
-      std::size_t size (0);
-      std::size_t cap (i.txid_value.capacity ());
-      pgsql::value_traits<
-          ::std::string,
-          pgsql::id_string >::set_image (
-        i.txid_value,
-        size,
-        is_null,
-        v);
-      i.txid_null = is_null;
-      i.txid_size = size;
-      grew = grew || (cap != i.txid_value.capacity ());
-    }
-
     return grew;
   }
 
@@ -473,21 +433,6 @@ namespace odb
         i.destination_size,
         i.destination_null);
     }
-
-    // txid_
-    //
-    {
-      ::std::string& v =
-        o.txid_;
-
-      pgsql::value_traits<
-          ::std::string,
-          pgsql::id_string >::set_value (
-        v,
-        i.txid_value,
-        i.txid_size,
-        i.txid_null);
-    }
   }
 
   void access::object_traits_impl< ::eOutputEntries, id_pgsql >::
@@ -510,10 +455,9 @@ namespace odb
   "\"vector\", "
   "\"amount\", "
   "\"category\", "
-  "\"destination\", "
-  "\"txid\") "
+  "\"destination\") "
   "VALUES "
-  "(DEFAULT, $1, $2, $3, $4, $5, $6) "
+  "(DEFAULT, $1, $2, $3, $4, $5) "
   "RETURNING \"id\"";
 
   const char access::object_traits_impl< ::eOutputEntries, id_pgsql >::find_statement[] =
@@ -523,8 +467,7 @@ namespace odb
   "\"eOutputEntries\".\"vector\", "
   "\"eOutputEntries\".\"amount\", "
   "\"eOutputEntries\".\"category\", "
-  "\"eOutputEntries\".\"destination\", "
-  "\"eOutputEntries\".\"txid\" "
+  "\"eOutputEntries\".\"destination\" "
   "FROM \"eOutputEntries\" "
   "WHERE \"eOutputEntries\".\"id\"=$1";
 
@@ -535,9 +478,8 @@ namespace odb
   "\"vector\"=$2, "
   "\"amount\"=$3, "
   "\"category\"=$4, "
-  "\"destination\"=$5, "
-  "\"txid\"=$6 "
-  "WHERE \"id\"=$7";
+  "\"destination\"=$5 "
+  "WHERE \"id\"=$6";
 
   const char access::object_traits_impl< ::eOutputEntries, id_pgsql >::erase_statement[] =
   "DELETE FROM \"eOutputEntries\" "
@@ -550,8 +492,7 @@ namespace odb
   "\"eOutputEntries\".\"vector\", "
   "\"eOutputEntries\".\"amount\", "
   "\"eOutputEntries\".\"category\", "
-  "\"eOutputEntries\".\"destination\", "
-  "\"eOutputEntries\".\"txid\" "
+  "\"eOutputEntries\".\"destination\" "
   "FROM \"eOutputEntries\"";
 
   const char access::object_traits_impl< ::eOutputEntries, id_pgsql >::erase_query_statement[] =
