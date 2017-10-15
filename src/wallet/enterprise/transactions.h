@@ -10,7 +10,7 @@
 
 class etransactions {
 public:
-    etransactions(const std::string& txid,
+    etransactions(const std::string &txid,
                   unsigned int time);
 
     const std::string&
