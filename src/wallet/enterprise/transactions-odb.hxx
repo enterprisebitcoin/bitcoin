@@ -115,6 +115,30 @@ namespace odb
 
     static const block_index_type_ block_index;
 
+    // is_trusted
+    //
+    typedef
+    pgsql::query_column<
+      pgsql::value_traits<
+        bool,
+        pgsql::id_boolean >::query_type,
+      pgsql::id_boolean >
+    is_trusted_type_;
+
+    static const is_trusted_type_ is_trusted;
+
+    // size
+    //
+    typedef
+    pgsql::query_column<
+      pgsql::value_traits<
+        unsigned int,
+        pgsql::id_integer >::query_type,
+      pgsql::id_integer >
+    size_type_;
+
+    static const size_type_ size;
+
     // time
     //
     typedef
@@ -126,6 +150,18 @@ namespace odb
     time_type_;
 
     static const time_type_ time;
+
+    // time_received
+    //
+    typedef
+    pgsql::query_column<
+      pgsql::value_traits<
+        ::int64_t,
+        pgsql::id_bigint >::query_type,
+      pgsql::id_bigint >
+    time_received_type_;
+
+    static const time_received_type_ time_received;
 
     // txid
     //
@@ -151,9 +187,24 @@ namespace odb
   block_index (A::table_name, "\"block_index\"", 0);
 
   template <typename A>
+  const typename query_columns< ::etransactions, id_pgsql, A >::is_trusted_type_
+  query_columns< ::etransactions, id_pgsql, A >::
+  is_trusted (A::table_name, "\"is_trusted\"", 0);
+
+  template <typename A>
+  const typename query_columns< ::etransactions, id_pgsql, A >::size_type_
+  query_columns< ::etransactions, id_pgsql, A >::
+  size (A::table_name, "\"size\"", 0);
+
+  template <typename A>
   const typename query_columns< ::etransactions, id_pgsql, A >::time_type_
   query_columns< ::etransactions, id_pgsql, A >::
   time (A::table_name, "\"time\"", 0);
+
+  template <typename A>
+  const typename query_columns< ::etransactions, id_pgsql, A >::time_received_type_
+  query_columns< ::etransactions, id_pgsql, A >::
+  time_received (A::table_name, "\"time_received\"", 0);
 
   template <typename A>
   const typename query_columns< ::etransactions, id_pgsql, A >::txid_type_
@@ -191,10 +242,25 @@ namespace odb
       int block_index_value;
       bool block_index_null;
 
+      // is_trusted_
+      //
+      bool is_trusted_value;
+      bool is_trusted_null;
+
+      // size_
+      //
+      int size_value;
+      bool size_null;
+
       // time_
       //
       long long time_value;
       bool time_null;
+
+      // time_received_
+      //
+      long long time_received_value;
+      bool time_received_null;
 
       // txid_
       //
@@ -244,7 +310,7 @@ namespace odb
 
     typedef pgsql::query_base query_base_type;
 
-    static const std::size_t column_count = 4UL;
+    static const std::size_t column_count = 7UL;
     static const std::size_t id_column_count = 1UL;
     static const std::size_t inverse_column_count = 0UL;
     static const std::size_t readonly_column_count = 0UL;

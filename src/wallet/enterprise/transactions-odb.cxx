@@ -48,6 +48,9 @@ namespace odb
   persist_statement_types[] =
   {
     pgsql::int4_oid,
+    pgsql::bool_oid,
+    pgsql::int4_oid,
+    pgsql::int8_oid,
     pgsql::int8_oid,
     pgsql::text_oid
   };
@@ -62,6 +65,9 @@ namespace odb
   update_statement_types[] =
   {
     pgsql::int4_oid,
+    pgsql::bool_oid,
+    pgsql::int4_oid,
+    pgsql::int8_oid,
     pgsql::int8_oid,
     pgsql::text_oid,
     pgsql::int4_oid
@@ -138,13 +144,25 @@ namespace odb
     //
     t[1UL] = 0;
 
-    // time_
+    // is_trusted_
     //
     t[2UL] = 0;
 
+    // size_
+    //
+    t[3UL] = 0;
+
+    // time_
+    //
+    t[4UL] = 0;
+
+    // time_received_
+    //
+    t[5UL] = 0;
+
     // txid_
     //
-    if (t[3UL])
+    if (t[6UL])
     {
       i.txid_value.capacity (i.txid_size);
       grew = true;
@@ -181,11 +199,32 @@ namespace odb
     b[n].is_null = &i.block_index_null;
     n++;
 
+    // is_trusted_
+    //
+    b[n].type = pgsql::bind::boolean_;
+    b[n].buffer = &i.is_trusted_value;
+    b[n].is_null = &i.is_trusted_null;
+    n++;
+
+    // size_
+    //
+    b[n].type = pgsql::bind::integer;
+    b[n].buffer = &i.size_value;
+    b[n].is_null = &i.size_null;
+    n++;
+
     // time_
     //
     b[n].type = pgsql::bind::bigint;
     b[n].buffer = &i.time_value;
     b[n].is_null = &i.time_null;
+    n++;
+
+    // time_received_
+    //
+    b[n].type = pgsql::bind::bigint;
+    b[n].buffer = &i.time_received_value;
+    b[n].is_null = &i.time_received_null;
     n++;
 
     // txid_
@@ -234,6 +273,34 @@ namespace odb
       i.block_index_null = is_null;
     }
 
+    // is_trusted_
+    //
+    {
+      bool const& v =
+        o.is_trusted_;
+
+      bool is_null (false);
+      pgsql::value_traits<
+          bool,
+          pgsql::id_boolean >::set_image (
+        i.is_trusted_value, is_null, v);
+      i.is_trusted_null = is_null;
+    }
+
+    // size_
+    //
+    {
+      unsigned int const& v =
+        o.size_;
+
+      bool is_null (false);
+      pgsql::value_traits<
+          unsigned int,
+          pgsql::id_integer >::set_image (
+        i.size_value, is_null, v);
+      i.size_null = is_null;
+    }
+
     // time_
     //
     {
@@ -246,6 +313,20 @@ namespace odb
           pgsql::id_bigint >::set_image (
         i.time_value, is_null, v);
       i.time_null = is_null;
+    }
+
+    // time_received_
+    //
+    {
+      ::int64_t const& v =
+        o.time_received_;
+
+      bool is_null (false);
+      pgsql::value_traits<
+          ::int64_t,
+          pgsql::id_bigint >::set_image (
+        i.time_received_value, is_null, v);
+      i.time_received_null = is_null;
     }
 
     // txid_
@@ -309,6 +390,34 @@ namespace odb
         i.block_index_null);
     }
 
+    // is_trusted_
+    //
+    {
+      bool& v =
+        o.is_trusted_;
+
+      pgsql::value_traits<
+          bool,
+          pgsql::id_boolean >::set_value (
+        v,
+        i.is_trusted_value,
+        i.is_trusted_null);
+    }
+
+    // size_
+    //
+    {
+      unsigned int& v =
+        o.size_;
+
+      pgsql::value_traits<
+          unsigned int,
+          pgsql::id_integer >::set_value (
+        v,
+        i.size_value,
+        i.size_null);
+    }
+
     // time_
     //
     {
@@ -321,6 +430,20 @@ namespace odb
         v,
         i.time_value,
         i.time_null);
+    }
+
+    // time_received_
+    //
+    {
+      ::int64_t& v =
+        o.time_received_;
+
+      pgsql::value_traits<
+          ::int64_t,
+          pgsql::id_bigint >::set_value (
+        v,
+        i.time_received_value,
+        i.time_received_null);
     }
 
     // txid_
@@ -356,17 +479,23 @@ namespace odb
   "INSERT INTO \"etransactions\" "
   "(\"id\", "
   "\"block_index\", "
+  "\"is_trusted\", "
+  "\"size\", "
   "\"time\", "
+  "\"time_received\", "
   "\"txid\") "
   "VALUES "
-  "(DEFAULT, $1, $2, $3) "
+  "(DEFAULT, $1, $2, $3, $4, $5, $6) "
   "RETURNING \"id\"";
 
   const char access::object_traits_impl< ::etransactions, id_pgsql >::find_statement[] =
   "SELECT "
   "\"etransactions\".\"id\", "
   "\"etransactions\".\"block_index\", "
+  "\"etransactions\".\"is_trusted\", "
+  "\"etransactions\".\"size\", "
   "\"etransactions\".\"time\", "
+  "\"etransactions\".\"time_received\", "
   "\"etransactions\".\"txid\" "
   "FROM \"etransactions\" "
   "WHERE \"etransactions\".\"id\"=$1";
@@ -375,9 +504,12 @@ namespace odb
   "UPDATE \"etransactions\" "
   "SET "
   "\"block_index\"=$1, "
-  "\"time\"=$2, "
-  "\"txid\"=$3 "
-  "WHERE \"id\"=$4";
+  "\"is_trusted\"=$2, "
+  "\"size\"=$3, "
+  "\"time\"=$4, "
+  "\"time_received\"=$5, "
+  "\"txid\"=$6 "
+  "WHERE \"id\"=$7";
 
   const char access::object_traits_impl< ::etransactions, id_pgsql >::erase_statement[] =
   "DELETE FROM \"etransactions\" "
@@ -387,7 +519,10 @@ namespace odb
   "SELECT "
   "\"etransactions\".\"id\", "
   "\"etransactions\".\"block_index\", "
+  "\"etransactions\".\"is_trusted\", "
+  "\"etransactions\".\"size\", "
   "\"etransactions\".\"time\", "
+  "\"etransactions\".\"time_received\", "
   "\"etransactions\".\"txid\" "
   "FROM \"etransactions\"";
 

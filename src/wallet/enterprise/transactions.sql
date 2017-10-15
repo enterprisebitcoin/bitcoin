@@ -9,7 +9,10 @@ DROP TABLE IF EXISTS "schema_version";
 CREATE TABLE "etransactions" (
   "id" SERIAL NOT NULL PRIMARY KEY,
   "block_index" INTEGER NOT NULL,
+  "is_trusted" BOOLEAN NOT NULL,
+  "size" INTEGER NOT NULL,
   "time" BIGINT NOT NULL,
+  "time_received" BIGINT NOT NULL,
   "txid" TEXT NOT NULL);
 
 CREATE UNIQUE INDEX "etransactions_txid_i"

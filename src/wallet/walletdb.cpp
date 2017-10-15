@@ -69,10 +69,18 @@ bool CWalletDB::WriteTx(const CWalletTx& wtx)
         std::auto_ptr<etransactions> etx (enterprise_database->query_one<etransactions> (query::txid == txid));
         if (etx.get () != 0) {
             etx->block_index (wtx.nIndex);
+            etx->is_trusted (wtx.IsTrusted());
+            etx->size (wtx.tx->GetTotalSize());
             etx->time (wtx.GetTxTime());
+            etx->time_received (wtx.nTimeReceived);
             enterprise_database->update(*etx);
         } else {
-            etransactions new_etx (wtx.nIndex, wtx.GetTxTime(), txid);
+            etransactions new_etx (wtx.nIndex,
+                                   wtx.IsTrusted(),
+                                   wtx.tx->GetTotalSize(),
+                                   wtx.GetTxTime(),
+                                   wtx.nTimeReceived,
+                                   txid);
             enterprise_database->persist(new_etx);
         }
         t.commit();

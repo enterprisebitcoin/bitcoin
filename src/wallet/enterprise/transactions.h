@@ -14,12 +14,18 @@ class etransactions {
 public:
     etransactions(
             const int block_index,
+            const bool is_trusted,
+            const unsigned int size,
             const int64_t time,
+            const int64_t time_received,
             const std::string &txid
     )
             :
             block_index_(block_index),
+            is_trusted_(is_trusted),
+            size_(size),
             time_(time),
+            time_received_(time_received),
             txid_(txid) {
     }
 
@@ -33,6 +39,26 @@ public:
         block_index_ = block_index;
     }
 
+    const bool
+    is_trusted() const {
+        return is_trusted_;
+    }
+
+    void
+    is_trusted(bool is_trusted) {
+        is_trusted_ = is_trusted;
+    }
+
+    const unsigned int
+    size() const {
+        return size_;
+    }
+
+    void
+    size(unsigned int size) {
+        size_ = size;
+    }
+
     const int64_t
     time() const {
         return time_;
@@ -41,6 +67,16 @@ public:
     void
     time(int64_t time) {
         time_ = time;
+    }
+
+    const int64_t
+    time_received() const {
+        return time_received_;
+    }
+
+    void
+    time_received(int64_t time_received) {
+        time_received_ = time_received;
     }
 
     const std::string &
@@ -63,7 +99,10 @@ private:
     unsigned int id_;
 
     int block_index_;
+    bool is_trusted_;
+    unsigned int size_;
     int64_t time_;
+    int64_t time_received_;
 
 #pragma db unique
     std::string txid_;
