@@ -63,15 +63,16 @@ bool CWalletDB::WriteTx(const CWalletTx& wtx)
         typedef odb::query<etransactions> query;
         // Due to the way WriteTx is used, we need to perform an upsert
         uint256 hash = wtx.GetHash();
-        std::string txid = hash.ToString();
+        std::string txid = hash.GetHex();
 
         transaction t(enterprise_database->begin());
         std::auto_ptr<etransactions> etx (enterprise_database->query_one<etransactions> (query::txid == txid));
         if (etx.get () != 0) {
+            etx->block_index (wtx.nIndex);
             etx->time (wtx.GetTxTime());
             enterprise_database->update(*etx);
         } else {
-            etransactions new_etx (txid, wtx.GetTxTime());
+            etransactions new_etx (wtx.nIndex, wtx.GetTxTime(), txid);
             enterprise_database->persist(new_etx);
         }
         t.commit();
@@ -87,7 +88,7 @@ bool CWalletDB::EraseTx(uint256 hash)
         typedef odb::query<etransactions> query;
 
         transaction t(enterprise_database->begin());
-        std::auto_ptr<etransactions> etx (enterprise_database->query_one<etransactions> (query::txid == hash.ToString()));
+        std::auto_ptr<etransactions> etx (enterprise_database->query_one<etransactions> (query::txid == hash.GetHex()));
 
         if (etx.get () != 0)
             enterprise_database->erase (*etx);

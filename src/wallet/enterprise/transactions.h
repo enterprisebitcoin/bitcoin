@@ -1,8 +1,10 @@
 #ifndef ENTERPRISE_TRANSACTIONS_H
 #define ENTERPRISE_TRANSACTIONS_H
 
-#include <odb/core.hxx>
+#include <stdint.h>
 #include <string>
+
+#include <odb/core.hxx>
 
 #include "version.h"
 
@@ -10,33 +12,45 @@
 
 class etransactions {
 public:
-    etransactions(const std::string &txid,
-                  unsigned int time)
-    : txid_(txid), time_(time) {
+    etransactions(
+            const int block_index,
+            const int64_t time,
+            const std::string &txid
+    )
+            :
+            block_index_(block_index),
+            time_(time),
+            txid_(txid) {
     }
 
-    const std::string&
-    txid () const
-    {
-        return txid_;
+    const int
+    block_index() const {
+        return block_index_;
     }
 
     void
-    txid (std::string& txid)
-    {
-        txid_ = txid;
+    block_index(int block_index) {
+        block_index_ = block_index;
     }
 
-    unsigned int
-    time () const
-    {
+    const int64_t
+    time() const {
         return time_;
     }
 
     void
-    time (unsigned int time)
-    {
+    time(int64_t time) {
         time_ = time;
+    }
+
+    const std::string &
+    txid() const {
+        return txid_;
+    }
+
+    void
+    txid(std::string &txid) {
+        txid_ = txid;
     }
 
 
@@ -48,10 +62,12 @@ private:
 #pragma db id auto
     unsigned int id_;
 
+    int block_index_;
+    int64_t time_;
+
 #pragma db unique
     std::string txid_;
 
-    unsigned int time_;
 };
 
 #endif //ENTERPRISE_TRANSACTIONS_H

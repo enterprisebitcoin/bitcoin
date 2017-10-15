@@ -103,6 +103,30 @@ namespace odb
 
     static const id_type_ id;
 
+    // block_index
+    //
+    typedef
+    pgsql::query_column<
+      pgsql::value_traits<
+        int,
+        pgsql::id_integer >::query_type,
+      pgsql::id_integer >
+    block_index_type_;
+
+    static const block_index_type_ block_index;
+
+    // time
+    //
+    typedef
+    pgsql::query_column<
+      pgsql::value_traits<
+        ::int64_t,
+        pgsql::id_bigint >::query_type,
+      pgsql::id_bigint >
+    time_type_;
+
+    static const time_type_ time;
+
     // txid
     //
     typedef
@@ -114,18 +138,6 @@ namespace odb
     txid_type_;
 
     static const txid_type_ txid;
-
-    // time
-    //
-    typedef
-    pgsql::query_column<
-      pgsql::value_traits<
-        unsigned int,
-        pgsql::id_integer >::query_type,
-      pgsql::id_integer >
-    time_type_;
-
-    static const time_type_ time;
   };
 
   template <typename A>
@@ -134,14 +146,19 @@ namespace odb
   id (A::table_name, "\"id\"", 0);
 
   template <typename A>
-  const typename query_columns< ::etransactions, id_pgsql, A >::txid_type_
+  const typename query_columns< ::etransactions, id_pgsql, A >::block_index_type_
   query_columns< ::etransactions, id_pgsql, A >::
-  txid (A::table_name, "\"txid\"", 0);
+  block_index (A::table_name, "\"block_index\"", 0);
 
   template <typename A>
   const typename query_columns< ::etransactions, id_pgsql, A >::time_type_
   query_columns< ::etransactions, id_pgsql, A >::
   time (A::table_name, "\"time\"", 0);
+
+  template <typename A>
+  const typename query_columns< ::etransactions, id_pgsql, A >::txid_type_
+  query_columns< ::etransactions, id_pgsql, A >::
+  txid (A::table_name, "\"txid\"", 0);
 
   template <typename A>
   struct pointer_query_columns< ::etransactions, id_pgsql, A >:
@@ -169,16 +186,21 @@ namespace odb
       int id_value;
       bool id_null;
 
+      // block_index_
+      //
+      int block_index_value;
+      bool block_index_null;
+
+      // time_
+      //
+      long long time_value;
+      bool time_null;
+
       // txid_
       //
       details::buffer txid_value;
       std::size_t txid_size;
       bool txid_null;
-
-      // time_
-      //
-      int time_value;
-      bool time_null;
 
       std::size_t version;
     };
@@ -222,7 +244,7 @@ namespace odb
 
     typedef pgsql::query_base query_base_type;
 
-    static const std::size_t column_count = 3UL;
+    static const std::size_t column_count = 4UL;
     static const std::size_t id_column_count = 1UL;
     static const std::size_t inverse_column_count = 0UL;
     static const std::size_t readonly_column_count = 0UL;

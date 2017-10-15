@@ -8,8 +8,9 @@ DROP TABLE IF EXISTS "schema_version";
 
 CREATE TABLE "etransactions" (
   "id" SERIAL NOT NULL PRIMARY KEY,
-  "txid" TEXT NOT NULL,
-  "time" INTEGER NOT NULL);
+  "block_index" INTEGER NOT NULL,
+  "time" BIGINT NOT NULL,
+  "txid" TEXT NOT NULL);
 
 CREATE UNIQUE INDEX "etransactions_txid_i"
   ON "etransactions" ("txid");
