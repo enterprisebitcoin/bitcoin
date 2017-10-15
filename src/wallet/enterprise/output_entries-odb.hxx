@@ -108,7 +108,7 @@ namespace odb
     typedef
     pgsql::query_column<
       pgsql::value_traits<
-        int,
+        unsigned int,
         pgsql::id_integer >::query_type,
       pgsql::id_integer >
     etransaction_id_type_;
@@ -120,7 +120,7 @@ namespace odb
     typedef
     pgsql::query_column<
       pgsql::value_traits<
-        int,
+        unsigned int,
         pgsql::id_integer >::query_type,
       pgsql::id_integer >
     vector_type_;

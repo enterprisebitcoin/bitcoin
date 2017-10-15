@@ -13,8 +13,8 @@
 class eOutputEntries {
 public:
     eOutputEntries(
-            const int etransaction_id,
-            const int vector,
+            const unsigned int etransaction_id,
+            const unsigned int vector,
             const int64_t amount,
             const std::string category,
             const std::string destination
@@ -27,7 +27,7 @@ public:
             destination_(destination) {
     }
 
-    const int
+    const unsigned int
     etransaction_id() const {
         return etransaction_id_;
     }
@@ -37,13 +37,13 @@ public:
         etransaction_id_ = etransaction_id;
     }
 
-    const int
+    const unsigned int
     vector() const {
         return vector_;
     }
 
     void
-    vector(int vector) {
+    vector(unsigned int vector) {
         vector_ = vector;
     }
 
@@ -63,7 +63,7 @@ public:
     }
 
     void
-    category(std::string &category) {
+    category(std::string category) {
         category_ = category;
     }
 
@@ -73,7 +73,7 @@ public:
     }
 
     void
-    destination(std::string &destination) {
+    destination(std::string destination) {
         destination_ = destination;
     }
 
@@ -90,8 +90,8 @@ private:
 #pragma db id auto
     unsigned int id_;
 
-    int etransaction_id_;
-    int vector_;
+    unsigned int etransaction_id_;
+    unsigned int vector_;
     int64_t amount_;
     std::string category_;
     std::string destination_;

@@ -274,12 +274,12 @@ namespace odb
     // etransaction_id_
     //
     {
-      int const& v =
+      unsigned int const& v =
         o.etransaction_id_;
 
       bool is_null (false);
       pgsql::value_traits<
-          int,
+          unsigned int,
           pgsql::id_integer >::set_image (
         i.etransaction_id_value, is_null, v);
       i.etransaction_id_null = is_null;
@@ -288,12 +288,12 @@ namespace odb
     // vector_
     //
     {
-      int const& v =
+      unsigned int const& v =
         o.vector_;
 
       bool is_null (false);
       pgsql::value_traits<
-          int,
+          unsigned int,
           pgsql::id_integer >::set_image (
         i.vector_value, is_null, v);
       i.vector_null = is_null;
@@ -405,11 +405,11 @@ namespace odb
     // etransaction_id_
     //
     {
-      int& v =
+      unsigned int& v =
         o.etransaction_id_;
 
       pgsql::value_traits<
-          int,
+          unsigned int,
           pgsql::id_integer >::set_value (
         v,
         i.etransaction_id_value,
@@ -419,11 +419,11 @@ namespace odb
     // vector_
     //
     {
-      int& v =
+      unsigned int& v =
         o.vector_;
 
       pgsql::value_traits<
-          int,
+          unsigned int,
           pgsql::id_integer >::set_value (
         v,
         i.vector_value,
