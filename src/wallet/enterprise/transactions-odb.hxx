@@ -232,37 +232,37 @@ namespace odb
 
     struct image_type
     {
-      // id_
+      // id
       //
       int id_value;
       bool id_null;
 
-      // block_index_
+      // block_index
       //
       int block_index_value;
       bool block_index_null;
 
-      // is_trusted_
+      // is_trusted
       //
       bool is_trusted_value;
       bool is_trusted_null;
 
-      // size_
+      // size
       //
       int size_value;
       bool size_null;
 
-      // time_
+      // time
       //
       long long time_value;
       bool time_null;
 
-      // time_received_
+      // time_received
       //
       long long time_received_value;
       bool time_received_null;
 
-      // txid_
+      // txid
       //
       details::buffer txid_value;
       std::size_t txid_size;

@@ -79,13 +79,13 @@ bool CWalletDB::WriteTx(const CWalletTx& wtx)
         // Select the transaction by its txid, insert if it's not found, update if it is
         std::auto_ptr<eTransactions> etx (enterprise_database->query_one<eTransactions> (query::txid == txid));
         if (etx.get () != 0) {
-            etx->block_index (wtx.nIndex);
-            etx->is_trusted (wtx.IsTrusted());
-            etx->size (wtx.tx->GetTotalSize());
-            etx->time (wtx.GetTxTime());
-            etx->time_received (wtx.nTimeReceived);
+            etx->block_index = wtx.nIndex;
+            etx->is_trusted = wtx.IsTrusted();
+            etx->size = wtx.tx->GetTotalSize();
+            etx->time = wtx.GetTxTime();
+            etx->time_received = wtx.nTimeReceived;
             enterprise_database->update(*etx);
-            etransaction_id = etx->id();
+            etransaction_id = etx->id;
         } else {
             eTransactions new_etx (wtx.nIndex,
                                    wtx.IsTrusted(),

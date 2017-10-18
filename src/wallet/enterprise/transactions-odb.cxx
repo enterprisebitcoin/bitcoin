@@ -136,31 +136,31 @@ namespace odb
 
     bool grew (false);
 
-    // id_
+    // id
     //
     t[0UL] = 0;
 
-    // block_index_
+    // block_index
     //
     t[1UL] = 0;
 
-    // is_trusted_
+    // is_trusted
     //
     t[2UL] = 0;
 
-    // size_
+    // size
     //
     t[3UL] = 0;
 
-    // time_
+    // time
     //
     t[4UL] = 0;
 
-    // time_received_
+    // time_received
     //
     t[5UL] = 0;
 
-    // txid_
+    // txid
     //
     if (t[6UL])
     {
@@ -182,7 +182,7 @@ namespace odb
 
     std::size_t n (0);
 
-    // id_
+    // id
     //
     if (sk != statement_insert && sk != statement_update)
     {
@@ -192,42 +192,42 @@ namespace odb
       n++;
     }
 
-    // block_index_
+    // block_index
     //
     b[n].type = pgsql::bind::integer;
     b[n].buffer = &i.block_index_value;
     b[n].is_null = &i.block_index_null;
     n++;
 
-    // is_trusted_
+    // is_trusted
     //
     b[n].type = pgsql::bind::boolean_;
     b[n].buffer = &i.is_trusted_value;
     b[n].is_null = &i.is_trusted_null;
     n++;
 
-    // size_
+    // size
     //
     b[n].type = pgsql::bind::integer;
     b[n].buffer = &i.size_value;
     b[n].is_null = &i.size_null;
     n++;
 
-    // time_
+    // time
     //
     b[n].type = pgsql::bind::bigint;
     b[n].buffer = &i.time_value;
     b[n].is_null = &i.time_null;
     n++;
 
-    // time_received_
+    // time_received
     //
     b[n].type = pgsql::bind::bigint;
     b[n].buffer = &i.time_received_value;
     b[n].is_null = &i.time_received_null;
     n++;
 
-    // txid_
+    // txid
     //
     b[n].type = pgsql::bind::text;
     b[n].buffer = i.txid_value.data ();
@@ -259,11 +259,11 @@ namespace odb
 
     bool grew (false);
 
-    // block_index_
+    // block_index
     //
     {
       int const& v =
-        o.block_index_;
+        o.block_index;
 
       bool is_null (false);
       pgsql::value_traits<
@@ -273,11 +273,11 @@ namespace odb
       i.block_index_null = is_null;
     }
 
-    // is_trusted_
+    // is_trusted
     //
     {
       bool const& v =
-        o.is_trusted_;
+        o.is_trusted;
 
       bool is_null (false);
       pgsql::value_traits<
@@ -287,11 +287,11 @@ namespace odb
       i.is_trusted_null = is_null;
     }
 
-    // size_
+    // size
     //
     {
       unsigned int const& v =
-        o.size_;
+        o.size;
 
       bool is_null (false);
       pgsql::value_traits<
@@ -301,11 +301,11 @@ namespace odb
       i.size_null = is_null;
     }
 
-    // time_
+    // time
     //
     {
       ::int64_t const& v =
-        o.time_;
+        o.time;
 
       bool is_null (false);
       pgsql::value_traits<
@@ -315,11 +315,11 @@ namespace odb
       i.time_null = is_null;
     }
 
-    // time_received_
+    // time_received
     //
     {
       ::int64_t const& v =
-        o.time_received_;
+        o.time_received;
 
       bool is_null (false);
       pgsql::value_traits<
@@ -329,11 +329,11 @@ namespace odb
       i.time_received_null = is_null;
     }
 
-    // txid_
+    // txid
     //
     {
       ::std::string const& v =
-        o.txid_;
+        o.txid;
 
       bool is_null (false);
       std::size_t size (0);
@@ -362,11 +362,11 @@ namespace odb
     ODB_POTENTIALLY_UNUSED (i);
     ODB_POTENTIALLY_UNUSED (db);
 
-    // id_
+    // id
     //
     {
       unsigned int& v =
-        o.id_;
+        o.id;
 
       pgsql::value_traits<
           unsigned int,
@@ -376,11 +376,11 @@ namespace odb
         i.id_null);
     }
 
-    // block_index_
+    // block_index
     //
     {
       int& v =
-        o.block_index_;
+        o.block_index;
 
       pgsql::value_traits<
           int,
@@ -390,11 +390,11 @@ namespace odb
         i.block_index_null);
     }
 
-    // is_trusted_
+    // is_trusted
     //
     {
       bool& v =
-        o.is_trusted_;
+        o.is_trusted;
 
       pgsql::value_traits<
           bool,
@@ -404,11 +404,11 @@ namespace odb
         i.is_trusted_null);
     }
 
-    // size_
+    // size
     //
     {
       unsigned int& v =
-        o.size_;
+        o.size;
 
       pgsql::value_traits<
           unsigned int,
@@ -418,11 +418,11 @@ namespace odb
         i.size_null);
     }
 
-    // time_
+    // time
     //
     {
       ::int64_t& v =
-        o.time_;
+        o.time;
 
       pgsql::value_traits<
           ::int64_t,
@@ -432,11 +432,11 @@ namespace odb
         i.time_null);
     }
 
-    // time_received_
+    // time_received
     //
     {
       ::int64_t& v =
-        o.time_received_;
+        o.time_received;
 
       pgsql::value_traits<
           ::int64_t,
@@ -446,11 +446,11 @@ namespace odb
         i.time_received_null);
     }
 
-    // txid_
+    // txid
     //
     {
       ::std::string& v =
-        o.txid_;
+        o.txid;
 
       pgsql::value_traits<
           ::std::string,
@@ -577,7 +577,7 @@ namespace odb
     if (!st.execute ())
       throw object_already_persistent ();
 
-    obj.id_ = id (sts.id_image ());
+    obj.id = id (sts.id_image ());
 
     callback (db,
               static_cast<const object_type&> (obj),
@@ -600,7 +600,7 @@ namespace odb
       conn.statement_cache ().find_object<object_type> ());
 
     const id_type& id (
-      obj.id_);
+      obj.id);
     id_image_type& idi (sts.id_image ());
     init (idi, id);
 
@@ -776,7 +776,7 @@ namespace odb
     statements_type::auto_lock l (sts);
 
     const id_type& id  (
-      obj.id_);
+      obj.id);
 
     if (!find_ (sts, &id))
       return false;
