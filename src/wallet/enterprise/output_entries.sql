@@ -7,12 +7,12 @@ DROP TABLE IF EXISTS "eOutputEntries" CASCADE;
 DROP TABLE IF EXISTS "schema_version";
 
 CREATE TABLE "eOutputEntries" (
-  "id" SERIAL NOT NULL PRIMARY KEY,
   "etransaction_id" INTEGER NOT NULL,
   "vector" INTEGER NOT NULL,
   "amount" BIGINT NOT NULL,
   "category" TEXT NOT NULL,
-  "destination" TEXT NOT NULL);
+  "destination" TEXT NOT NULL,
+  "id" SERIAL NOT NULL PRIMARY KEY);
 
 CREATE TABLE "schema_version" (
   "name" TEXT NOT NULL PRIMARY KEY,

@@ -134,37 +134,37 @@ namespace odb
 
     bool grew (false);
 
-    // id_
+    // etransaction_id
     //
     t[0UL] = 0;
 
-    // etransaction_id_
+    // vector
     //
     t[1UL] = 0;
 
-    // vector_
+    // amount
     //
     t[2UL] = 0;
 
-    // amount_
+    // category
     //
-    t[3UL] = 0;
-
-    // category_
-    //
-    if (t[4UL])
+    if (t[3UL])
     {
       i.category_value.capacity (i.category_size);
       grew = true;
     }
 
-    // destination_
+    // destination
     //
-    if (t[5UL])
+    if (t[4UL])
     {
       i.destination_value.capacity (i.destination_size);
       grew = true;
     }
+
+    // id
+    //
+    t[5UL] = 0;
 
     return grew;
   }
@@ -180,38 +180,28 @@ namespace odb
 
     std::size_t n (0);
 
-    // id_
-    //
-    if (sk != statement_insert && sk != statement_update)
-    {
-      b[n].type = pgsql::bind::integer;
-      b[n].buffer = &i.id_value;
-      b[n].is_null = &i.id_null;
-      n++;
-    }
-
-    // etransaction_id_
+    // etransaction_id
     //
     b[n].type = pgsql::bind::integer;
     b[n].buffer = &i.etransaction_id_value;
     b[n].is_null = &i.etransaction_id_null;
     n++;
 
-    // vector_
+    // vector
     //
     b[n].type = pgsql::bind::integer;
     b[n].buffer = &i.vector_value;
     b[n].is_null = &i.vector_null;
     n++;
 
-    // amount_
+    // amount
     //
     b[n].type = pgsql::bind::bigint;
     b[n].buffer = &i.amount_value;
     b[n].is_null = &i.amount_null;
     n++;
 
-    // category_
+    // category
     //
     b[n].type = pgsql::bind::text;
     b[n].buffer = i.category_value.data ();
@@ -220,7 +210,7 @@ namespace odb
     b[n].is_null = &i.category_null;
     n++;
 
-    // destination_
+    // destination
     //
     b[n].type = pgsql::bind::text;
     b[n].buffer = i.destination_value.data ();
@@ -228,6 +218,16 @@ namespace odb
     b[n].size = &i.destination_size;
     b[n].is_null = &i.destination_null;
     n++;
+
+    // id
+    //
+    if (sk != statement_insert && sk != statement_update)
+    {
+      b[n].type = pgsql::bind::integer;
+      b[n].buffer = &i.id_value;
+      b[n].is_null = &i.id_null;
+      n++;
+    }
   }
 
   void access::object_traits_impl< ::eOutputEntries, id_pgsql >::
@@ -252,11 +252,11 @@ namespace odb
 
     bool grew (false);
 
-    // etransaction_id_
+    // etransaction_id
     //
     {
       unsigned int const& v =
-        o.etransaction_id_;
+        o.etransaction_id;
 
       bool is_null (false);
       pgsql::value_traits<
@@ -266,11 +266,11 @@ namespace odb
       i.etransaction_id_null = is_null;
     }
 
-    // vector_
+    // vector
     //
     {
       unsigned int const& v =
-        o.vector_;
+        o.vector;
 
       bool is_null (false);
       pgsql::value_traits<
@@ -280,11 +280,11 @@ namespace odb
       i.vector_null = is_null;
     }
 
-    // amount_
+    // amount
     //
     {
       ::int64_t const& v =
-        o.amount_;
+        o.amount;
 
       bool is_null (false);
       pgsql::value_traits<
@@ -294,11 +294,11 @@ namespace odb
       i.amount_null = is_null;
     }
 
-    // category_
+    // category
     //
     {
       ::std::string const& v =
-        o.category_;
+        o.category;
 
       bool is_null (false);
       std::size_t size (0);
@@ -315,11 +315,11 @@ namespace odb
       grew = grew || (cap != i.category_value.capacity ());
     }
 
-    // destination_
+    // destination
     //
     {
       ::std::string const& v =
-        o.destination_;
+        o.destination;
 
       bool is_null (false);
       std::size_t size (0);
@@ -348,25 +348,11 @@ namespace odb
     ODB_POTENTIALLY_UNUSED (i);
     ODB_POTENTIALLY_UNUSED (db);
 
-    // id_
+    // etransaction_id
     //
     {
       unsigned int& v =
-        o.id_;
-
-      pgsql::value_traits<
-          unsigned int,
-          pgsql::id_integer >::set_value (
-        v,
-        i.id_value,
-        i.id_null);
-    }
-
-    // etransaction_id_
-    //
-    {
-      unsigned int& v =
-        o.etransaction_id_;
+        o.etransaction_id;
 
       pgsql::value_traits<
           unsigned int,
@@ -376,11 +362,11 @@ namespace odb
         i.etransaction_id_null);
     }
 
-    // vector_
+    // vector
     //
     {
       unsigned int& v =
-        o.vector_;
+        o.vector;
 
       pgsql::value_traits<
           unsigned int,
@@ -390,11 +376,11 @@ namespace odb
         i.vector_null);
     }
 
-    // amount_
+    // amount
     //
     {
       ::int64_t& v =
-        o.amount_;
+        o.amount;
 
       pgsql::value_traits<
           ::int64_t,
@@ -404,11 +390,11 @@ namespace odb
         i.amount_null);
     }
 
-    // category_
+    // category
     //
     {
       ::std::string& v =
-        o.category_;
+        o.category;
 
       pgsql::value_traits<
           ::std::string,
@@ -419,11 +405,11 @@ namespace odb
         i.category_null);
     }
 
-    // destination_
+    // destination
     //
     {
       ::std::string& v =
-        o.destination_;
+        o.destination;
 
       pgsql::value_traits<
           ::std::string,
@@ -432,6 +418,20 @@ namespace odb
         i.destination_value,
         i.destination_size,
         i.destination_null);
+    }
+
+    // id
+    //
+    {
+      unsigned int& v =
+        o.id;
+
+      pgsql::value_traits<
+          unsigned int,
+          pgsql::id_integer >::set_value (
+        v,
+        i.id_value,
+        i.id_null);
     }
   }
 
@@ -450,24 +450,24 @@ namespace odb
 
   const char access::object_traits_impl< ::eOutputEntries, id_pgsql >::persist_statement[] =
   "INSERT INTO \"eOutputEntries\" "
-  "(\"id\", "
-  "\"etransaction_id\", "
+  "(\"etransaction_id\", "
   "\"vector\", "
   "\"amount\", "
   "\"category\", "
-  "\"destination\") "
+  "\"destination\", "
+  "\"id\") "
   "VALUES "
-  "(DEFAULT, $1, $2, $3, $4, $5) "
+  "($1, $2, $3, $4, $5, DEFAULT) "
   "RETURNING \"id\"";
 
   const char access::object_traits_impl< ::eOutputEntries, id_pgsql >::find_statement[] =
   "SELECT "
-  "\"eOutputEntries\".\"id\", "
   "\"eOutputEntries\".\"etransaction_id\", "
   "\"eOutputEntries\".\"vector\", "
   "\"eOutputEntries\".\"amount\", "
   "\"eOutputEntries\".\"category\", "
-  "\"eOutputEntries\".\"destination\" "
+  "\"eOutputEntries\".\"destination\", "
+  "\"eOutputEntries\".\"id\" "
   "FROM \"eOutputEntries\" "
   "WHERE \"eOutputEntries\".\"id\"=$1";
 
@@ -487,12 +487,12 @@ namespace odb
 
   const char access::object_traits_impl< ::eOutputEntries, id_pgsql >::query_statement[] =
   "SELECT "
-  "\"eOutputEntries\".\"id\", "
   "\"eOutputEntries\".\"etransaction_id\", "
   "\"eOutputEntries\".\"vector\", "
   "\"eOutputEntries\".\"amount\", "
   "\"eOutputEntries\".\"category\", "
-  "\"eOutputEntries\".\"destination\" "
+  "\"eOutputEntries\".\"destination\", "
+  "\"eOutputEntries\".\"id\" "
   "FROM \"eOutputEntries\"";
 
   const char access::object_traits_impl< ::eOutputEntries, id_pgsql >::erase_query_statement[] =
@@ -546,7 +546,7 @@ namespace odb
     if (!st.execute ())
       throw object_already_persistent ();
 
-    obj.id_ = id (sts.id_image ());
+    obj.id = id (sts.id_image ());
 
     callback (db,
               static_cast<const object_type&> (obj),
@@ -569,7 +569,7 @@ namespace odb
       conn.statement_cache ().find_object<object_type> ());
 
     const id_type& id (
-      obj.id_);
+      obj.id);
     id_image_type& idi (sts.id_image ());
     init (idi, id);
 
@@ -745,7 +745,7 @@ namespace odb
     statements_type::auto_lock l (sts);
 
     const id_type& id  (
-      obj.id_);
+      obj.id);
 
     if (!find_ (sts, &id))
       return false;

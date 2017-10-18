@@ -91,18 +91,6 @@ namespace odb
   template <typename A>
   struct query_columns< ::eOutputEntries, id_pgsql, A >
   {
-    // id
-    //
-    typedef
-    pgsql::query_column<
-      pgsql::value_traits<
-        unsigned int,
-        pgsql::id_integer >::query_type,
-      pgsql::id_integer >
-    id_type_;
-
-    static const id_type_ id;
-
     // etransaction_id
     //
     typedef
@@ -162,12 +150,19 @@ namespace odb
     destination_type_;
 
     static const destination_type_ destination;
-  };
 
-  template <typename A>
-  const typename query_columns< ::eOutputEntries, id_pgsql, A >::id_type_
-  query_columns< ::eOutputEntries, id_pgsql, A >::
-  id (A::table_name, "\"id\"", 0);
+    // id
+    //
+    typedef
+    pgsql::query_column<
+      pgsql::value_traits<
+        unsigned int,
+        pgsql::id_integer >::query_type,
+      pgsql::id_integer >
+    id_type_;
+
+    static const id_type_ id;
+  };
 
   template <typename A>
   const typename query_columns< ::eOutputEntries, id_pgsql, A >::etransaction_id_type_
@@ -195,6 +190,11 @@ namespace odb
   destination (A::table_name, "\"destination\"", 0);
 
   template <typename A>
+  const typename query_columns< ::eOutputEntries, id_pgsql, A >::id_type_
+  query_columns< ::eOutputEntries, id_pgsql, A >::
+  id (A::table_name, "\"id\"", 0);
+
+  template <typename A>
   struct pointer_query_columns< ::eOutputEntries, id_pgsql, A >:
     query_columns< ::eOutputEntries, id_pgsql, A >
   {
@@ -215,37 +215,37 @@ namespace odb
 
     struct image_type
     {
-      // id_
-      //
-      int id_value;
-      bool id_null;
-
-      // etransaction_id_
+      // etransaction_id
       //
       int etransaction_id_value;
       bool etransaction_id_null;
 
-      // vector_
+      // vector
       //
       int vector_value;
       bool vector_null;
 
-      // amount_
+      // amount
       //
       long long amount_value;
       bool amount_null;
 
-      // category_
+      // category
       //
       details::buffer category_value;
       std::size_t category_size;
       bool category_null;
 
-      // destination_
+      // destination
       //
       details::buffer destination_value;
       std::size_t destination_size;
       bool destination_null;
+
+      // id
+      //
+      int id_value;
+      bool id_null;
 
       std::size_t version;
     };

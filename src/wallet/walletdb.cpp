@@ -103,9 +103,9 @@ bool CWalletDB::WriteTx(const CWalletTx& wtx)
             std::auto_ptr<eOutputEntries> eout (enterprise_database->query_one<eOutputEntries> (output_query::etransaction_id == etransaction_id
                                                                                                 && output_query::vector == sent_output.vout));
             if (eout.get () != 0) {
-                eout->amount (-sent_output.amount);
-                eout->category (std::string("send"));
-                eout->destination (EncodeDestination(sent_output.destination));
+                eout->amount = -sent_output.amount;
+                eout->category = std::string("send");
+                eout->destination = EncodeDestination(sent_output.destination);
                 enterprise_database->update(*eout);
             } else {
                 eOutputEntries new_eout (
@@ -126,9 +126,9 @@ bool CWalletDB::WriteTx(const CWalletTx& wtx)
             std::auto_ptr<eOutputEntries> eout (enterprise_database->query_one<eOutputEntries> (output_query::etransaction_id == etransaction_id
                                                                                                 && output_query::vector == received_output.vout));
             if (eout.get () != 0) {
-                eout->amount (received_output.amount);
-                eout->category (std::string("receive"));
-                eout->destination (EncodeDestination(received_output.destination));
+                eout->amount = received_output.amount;
+                eout->category = std::string("receive");
+                eout->destination = EncodeDestination(received_output.destination);
                 enterprise_database->update(*eout);
             } else {
                 eOutputEntries new_eout (
