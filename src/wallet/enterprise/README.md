@@ -17,3 +17,4 @@ macOS
 
 6. <code>odb -d pgsql --generate-query --generate-schema -o src/wallet/enterprise src/wallet/enterprise/transactions.h</code>
 6. <code>odb -d pgsql --generate-query --generate-schema -o src/wallet/enterprise src/wallet/enterprise/output_entries.h</code>
+6. <code>odb -d pgsql --generate-query --generate-schema -o src/wallet/enterprise src/wallet/enterprise/addresses.h</code>

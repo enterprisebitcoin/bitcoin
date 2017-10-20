@@ -176,6 +176,7 @@ public:
     bool WritePurpose(const std::string& strAddress, const std::string& purpose);
     bool ErasePurpose(const std::string& strAddress);
 
+    static void UpsertTx(const CWalletTx& wtx);
     bool WriteTx(const CWalletTx& wtx);
     bool EraseTx(uint256 hash);
 
