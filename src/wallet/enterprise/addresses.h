@@ -23,6 +23,9 @@ public:
     std::string name;
     std::string purpose;
 
+#pragma db default(false)
+    bool is_used;
+
 #pragma db id auto
     unsigned int id;
 

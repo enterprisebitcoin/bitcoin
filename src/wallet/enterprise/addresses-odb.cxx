@@ -49,6 +49,7 @@ namespace odb
   {
     pgsql::text_oid,
     pgsql::text_oid,
+    pgsql::bool_oid,
     pgsql::text_oid
   };
 
@@ -63,6 +64,7 @@ namespace odb
   {
     pgsql::text_oid,
     pgsql::text_oid,
+    pgsql::bool_oid,
     pgsql::text_oid,
     pgsql::int4_oid
   };
@@ -146,13 +148,17 @@ namespace odb
       grew = true;
     }
 
-    // id
+    // is_used
     //
     t[2UL] = 0;
 
+    // id
+    //
+    t[3UL] = 0;
+
     // address
     //
-    if (t[3UL])
+    if (t[4UL])
     {
       i.address_value.capacity (i.address_size);
       grew = true;
@@ -188,6 +194,13 @@ namespace odb
     b[n].capacity = i.purpose_value.capacity ();
     b[n].size = &i.purpose_size;
     b[n].is_null = &i.purpose_null;
+    n++;
+
+    // is_used
+    //
+    b[n].type = pgsql::bind::boolean_;
+    b[n].buffer = &i.is_used_value;
+    b[n].is_null = &i.is_used_null;
     n++;
 
     // id
@@ -274,6 +287,20 @@ namespace odb
       grew = grew || (cap != i.purpose_value.capacity ());
     }
 
+    // is_used
+    //
+    {
+      bool const& v =
+        o.is_used;
+
+      bool is_null (false);
+      pgsql::value_traits<
+          bool,
+          pgsql::id_boolean >::set_image (
+        i.is_used_value, is_null, v);
+      i.is_used_null = is_null;
+    }
+
     // address
     //
     {
@@ -337,6 +364,20 @@ namespace odb
         i.purpose_null);
     }
 
+    // is_used
+    //
+    {
+      bool& v =
+        o.is_used;
+
+      pgsql::value_traits<
+          bool,
+          pgsql::id_boolean >::set_value (
+        v,
+        i.is_used_value,
+        i.is_used_null);
+    }
+
     // id
     //
     {
@@ -384,16 +425,18 @@ namespace odb
   "INSERT INTO \"eAddresses\" "
   "(\"name\", "
   "\"purpose\", "
+  "\"is_used\", "
   "\"id\", "
   "\"address\") "
   "VALUES "
-  "($1, $2, DEFAULT, $3) "
+  "($1, $2, $3, DEFAULT, $4) "
   "RETURNING \"id\"";
 
   const char access::object_traits_impl< ::eAddresses, id_pgsql >::find_statement[] =
   "SELECT "
   "\"eAddresses\".\"name\", "
   "\"eAddresses\".\"purpose\", "
+  "\"eAddresses\".\"is_used\", "
   "\"eAddresses\".\"id\", "
   "\"eAddresses\".\"address\" "
   "FROM \"eAddresses\" "
@@ -404,8 +447,9 @@ namespace odb
   "SET "
   "\"name\"=$1, "
   "\"purpose\"=$2, "
-  "\"address\"=$3 "
-  "WHERE \"id\"=$4";
+  "\"is_used\"=$3, "
+  "\"address\"=$4 "
+  "WHERE \"id\"=$5";
 
   const char access::object_traits_impl< ::eAddresses, id_pgsql >::erase_statement[] =
   "DELETE FROM \"eAddresses\" "
@@ -415,6 +459,7 @@ namespace odb
   "SELECT "
   "\"eAddresses\".\"name\", "
   "\"eAddresses\".\"purpose\", "
+  "\"eAddresses\".\"is_used\", "
   "\"eAddresses\".\"id\", "
   "\"eAddresses\".\"address\" "
   "FROM \"eAddresses\"";
