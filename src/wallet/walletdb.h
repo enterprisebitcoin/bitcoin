@@ -170,6 +170,7 @@ public:
     CWalletDB(const CWalletDB&) = delete;
     CWalletDB& operator=(const CWalletDB&) = delete;
 
+    void UpdateAddress(const std::string& address, const std::string& name, const std::string& purpose);
     bool WriteName(const std::string& strAddress, const std::string& strName);
     bool EraseName(const std::string& strAddress);
 
