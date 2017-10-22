@@ -3,6 +3,7 @@
     <table name="eAddresses" kind="object">
       <column name="name" type="TEXT" null="false"/>
       <column name="purpose" type="TEXT" null="false"/>
+      <column name="time" type="BIGINT" null="false"/>
       <column name="is_used" type="BOOLEAN" null="false" default="FALSE"/>
       <column name="id" type="INTEGER" null="false"/>
       <column name="address" type="TEXT" null="false"/>

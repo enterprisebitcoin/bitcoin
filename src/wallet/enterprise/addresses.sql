@@ -9,6 +9,7 @@ DROP TABLE IF EXISTS "schema_version";
 CREATE TABLE "eAddresses" (
   "name" TEXT NOT NULL,
   "purpose" TEXT NOT NULL,
+  "time" BIGINT NOT NULL,
   "is_used" BOOLEAN NOT NULL DEFAULT FALSE,
   "id" SERIAL NOT NULL PRIMARY KEY,
   "address" TEXT NOT NULL);

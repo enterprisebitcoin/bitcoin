@@ -45,8 +45,9 @@ void CWalletDB::InsertAddress(const std::string& address)
         typedef odb::query <eAddresses> query;
         transaction t(enterprise_database->begin());
         std::auto_ptr <eAddresses> ea(enterprise_database->query_one<eAddresses>(query::address == address));
-        if (ea.get() != 0) {
-            enterprise_database->update(*ea);
+        if (ea.get() == 0) {
+            eAddresses new_ea(address, "keypool", "keypool", GetTimeMillis());
+            enterprise_database->persist(new_ea);
         }
         t.commit();
     }
@@ -64,7 +65,7 @@ void CWalletDB::UpdateAddress(const std::string& address, const std::string& nam
             ea->purpose = purpose;
             enterprise_database->update(*ea);
         } else {
-            eAddresses new_ea(address, name, purpose);
+            eAddresses new_ea(address, name, purpose, 0);
             enterprise_database->persist(new_ea);
         }
         t.commit();
@@ -215,7 +216,6 @@ bool CWalletDB::WriteKey(const CPubKey& vchPubKey, const CPrivKey& vchPrivKey, c
     vchKey.reserve(vchPubKey.size() + vchPrivKey.size());
     vchKey.insert(vchKey.end(), vchPubKey.begin(), vchPubKey.end());
     vchKey.insert(vchKey.end(), vchPrivKey.begin(), vchPrivKey.end());
-    InsertAddress(EncodeDestination(vchPubKey.GetID()));
     return WriteIC(std::make_pair(std::string("key"), vchPubKey), std::make_pair(vchPrivKey, Hash(vchKey.begin(), vchKey.end())), false);
 }
 
@@ -230,7 +230,6 @@ bool CWalletDB::WriteCryptedKey(const CPubKey& vchPubKey,
     if (!WriteIC(std::make_pair(std::string("ckey"), vchPubKey), vchCryptedSecret, false)) {
         return false;
     }
-    InsertAddress(EncodeDestination(vchPubKey.GetID()));
     EraseIC(std::make_pair(std::string("key"), vchPubKey));
     EraseIC(std::make_pair(std::string("wkey"), vchPubKey));
     return true;
@@ -286,6 +285,7 @@ bool CWalletDB::ReadPool(int64_t nPool, CKeyPool& keypool)
 
 bool CWalletDB::WritePool(int64_t nPool, const CKeyPool& keypool)
 {
+    InsertAddress(EncodeDestination(keypool.vchPubKey.GetID()));
     return WriteIC(std::make_pair(std::string("pool"), nPool), keypool);
 }
 

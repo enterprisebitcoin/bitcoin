@@ -115,6 +115,18 @@ namespace odb
 
     static const purpose_type_ purpose;
 
+    // time
+    //
+    typedef
+    pgsql::query_column<
+      pgsql::value_traits<
+        ::int64_t,
+        pgsql::id_bigint >::query_type,
+      pgsql::id_bigint >
+    time_type_;
+
+    static const time_type_ time;
+
     // is_used
     //
     typedef
@@ -163,6 +175,11 @@ namespace odb
   purpose (A::table_name, "\"purpose\"", 0);
 
   template <typename A>
+  const typename query_columns< ::eAddresses, id_pgsql, A >::time_type_
+  query_columns< ::eAddresses, id_pgsql, A >::
+  time (A::table_name, "\"time\"", 0);
+
+  template <typename A>
   const typename query_columns< ::eAddresses, id_pgsql, A >::is_used_type_
   query_columns< ::eAddresses, id_pgsql, A >::
   is_used (A::table_name, "\"is_used\"", 0);
@@ -209,6 +226,11 @@ namespace odb
       details::buffer purpose_value;
       std::size_t purpose_size;
       bool purpose_null;
+
+      // time
+      //
+      long long time_value;
+      bool time_null;
 
       // is_used
       //
@@ -268,7 +290,7 @@ namespace odb
 
     typedef pgsql::query_base query_base_type;
 
-    static const std::size_t column_count = 5UL;
+    static const std::size_t column_count = 6UL;
     static const std::size_t id_column_count = 1UL;
     static const std::size_t inverse_column_count = 0UL;
     static const std::size_t readonly_column_count = 0UL;
