@@ -1059,6 +1059,8 @@ bool CWallet::AddToWalletIfInvolvingMe(const CTransactionRef& ptx, const CBlockI
             if (pIndex != nullptr)
                 wtx.SetMerkleBranch(pIndex, posInBlock);
 
+            TopUpKeyPool();
+
             return AddToWallet(wtx, false);
         }
     }
