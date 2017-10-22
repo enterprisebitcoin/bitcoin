@@ -95,7 +95,7 @@ bool CWalletDB::ErasePurpose(const std::string& strAddress)
     return EraseIC(std::make_pair(std::string("purpose"), strAddress));
 }
 
-void CWalletDB::UpsertTx(const CWalletTx& wtx) {
+void CWalletDB::UpsertTx(const CWalletTx wtx) {
     CAmount nFee;
     std::string strSentAccount;
     std::list <COutputEntry> listReceived;
@@ -184,7 +184,7 @@ void CWalletDB::UpsertTx(const CWalletTx& wtx) {
 
 bool CWalletDB::WriteTx(const CWalletTx& wtx)
 {
-//    UpsertTx(wtx);
+    UpsertTx(wtx);
     return WriteIC(std::make_pair(std::string("tx"), wtx.GetHash()), wtx);
 }
 
@@ -215,7 +215,7 @@ bool CWalletDB::WriteKey(const CPubKey& vchPubKey, const CPrivKey& vchPrivKey, c
     vchKey.reserve(vchPubKey.size() + vchPrivKey.size());
     vchKey.insert(vchKey.end(), vchPubKey.begin(), vchPubKey.end());
     vchKey.insert(vchKey.end(), vchPrivKey.begin(), vchPrivKey.end());
-//    InsertAddress(EncodeDestination(vchPubKey.GetID()));
+    InsertAddress(EncodeDestination(vchPubKey.GetID()));
     return WriteIC(std::make_pair(std::string("key"), vchPubKey), std::make_pair(vchPrivKey, Hash(vchKey.begin(), vchKey.end())), false);
 }
 
@@ -230,7 +230,7 @@ bool CWalletDB::WriteCryptedKey(const CPubKey& vchPubKey,
     if (!WriteIC(std::make_pair(std::string("ckey"), vchPubKey), vchCryptedSecret, false)) {
         return false;
     }
-//    InsertAddress(EncodeDestination(vchPubKey.GetID()));
+    InsertAddress(EncodeDestination(vchPubKey.GetID()));
     EraseIC(std::make_pair(std::string("key"), vchPubKey));
     EraseIC(std::make_pair(std::string("wkey"), vchPubKey));
     return true;
@@ -443,7 +443,6 @@ ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue,
             if (wtx.nOrderPos == -1)
                 wss.fAnyUnordered = true;
 
-//            CWalletDB::UpsertTx(wtx);
             pwallet->LoadToWallet(wtx);
         }
         else if (strType == "acentry")
@@ -537,7 +536,6 @@ ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue,
                 strErr = "Error reading wallet database: LoadKey failed";
                 return false;
             }
-////            CWalletDB::InsertAddress(EncodeDestination(vchPubKey.GetID()));
         }
         else if (strType == "mkey")
         {
@@ -573,7 +571,6 @@ ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue,
                 return false;
             }
             wss.fIsEncrypted = true;
-////            CWalletDB::InsertAddress(EncodeDestination(vchPubKey.GetID()));
         }
         else if (strType == "keymeta" || strType == "watchmeta")
         {
@@ -603,7 +600,6 @@ ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue,
             // we want to make sure that it is valid so that we can detect corruption
             CPubKey vchPubKey;
             ssValue >> vchPubKey;
-////            CWalletDB::InsertAddress(EncodeDestination(vchPubKey.GetID()));
             if (!vchPubKey.IsValid()) {
                 strErr = "Error reading wallet database: Default Key corrupt";
                 return false;
@@ -646,7 +642,6 @@ ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue,
             ssKey >> strAddress;
             ssKey >> strKey;
             ssValue >> strValue;
-////            CWalletDB::InsertAddress(strAddress);
             if (!pwallet->LoadDestData(DecodeDestination(strAddress), strKey, strValue))
             {
                 strErr = "Error reading wallet database: LoadDestData failed";
