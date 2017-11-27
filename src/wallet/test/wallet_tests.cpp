@@ -2,24 +2,22 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "wallet/wallet.h"
+#include <wallet/wallet.h>
 
 #include <set>
 #include <stdint.h>
 #include <utility>
 #include <vector>
 
-#include "consensus/validation.h"
-#include "rpc/server.h"
-#include "test/test_bitcoin.h"
-#include "validation.h"
-#include "wallet/coincontrol.h"
-#include "wallet/test/wallet_test_fixture.h"
+#include <consensus/validation.h>
+#include <rpc/server.h>
+#include <test/test_bitcoin.h>
+#include <validation.h>
+#include <wallet/coincontrol.h>
+#include <wallet/test/wallet_test_fixture.h>
 
 #include <boost/test/unit_test.hpp>
 #include <univalue.h>
-
-extern CWallet* pwalletMain;
 
 extern UniValue importmulti(const JSONRPCRequest& request);
 extern UniValue dumpwallet(const JSONRPCRequest& request);
@@ -489,6 +487,7 @@ BOOST_FIXTURE_TEST_CASE(importwallet_rescan, TestChain100Setup)
         vpwallets[0] = &wallet;
         ::importwallet(request);
 
+        LOCK(wallet.cs_wallet);
         BOOST_CHECK_EQUAL(wallet.mapWallet.size(), 3);
         BOOST_CHECK_EQUAL(coinbaseTxns.size(), 103);
         for (size_t i = 0; i < coinbaseTxns.size(); ++i) {
@@ -534,6 +533,7 @@ static int64_t AddTx(CWallet& wallet, uint32_t lockTime, int64_t mockTime, int64
     SetMockTime(mockTime);
     CBlockIndex* block = nullptr;
     if (blockTime > 0) {
+        LOCK(cs_main);
         auto inserted = mapBlockIndex.emplace(GetRandHash(), new CBlockIndex);
         assert(inserted.second);
         const uint256& hash = inserted.first->first;
@@ -547,6 +547,7 @@ static int64_t AddTx(CWallet& wallet, uint32_t lockTime, int64_t mockTime, int64
         wtx.SetMerkleBranch(block, 0);
     }
     wallet.AddToWallet(wtx);
+    LOCK(wallet.cs_wallet);
     return wallet.mapWallet.at(wtx.GetHash()).nTimeSmart;
 }
 
@@ -583,6 +584,7 @@ BOOST_AUTO_TEST_CASE(ComputeTimeSmart)
 BOOST_AUTO_TEST_CASE(LoadReceiveRequests)
 {
     CTxDestination dest = CKeyID();
+    LOCK(pwalletMain->cs_wallet);
     pwalletMain->AddDestData(dest, "misc", "val_misc");
     pwalletMain->AddDestData(dest, "rr0", "val_rr0");
     pwalletMain->AddDestData(dest, "rr1", "val_rr1");
@@ -625,6 +627,7 @@ public:
         BOOST_CHECK(wallet->CreateTransaction({recipient}, wtx, reservekey, fee, changePos, error, dummy));
         CValidationState state;
         BOOST_CHECK(wallet->CommitTransaction(wtx, reservekey, nullptr, state));
+        LOCK(wallet->cs_wallet);
         auto it = wallet->mapWallet.find(wtx.GetHash());
         BOOST_CHECK(it != wallet->mapWallet.end());
         CreateAndProcessBlock({CMutableTransaction(*it->second.tx)}, GetScriptForRawPubKey(coinbaseKey.GetPubKey()));

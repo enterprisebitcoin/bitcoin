@@ -3,28 +3,28 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "base58.h"
-#include "amount.h"
-#include "chain.h"
-#include "chainparams.h"
-#include "consensus/consensus.h"
-#include "consensus/params.h"
-#include "consensus/validation.h"
-#include "core_io.h"
-#include "init.h"
-#include "validation.h"
-#include "miner.h"
-#include "net.h"
-#include "policy/fees.h"
-#include "pow.h"
-#include "rpc/blockchain.h"
-#include "rpc/mining.h"
-#include "rpc/server.h"
-#include "txmempool.h"
-#include "util.h"
-#include "utilstrencodings.h"
-#include "validationinterface.h"
-#include "warnings.h"
+#include <base58.h>
+#include <amount.h>
+#include <chain.h>
+#include <chainparams.h>
+#include <consensus/consensus.h>
+#include <consensus/params.h>
+#include <consensus/validation.h>
+#include <core_io.h>
+#include <init.h>
+#include <validation.h>
+#include <miner.h>
+#include <net.h>
+#include <policy/fees.h>
+#include <pow.h>
+#include <rpc/blockchain.h>
+#include <rpc/mining.h>
+#include <rpc/server.h>
+#include <txmempool.h>
+#include <util.h>
+#include <utilstrencodings.h>
+#include <validationinterface.h>
+#include <warnings.h>
 
 #include <memory>
 #include <stdint.h>
@@ -455,7 +455,7 @@ UniValue getblocktemplate(const JSONRPCRequest& request)
     {
         // Wait to respond until either the best block changes, OR a minute has passed and there are more transactions
         uint256 hashWatchedChain;
-        boost::system_time checktxtime;
+        std::chrono::steady_clock::time_point checktxtime;
         unsigned int nTransactionsUpdatedLastLP;
 
         if (lpval.isStr())
@@ -476,17 +476,17 @@ UniValue getblocktemplate(const JSONRPCRequest& request)
         // Release the wallet and main lock while waiting
         LEAVE_CRITICAL_SECTION(cs_main);
         {
-            checktxtime = boost::get_system_time() + boost::posix_time::minutes(1);
+            checktxtime = std::chrono::steady_clock::now() + std::chrono::minutes(1);
 
-            boost::unique_lock<boost::mutex> lock(csBestBlock);
+            WaitableLock lock(csBestBlock);
             while (chainActive.Tip()->GetBlockHash() == hashWatchedChain && IsRPCRunning())
             {
-                if (!cvBlockChange.timed_wait(lock, checktxtime))
+                if (cvBlockChange.wait_until(lock, checktxtime) == std::cv_status::timeout)
                 {
                     // Timeout: Check transactions for update
                     if (mempool.GetTransactionsUpdated() != nTransactionsUpdatedLastLP)
                         break;
-                    checktxtime += boost::posix_time::seconds(10);
+                    checktxtime += std::chrono::seconds(10);
                 }
             }
         }

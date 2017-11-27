@@ -6,11 +6,11 @@
 #ifndef BITCOIN_KEYSTORE_H
 #define BITCOIN_KEYSTORE_H
 
-#include "key.h"
-#include "pubkey.h"
-#include "script/script.h"
-#include "script/standard.h"
-#include "sync.h"
+#include <key.h>
+#include <pubkey.h>
+#include <script/script.h>
+#include <script/standard.h>
+#include <sync.h>
 
 #include <boost/signals2/signal.hpp>
 
@@ -62,37 +62,9 @@ protected:
 public:
     bool AddKeyPubKey(const CKey& key, const CPubKey &pubkey) override;
     bool GetPubKey(const CKeyID &address, CPubKey& vchPubKeyOut) const override;
-    bool HaveKey(const CKeyID &address) const override
-    {
-        bool result;
-        {
-            LOCK(cs_KeyStore);
-            result = (mapKeys.count(address) > 0);
-        }
-        return result;
-    }
-    std::set<CKeyID> GetKeys() const override
-    {
-        LOCK(cs_KeyStore);
-        std::set<CKeyID> set_address;
-        for (const auto& mi : mapKeys) {
-            set_address.insert(mi.first);
-        }
-        return set_address;
-    }
-    bool GetKey(const CKeyID &address, CKey &keyOut) const override
-    {
-        {
-            LOCK(cs_KeyStore);
-            KeyMap::const_iterator mi = mapKeys.find(address);
-            if (mi != mapKeys.end())
-            {
-                keyOut = mi->second;
-                return true;
-            }
-        }
-        return false;
-    }
+    bool HaveKey(const CKeyID &address) const override;
+    std::set<CKeyID> GetKeys() const override;
+    bool GetKey(const CKeyID &address, CKey &keyOut) const override;
     bool AddCScript(const CScript& redeemScript) override;
     bool HaveCScript(const CScriptID &hash) const override;
     bool GetCScript(const CScriptID &hash, CScript& redeemScriptOut) const override;

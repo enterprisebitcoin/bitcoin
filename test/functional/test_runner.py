@@ -125,6 +125,7 @@ BASE_SCRIPTS= [
     'minchainwork.py',
     'p2p-fingerprint.py',
     'uacomment.py',
+    'p2p-acceptblock.py',
 ]
 
 EXTENDED_SCRIPTS = [
@@ -152,7 +153,6 @@ EXTENDED_SCRIPTS = [
     'txn_clone.py --mineblock',
     'notifications.py',
     'invalidateblock.py',
-    'p2p-acceptblock.py',
     'replace-by-fee.py',
 ]
 
@@ -300,7 +300,11 @@ def run_tests(test_list, src_dir, build_dir, exeext, tmpdir, jobs=1, enable_cove
 
     if len(test_list) > 1 and jobs > 1:
         # Populate cache
-        subprocess.check_output([tests_dir + 'create_cache.py'] + flags + ["--tmpdir=%s/cache" % tmpdir])
+        try:
+            subprocess.check_output([tests_dir + 'create_cache.py'] + flags + ["--tmpdir=%s/cache" % tmpdir])
+        except Exception as e:
+            print(e.output)
+            raise e
 
     #Run Tests
     job_queue = TestHandler(jobs, tests_dir, tmpdir, test_list, flags)

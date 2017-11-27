@@ -11,14 +11,14 @@
 #define BITCOIN_UTIL_H
 
 #if defined(HAVE_CONFIG_H)
-#include "config/bitcoin-config.h"
+#include <config/bitcoin-config.h>
 #endif
 
-#include "compat.h"
-#include "fs.h"
-#include "sync.h"
-#include "tinyformat.h"
-#include "utiltime.h"
+#include <compat.h>
+#include <fs.h>
+#include <sync.h>
+#include <tinyformat.h>
+#include <utiltime.h>
 
 #include <atomic>
 #include <exception>
@@ -325,5 +325,12 @@ template <typename Callable> void TraceThread(const char* name,  Callable func)
 }
 
 std::string CopyrightHolders(const std::string& strPrefix);
+
+//! Substitute for C++14 std::make_unique.
+template <typename T, typename... Args>
+std::unique_ptr<T> MakeUnique(Args&&... args)
+{
+    return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
+}
 
 #endif // BITCOIN_UTIL_H

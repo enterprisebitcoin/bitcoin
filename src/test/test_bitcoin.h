@@ -5,14 +5,14 @@
 #ifndef BITCOIN_TEST_TEST_BITCOIN_H
 #define BITCOIN_TEST_TEST_BITCOIN_H
 
-#include "chainparamsbase.h"
-#include "fs.h"
-#include "key.h"
-#include "pubkey.h"
-#include "random.h"
-#include "scheduler.h"
-#include "txdb.h"
-#include "txmempool.h"
+#include <chainparamsbase.h>
+#include <fs.h>
+#include <key.h>
+#include <pubkey.h>
+#include <random.h>
+#include <scheduler.h>
+#include <txdb.h>
+#include <txmempool.h>
 
 #include <boost/thread.hpp>
 
@@ -49,9 +49,14 @@ struct BasicTestingSetup {
  * Included are data directory, coins database, script check threads setup.
  */
 class CConnman;
+class CNode;
+struct CConnmanTest {
+    static void AddNode(CNode& node);
+    static void ClearNodes();
+};
+
 class PeerLogicValidation;
 struct TestingSetup: public BasicTestingSetup {
-    CCoinsViewDB *pcoinsdbview;
     fs::path pathTemp;
     boost::thread_group threadGroup;
     CConnman* connman;

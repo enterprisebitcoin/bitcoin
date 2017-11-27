@@ -2,27 +2,27 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "sendcoinsdialog.h"
-#include "ui_sendcoinsdialog.h"
+#include <qt/sendcoinsdialog.h>
+#include <qt/forms/ui_sendcoinsdialog.h>
 
-#include "addresstablemodel.h"
-#include "bitcoinunits.h"
-#include "clientmodel.h"
-#include "coincontroldialog.h"
-#include "guiutil.h"
-#include "optionsmodel.h"
-#include "platformstyle.h"
-#include "sendcoinsentry.h"
-#include "walletmodel.h"
+#include <qt/addresstablemodel.h>
+#include <qt/bitcoinunits.h>
+#include <qt/clientmodel.h>
+#include <qt/coincontroldialog.h>
+#include <qt/guiutil.h>
+#include <qt/optionsmodel.h>
+#include <qt/platformstyle.h>
+#include <qt/sendcoinsentry.h>
+#include <qt/walletmodel.h>
 
-#include "base58.h"
-#include "chainparams.h"
-#include "wallet/coincontrol.h"
-#include "validation.h" // mempool and minRelayTxFee
-#include "ui_interface.h"
-#include "txmempool.h"
-#include "policy/fees.h"
-#include "wallet/fees.h"
+#include <base58.h>
+#include <chainparams.h>
+#include <wallet/coincontrol.h>
+#include <validation.h> // mempool and minRelayTxFee
+#include <ui_interface.h>
+#include <txmempool.h>
+#include <policy/fees.h>
+#include <wallet/fees.h>
 
 #include <QFontMetrics>
 #include <QMessageBox>
@@ -402,6 +402,7 @@ SendCoinsEntry *SendCoinsDialog::addEntry()
     entry->setModel(model);
     ui->entries->addWidget(entry);
     connect(entry, SIGNAL(removeEntry(SendCoinsEntry*)), this, SLOT(removeEntry(SendCoinsEntry*)));
+    connect(entry, SIGNAL(useAvailableBalance(SendCoinsEntry*)), this, SLOT(useAvailableBalance(SendCoinsEntry*)));
     connect(entry, SIGNAL(payAmountChanged()), this, SLOT(coinControlUpdateLabels()));
     connect(entry, SIGNAL(subtractFeeFromAmountChanged()), this, SLOT(coinControlUpdateLabels()));
 
@@ -597,6 +598,31 @@ void SendCoinsDialog::on_buttonMinimizeFee_clicked()
 {
     updateFeeMinimizedLabel();
     minimizeFeeSection(true);
+}
+
+void SendCoinsDialog::useAvailableBalance(SendCoinsEntry* entry)
+{
+    // Get CCoinControl instance if CoinControl is enabled or create a new one.
+    CCoinControl coin_control;
+    if (model->getOptionsModel()->getCoinControlFeatures()) {
+        coin_control = *CoinControlDialog::coinControl;
+    }
+
+    // Calculate available amount to send.
+    CAmount amount = model->getBalance(&coin_control);
+    for (int i = 0; i < ui->entries->count(); ++i) {
+        SendCoinsEntry* e = qobject_cast<SendCoinsEntry*>(ui->entries->itemAt(i)->widget());
+        if (e && !e->isHidden() && e != entry) {
+            amount -= e->getValue().amount;
+        }
+    }
+
+    if (amount > 0) {
+      entry->checkSubtractFeeFromAmount();
+      entry->setAmount(amount);
+    } else {
+      entry->setAmount(0);
+    }
 }
 
 void SendCoinsDialog::setMinimumFee()

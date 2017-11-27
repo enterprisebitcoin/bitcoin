@@ -3,27 +3,27 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "base58.h"
-#include "chain.h"
-#include "clientversion.h"
-#include "core_io.h"
-#include "crypto/ripemd160.h"
-#include "init.h"
-#include "validation.h"
-#include "httpserver.h"
-#include "net.h"
-#include "netbase.h"
-#include "rpc/blockchain.h"
-#include "rpc/server.h"
-#include "timedata.h"
-#include "util.h"
-#include "utilstrencodings.h"
+#include <base58.h>
+#include <chain.h>
+#include <clientversion.h>
+#include <core_io.h>
+#include <crypto/ripemd160.h>
+#include <init.h>
+#include <validation.h>
+#include <httpserver.h>
+#include <net.h>
+#include <netbase.h>
+#include <rpc/blockchain.h>
+#include <rpc/server.h>
+#include <timedata.h>
+#include <util.h>
+#include <utilstrencodings.h>
 #ifdef ENABLE_WALLET
-#include "wallet/rpcwallet.h"
-#include "wallet/wallet.h"
-#include "wallet/walletdb.h"
+#include <wallet/rpcwallet.h>
+#include <wallet/wallet.h>
+#include <wallet/walletdb.h>
 #endif
-#include "warnings.h"
+#include <warnings.h>
 
 #include <stdint.h>
 #ifdef HAVE_MALLOC_INFO
@@ -608,6 +608,7 @@ static const CRPCCommand commands[] =
 { //  category              name                      actor (function)         argNames
   //  --------------------- ------------------------  -----------------------  ----------
     { "control",            "getmemoryinfo",          &getmemoryinfo,          {"mode"} },
+    { "control",            "logging",                &logging,                {"include", "exclude"}},
     { "util",               "validateaddress",        &validateaddress,        {"address"} }, /* uses wallet if enabled */
     { "util",               "createmultisig",         &createmultisig,         {"nrequired","keys"} },
     { "util",               "verifymessage",          &verifymessage,          {"address","signature","message"} },
@@ -617,7 +618,6 @@ static const CRPCCommand commands[] =
     { "hidden",             "setmocktime",            &setmocktime,            {"timestamp"}},
     { "hidden",             "echo",                   &echo,                   {"arg0","arg1","arg2","arg3","arg4","arg5","arg6","arg7","arg8","arg9"}},
     { "hidden",             "echojson",               &echo,                   {"arg0","arg1","arg2","arg3","arg4","arg5","arg6","arg7","arg8","arg9"}},
-    { "hidden",             "logging",                &logging,                {"include", "exclude"}},
 };
 
 void RegisterMiscRPCCommands(CRPCTable &t)

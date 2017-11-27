@@ -1,22 +1,22 @@
-#include "wallettests.h"
+#include <qt/test/wallettests.h>
 
-#include "qt/bitcoinamountfield.h"
-#include "qt/callback.h"
-#include "qt/optionsmodel.h"
-#include "qt/platformstyle.h"
-#include "qt/qvalidatedlineedit.h"
-#include "qt/sendcoinsdialog.h"
-#include "qt/sendcoinsentry.h"
-#include "qt/transactiontablemodel.h"
-#include "qt/transactionview.h"
-#include "qt/walletmodel.h"
-#include "test/test_bitcoin.h"
-#include "validation.h"
-#include "wallet/wallet.h"
-#include "qt/overviewpage.h"
-#include "qt/receivecoinsdialog.h"
-#include "qt/recentrequeststablemodel.h"
-#include "qt/receiverequestdialog.h"
+#include <qt/bitcoinamountfield.h>
+#include <qt/callback.h>
+#include <qt/optionsmodel.h>
+#include <qt/platformstyle.h>
+#include <qt/qvalidatedlineedit.h>
+#include <qt/sendcoinsdialog.h>
+#include <qt/sendcoinsentry.h>
+#include <qt/transactiontablemodel.h>
+#include <qt/transactionview.h>
+#include <qt/walletmodel.h>
+#include <test/test_bitcoin.h>
+#include <validation.h>
+#include <wallet/wallet.h>
+#include <qt/overviewpage.h>
+#include <qt/receivecoinsdialog.h>
+#include <qt/recentrequeststablemodel.h>
+#include <qt/receiverequestdialog.h>
 
 #include <QAbstractButton>
 #include <QAction>
@@ -164,7 +164,10 @@ void TestGUI()
         wallet.SetAddressBook(test.coinbaseKey.GetPubKey().GetID(), "", "receive");
         wallet.AddKeyPubKey(test.coinbaseKey, test.coinbaseKey.GetPubKey());
     }
-    wallet.ScanForWalletTransactions(chainActive.Genesis(), nullptr, true);
+    {
+        LOCK(cs_main);
+        wallet.ScanForWalletTransactions(chainActive.Genesis(), nullptr, true);
+    }
     wallet.SetBroadcastTransactions(true);
 
     // Create widgets for sending coins and listing transactions.

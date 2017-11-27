@@ -2,21 +2,21 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "guiutil.h"
+#include <qt/guiutil.h>
 
-#include "bitcoinaddressvalidator.h"
-#include "bitcoinunits.h"
-#include "qvalidatedlineedit.h"
-#include "walletmodel.h"
+#include <qt/bitcoinaddressvalidator.h>
+#include <qt/bitcoinunits.h>
+#include <qt/qvalidatedlineedit.h>
+#include <qt/walletmodel.h>
 
-#include "fs.h"
-#include "primitives/transaction.h"
-#include "init.h"
-#include "policy/policy.h"
-#include "protocol.h"
-#include "script/script.h"
-#include "script/standard.h"
-#include "util.h"
+#include <fs.h>
+#include <primitives/transaction.h>
+#include <init.h>
+#include <policy/policy.h>
+#include <protocol.h>
+#include <script/script.h>
+#include <script/standard.h>
+#include <util.h>
 
 #ifdef WIN32
 #ifdef _WIN32_WINNT
@@ -31,9 +31,9 @@
 #ifndef NOMINMAX
 #define NOMINMAX
 #endif
-#include "shellapi.h"
-#include "shlobj.h"
-#include "shlwapi.h"
+#include <shellapi.h>
+#include <shlobj.h>
+#include <shlwapi.h>
 #endif
 
 #include <boost/scoped_array.hpp>
@@ -982,6 +982,18 @@ QString formatNiceTimeOffset(qint64 secs)
         timeBehindText = QObject::tr("%1 and %2").arg(QObject::tr("%n year(s)", "", years)).arg(QObject::tr("%n week(s)","", remainder/WEEK_IN_SECONDS));
     }
     return timeBehindText;
+}
+
+QString formatBytes(uint64_t bytes)
+{
+    if(bytes < 1024)
+        return QString(QObject::tr("%1 B")).arg(bytes);
+    if(bytes < 1024 * 1024)
+        return QString(QObject::tr("%1 KB")).arg(bytes / 1024);
+    if(bytes < 1024 * 1024 * 1024)
+        return QString(QObject::tr("%1 MB")).arg(bytes / 1024 / 1024);
+
+    return QString(QObject::tr("%1 GB")).arg(bytes / 1024 / 1024 / 1024);
 }
 
 void ClickableLabel::mouseReleaseEvent(QMouseEvent *event)
