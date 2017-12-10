@@ -6,7 +6,7 @@
 
 #include <odb/core.hxx>
 
-#include "version.h"
+#include "../version.h"
 
 #pragma db object
 
