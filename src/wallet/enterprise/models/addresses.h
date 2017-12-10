@@ -16,11 +16,13 @@ public:
             std::string address,
             std::string name,
             std::string purpose,
-            int64_t time
+            int64_t time,
+            bool is_used
     ) : address(address),
         name(name),
         purpose(purpose),
-        time(time) {};
+        time(time),
+        is_used(is_used) {};
 
     std::string name;
     std::string purpose;

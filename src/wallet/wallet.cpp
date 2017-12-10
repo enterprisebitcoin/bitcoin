@@ -3171,7 +3171,7 @@ bool CWallet::SetAddressBook(const CTxDestination& address, const std::string& s
                              strPurpose, (fUpdated ? CT_UPDATED : CT_NEW) );
     if (!strPurpose.empty() && !walletdb.WritePurpose(EncodeDestination(address), strPurpose))
         return false;
-    enterprise_wallet::UpdateAddress(EncodeDestination(address), strName, strPurpose);
+    enterprise_wallet::UpsertAddress(EncodeDestination(address), strName, strPurpose);
     return walletdb.WriteName(EncodeDestination(address), strName);
 }
 

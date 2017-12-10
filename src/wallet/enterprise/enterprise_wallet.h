@@ -7,7 +7,7 @@ namespace enterprise_wallet
 {
     void TopUpAddressPool();
     void InsertAddress(const std::string &address);
-    void UpdateAddress(const std::string &address, const std::string &name, const std::string &purpose);
+    void UpsertAddress(const std::string &address, const std::string &name, const std::string &purpose);
     void UpsertTx(const CWalletTx wtx);
     void DeleteTx(uint256 hash);
 }
