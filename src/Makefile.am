@@ -171,11 +171,11 @@ BITCOIN_CORE_H = \
   wallet/enterprise/database.h \
   wallet/enterprise/enterprise_wallet.h \
   wallet/enterprise/models/addresses.h \
-  wallet/enterprise/models/addresses.hxx \
+  wallet/enterprise/models/addresses-odb.hxx \
   wallet/enterprise/models/output_entries.h \
-  wallet/enterprise/models/output_entries.hxx \
+  wallet/enterprise/models/output_entries-odb.hxx \
   wallet/enterprise/models/transactions.h \
-  wallet/enterprise/models/transactions.hxx \
+  wallet/enterprise/models/transactions-odb.hxx \
   wallet/enterprise/version.h \
   wallet/walletutil.h \
   warnings.h \

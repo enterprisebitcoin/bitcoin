@@ -1,4 +1,5 @@
 #include <base58.h>
+#include <util.h>
 
 #include "wallet/enterprise/database.h"
 #include "wallet/enterprise/models/addresses.h"
@@ -15,18 +16,18 @@
 
 
 namespace enterprise_wallet {
+
     void TopUpAddressPool() {
         std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
             {
+                typedef odb::query <address_stats> query;
                 odb::transaction t (enterprise_database->begin ());
-
-                address_stats as (enterprise_database->query_value<address_stats> ());
-
-                std::cout << "count  : " << as.count << std::endl;
-
+                address_stats as (enterprise_database->query_value<address_stats> (query::is_used == false));
+                LogPrintf("Unused address count %d \n", as.count);
                 t.commit ();
             }
     };
+
     void InsertAddress(const std::string &address) {
         std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
         {
