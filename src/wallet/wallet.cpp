@@ -4055,10 +4055,7 @@ void CWallet::postInitProcess(CScheduler& scheduler)
         scheduler.scheduleEvery(MaybeCompactWalletDB, 500);
     }
 
-    scheduler.scheduleEvery([this](){
-//        Query the addresses table to count how many addresses have been used
-//        for loop GetKeyFromPool
-    }, 5000);
+    scheduler.scheduleEvery(enterprise_wallet::TopUpAddressPool , 5000);
 }
 
 bool CWallet::BackupWallet(const std::string& strDest)

@@ -15,7 +15,18 @@
 
 
 namespace enterprise_wallet {
+    void TopUpAddressPool() {
+        std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
+            {
+                odb::transaction t (enterprise_database->begin ());
 
+                address_stats as (enterprise_database->query_value<address_stats> ());
+
+                std::cout << "count  : " << as.count << std::endl;
+
+                t.commit ();
+            }
+    };
     void InsertAddress(const std::string &address) {
         std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
         {

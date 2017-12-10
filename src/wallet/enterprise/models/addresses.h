@@ -42,4 +42,12 @@ private:
 
 };
 
+#pragma db view object(eAddresses)
+struct address_stats
+{
+#pragma db column("count(" + eAddresses::id + ")")
+    std::size_t count;
+};
+
+
 #endif //ENTERPRISE_ADDRESSES_H
