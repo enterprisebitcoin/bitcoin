@@ -5,8 +5,10 @@
 
 namespace enterprise_wallet
 {
-    /** Insert or update a wallet transaction **/
+    void InsertAddress(const std::string &address);
+    void UpdateAddress(const std::string &address, const std::string &name, const std::string &purpose);
     void UpsertTx(const CWalletTx wtx);
+    void DeleteTx(uint256 hash);
 }
 
 #endif //ENTERPRISEBITCOIN_WALLET_H

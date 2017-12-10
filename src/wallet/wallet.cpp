@@ -38,6 +38,8 @@
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/thread.hpp>
 
+#include <wallet/enterprise/enterprise_wallet.h>
+
 std::vector<CWalletRef> vpwallets;
 /** Transaction fee set by the user */
 CFeeRate payTxFee(DEFAULT_TRANSACTION_FEE);
@@ -3169,7 +3171,7 @@ bool CWallet::SetAddressBook(const CTxDestination& address, const std::string& s
                              strPurpose, (fUpdated ? CT_UPDATED : CT_NEW) );
     if (!strPurpose.empty() && !walletdb.WritePurpose(EncodeDestination(address), strPurpose))
         return false;
-    walletdb.UpdateAddress(EncodeDestination(address), strName, strPurpose);
+    enterprise_wallet::UpdateAddress(EncodeDestination(address), strName, strPurpose);
     return walletdb.WriteName(EncodeDestination(address), strName);
 }
 

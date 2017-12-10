@@ -16,66 +16,20 @@
 #include <utiltime.h>
 #include <wallet/wallet.h>
 
-#include "wallet/enterprise/database.h"
-#include "wallet/enterprise/addresses.h"
-#include "wallet/enterprise/addresses-odb.hxx"
-#include "wallet/enterprise/output_entries.h"
-#include "wallet/enterprise/output_entries-odb.hxx"
-#include "wallet/enterprise/transactions.h"
-#include "wallet/enterprise/transactions-odb.hxx"
-
-#include <odb/database.hxx>
-#include <odb/transaction.hxx>
-
 #include <atomic>
 
 #include <boost/thread.hpp>
 #include "boost/lexical_cast.hpp"
 
-using namespace odb::core;
+#include <wallet/enterprise/enterprise_wallet.h>
 
 //
 // CWalletDB
 //
 
-void CWalletDB::InsertAddress(const std::string& address)
-{
-    std::auto_ptr <database> enterprise_database(create_enterprise_database());
-    {
-        typedef odb::query <eAddresses> query;
-        transaction t(enterprise_database->begin());
-        std::auto_ptr <eAddresses> ea(enterprise_database->query_one<eAddresses>(query::address == address));
-        if (ea.get() == 0) {
-            eAddresses new_ea(address, "keypool", "keypool", GetTimeMillis());
-            enterprise_database->persist(new_ea);
-        }
-        t.commit();
-    }
-}
-
-void CWalletDB::UpdateAddress(const std::string& address, const std::string& name, const std::string& purpose)
-{
-    std::auto_ptr <database> enterprise_database(create_enterprise_database());
-    {
-        typedef odb::query <eAddresses> query;
-        transaction t(enterprise_database->begin());
-        std::auto_ptr <eAddresses> ea(enterprise_database->query_one<eAddresses>(query::address == address));
-        if (ea.get() != 0) {
-            ea->name = name;
-            ea->purpose = purpose;
-            enterprise_database->update(*ea);
-        } else {
-            eAddresses new_ea(address, name, purpose, 0);
-            enterprise_database->persist(new_ea);
-        }
-        t.commit();
-    }
-}
-
 
 bool CWalletDB::WriteName(const std::string& strAddress, const std::string& strName)
 {
-
     return WriteIC(std::make_pair(std::string("name"), strAddress), strName);
 }
 
@@ -99,23 +53,13 @@ bool CWalletDB::ErasePurpose(const std::string& strAddress)
 
 bool CWalletDB::WriteTx(const CWalletTx& wtx)
 {
-    UpsertTx(wtx);
+    enterprise_wallet::UpsertTx(wtx);
     return WriteIC(std::make_pair(std::string("tx"), wtx.GetHash()), wtx);
 }
 
 bool CWalletDB::EraseTx(uint256 hash)
 {
-    std::auto_ptr <database> enterprise_database(create_enterprise_database());
-    {
-        typedef odb::query<eTransactions> query;
-
-        transaction t(enterprise_database->begin());
-        std::auto_ptr<eTransactions> etx (enterprise_database->query_one<eTransactions> (query::txid == hash.GetHex()));
-
-        if (etx.get () != 0)
-            enterprise_database->erase (*etx);
-        t.commit();
-    }
+    enterprise_wallet::DeleteTx(hash);
     return EraseIC(std::make_pair(std::string("tx"), hash));
 }
 
@@ -199,7 +143,7 @@ bool CWalletDB::ReadPool(int64_t nPool, CKeyPool& keypool)
 
 bool CWalletDB::WritePool(int64_t nPool, const CKeyPool& keypool)
 {
-    InsertAddress(EncodeDestination(keypool.vchPubKey.GetID()));
+    enterprise_wallet::InsertAddress(EncodeDestination(keypool.vchPubKey.GetID()));
     return WriteIC(std::make_pair(std::string("pool"), nPool), keypool);
 }
 

@@ -15,6 +15,39 @@
 
 
 namespace enterprise_wallet {
+
+    void InsertAddress(const std::string &address) {
+        std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
+        {
+            typedef odb::query <eAddresses> query;
+            odb::transaction t(enterprise_database->begin());
+            std::auto_ptr <eAddresses> ea(enterprise_database->query_one<eAddresses>(query::address == address));
+            if (ea.get() == 0) {
+                eAddresses new_ea(address, "keypool", "keypool", GetTimeMillis());
+                enterprise_database->persist(new_ea);
+            }
+            t.commit();
+        }
+    }
+
+    void UpdateAddress(const std::string &address, const std::string &name, const std::string &purpose) {
+        std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
+        {
+            typedef odb::query <eAddresses> query;
+            odb::transaction t(enterprise_database->begin());
+            std::auto_ptr <eAddresses> ea(enterprise_database->query_one<eAddresses>(query::address == address));
+            if (ea.get() != 0) {
+                ea->name = name;
+                ea->purpose = purpose;
+                enterprise_database->update(*ea);
+            } else {
+                eAddresses new_ea(address, name, purpose, 0);
+                enterprise_database->persist(new_ea);
+            }
+            t.commit();
+        }
+    }
+
     void UpsertTx(const CWalletTx wtx) {
         CAmount nFee;
         std::string strSentAccount;
@@ -100,6 +133,22 @@ namespace enterprise_wallet {
                 t.commit();
             }
 
+        }
+    }
+
+    void DeleteTx(uint256 hash) {
+
+        std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
+        {
+            typedef odb::query <eTransactions> query;
+
+            odb::transaction t(enterprise_database->begin());
+            std::auto_ptr <eTransactions> etx(
+                    enterprise_database->query_one<eTransactions>(query::txid == hash.GetHex()));
+
+            if (etx.get() != 0)
+                enterprise_database->erase(*etx);
+            t.commit();
         }
     }
 }

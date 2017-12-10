@@ -170,15 +170,12 @@ public:
     CWalletDB(const CWalletDB&) = delete;
     CWalletDB& operator=(const CWalletDB&) = delete;
 
-    static void InsertAddress(const std::string& address);
-    void UpdateAddress(const std::string& address, const std::string& name, const std::string& purpose);
     bool WriteName(const std::string& strAddress, const std::string& strName);
     bool EraseName(const std::string& strAddress);
 
     bool WritePurpose(const std::string& strAddress, const std::string& purpose);
     bool ErasePurpose(const std::string& strAddress);
 
-    static void UpsertTx(const CWalletTx wtx);
     bool WriteTx(const CWalletTx& wtx);
     bool EraseTx(uint256 hash);
 
