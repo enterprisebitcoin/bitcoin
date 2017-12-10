@@ -143,7 +143,6 @@ bool CWalletDB::ReadPool(int64_t nPool, CKeyPool& keypool)
 
 bool CWalletDB::WritePool(int64_t nPool, const CKeyPool& keypool)
 {
-    enterprise_wallet::InsertAddress(EncodeDestination(keypool.vchPubKey.GetID()));
     return WriteIC(std::make_pair(std::string("pool"), nPool), keypool);
 }
 

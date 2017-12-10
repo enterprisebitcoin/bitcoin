@@ -1,5 +1,6 @@
 #include <base58.h>
 #include <util.h>
+#include <wallet/wallet.h>
 
 #include "wallet/enterprise/database.h"
 #include "wallet/enterprise/models/addresses.h"
@@ -25,6 +26,18 @@ namespace enterprise_wallet {
                 address_stats as (enterprise_database->query_value<address_stats> (query::is_used == false));
                 LogPrintf("Unused address count %d \n", as.count);
                 t.commit ();
+                if (as.count < 100) {
+                    int new_addresses = 100 - as.count;
+                    LogPrintf("New addresses needed: %d \n", new_addresses);
+                    for (int i=0; i<new_addresses; ++i) {
+                        CPubKey newKey;
+                        vpwallets[0]->GetKeyFromPool(newKey);
+                        CKeyID keyID = newKey.GetID();
+                        std::string strAccount;
+                        vpwallets[0]->SetAddressBook(keyID, strAccount, "receive");
+                        LogPrintf("New address created: %s \n", EncodeDestination(keyID));
+                    }
+                }
             }
     };
 
