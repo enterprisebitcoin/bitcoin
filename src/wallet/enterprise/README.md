@@ -15,6 +15,6 @@ macOS
 
 5. If you want to install the examples configure with these flags <code>./configure  CC=clang CXX=clang++ CXXFLAGS="-std=c++11 -stdlib=libc++" --with-database=pgsql</code>
 
-6. <code>odb -d pgsql --generate-query --generate-schema -o src/wallet/enterprise/models src/wallet/enterprise/models/transactions.h</code>
-6. <code>odb -d pgsql --generate-query --generate-schema -o src/wallet/enterprise/models src/wallet/enterprise/models/output_entries.h</code>
-6. <code>odb -d pgsql --generate-query --generate-schema -o src/wallet/enterprise/models src/wallet/enterprise/models/addresses.h</code>
+6. <code>odb -d pgsql --schema bitcoin --generate-query --generate-schema -o src/wallet/enterprise/models src/wallet/enterprise/models/transactions.h</code>
+6. <code>odb -d pgsql --schema bitcoin --generate-query --generate-schema -o src/wallet/enterprise/models src/wallet/enterprise/models/output_entries.h</code>
+6. <code>odb -d pgsql --schema bitcoin --generate-query --generate-schema -o src/wallet/enterprise/models src/wallet/enterprise/models/addresses.h</code>
