@@ -41,20 +41,6 @@ namespace enterprise_wallet {
             }
     };
 
-    void InsertAddress(const std::string &address) {
-        std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
-        {
-            typedef odb::query <eAddresses> query;
-            odb::transaction t(enterprise_database->begin());
-            std::auto_ptr <eAddresses> ea(enterprise_database->query_one<eAddresses>(query::address == address));
-            if (ea.get() == 0) {
-                eAddresses new_ea(address, "keypool", "keypool", GetTimeMillis(), false);
-                enterprise_database->persist(new_ea);
-            }
-            t.commit();
-        }
-    }
-
     void UpsertAddress(const std::string &address, const std::string &name, const std::string &purpose) {
         std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
         {
