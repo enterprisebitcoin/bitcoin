@@ -449,7 +449,7 @@ namespace odb
   }
 
   const char access::object_traits_impl< ::eOutputEntries, id_pgsql >::persist_statement[] =
-  "INSERT INTO \"eOutputEntries\" "
+  "INSERT INTO \"bitcoin\".\"eOutputEntries\" "
   "(\"etransaction_id\", "
   "\"vector\", "
   "\"amount\", "
@@ -462,17 +462,17 @@ namespace odb
 
   const char access::object_traits_impl< ::eOutputEntries, id_pgsql >::find_statement[] =
   "SELECT "
-  "\"eOutputEntries\".\"etransaction_id\", "
-  "\"eOutputEntries\".\"vector\", "
-  "\"eOutputEntries\".\"amount\", "
-  "\"eOutputEntries\".\"category\", "
-  "\"eOutputEntries\".\"destination\", "
-  "\"eOutputEntries\".\"id\" "
-  "FROM \"eOutputEntries\" "
-  "WHERE \"eOutputEntries\".\"id\"=$1";
+  "\"bitcoin\".\"eOutputEntries\".\"etransaction_id\", "
+  "\"bitcoin\".\"eOutputEntries\".\"vector\", "
+  "\"bitcoin\".\"eOutputEntries\".\"amount\", "
+  "\"bitcoin\".\"eOutputEntries\".\"category\", "
+  "\"bitcoin\".\"eOutputEntries\".\"destination\", "
+  "\"bitcoin\".\"eOutputEntries\".\"id\" "
+  "FROM \"bitcoin\".\"eOutputEntries\" "
+  "WHERE \"bitcoin\".\"eOutputEntries\".\"id\"=$1";
 
   const char access::object_traits_impl< ::eOutputEntries, id_pgsql >::update_statement[] =
-  "UPDATE \"eOutputEntries\" "
+  "UPDATE \"bitcoin\".\"eOutputEntries\" "
   "SET "
   "\"etransaction_id\"=$1, "
   "\"vector\"=$2, "
@@ -482,24 +482,24 @@ namespace odb
   "WHERE \"id\"=$6";
 
   const char access::object_traits_impl< ::eOutputEntries, id_pgsql >::erase_statement[] =
-  "DELETE FROM \"eOutputEntries\" "
+  "DELETE FROM \"bitcoin\".\"eOutputEntries\" "
   "WHERE \"id\"=$1";
 
   const char access::object_traits_impl< ::eOutputEntries, id_pgsql >::query_statement[] =
   "SELECT "
-  "\"eOutputEntries\".\"etransaction_id\", "
-  "\"eOutputEntries\".\"vector\", "
-  "\"eOutputEntries\".\"amount\", "
-  "\"eOutputEntries\".\"category\", "
-  "\"eOutputEntries\".\"destination\", "
-  "\"eOutputEntries\".\"id\" "
-  "FROM \"eOutputEntries\"";
+  "\"bitcoin\".\"eOutputEntries\".\"etransaction_id\", "
+  "\"bitcoin\".\"eOutputEntries\".\"vector\", "
+  "\"bitcoin\".\"eOutputEntries\".\"amount\", "
+  "\"bitcoin\".\"eOutputEntries\".\"category\", "
+  "\"bitcoin\".\"eOutputEntries\".\"destination\", "
+  "\"bitcoin\".\"eOutputEntries\".\"id\" "
+  "FROM \"bitcoin\".\"eOutputEntries\"";
 
   const char access::object_traits_impl< ::eOutputEntries, id_pgsql >::erase_query_statement[] =
-  "DELETE FROM \"eOutputEntries\"";
+  "DELETE FROM \"bitcoin\".\"eOutputEntries\"";
 
   const char access::object_traits_impl< ::eOutputEntries, id_pgsql >::table_name[] =
-  "\"eOutputEntries\"";
+  "\"bitcoin\".\"eOutputEntries\"";
 
   void access::object_traits_impl< ::eOutputEntries, id_pgsql >::
   persist (database& db, object_type& obj)

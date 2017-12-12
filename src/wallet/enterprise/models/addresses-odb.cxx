@@ -465,7 +465,7 @@ namespace odb
   }
 
   const char access::object_traits_impl< ::eAddresses, id_pgsql >::persist_statement[] =
-  "INSERT INTO \"eAddresses\" "
+  "INSERT INTO \"bitcoin\".\"eAddresses\" "
   "(\"name\", "
   "\"purpose\", "
   "\"time\", "
@@ -478,17 +478,17 @@ namespace odb
 
   const char access::object_traits_impl< ::eAddresses, id_pgsql >::find_statement[] =
   "SELECT "
-  "\"eAddresses\".\"name\", "
-  "\"eAddresses\".\"purpose\", "
-  "\"eAddresses\".\"time\", "
-  "\"eAddresses\".\"is_used\", "
-  "\"eAddresses\".\"id\", "
-  "\"eAddresses\".\"address\" "
-  "FROM \"eAddresses\" "
-  "WHERE \"eAddresses\".\"id\"=$1";
+  "\"bitcoin\".\"eAddresses\".\"name\", "
+  "\"bitcoin\".\"eAddresses\".\"purpose\", "
+  "\"bitcoin\".\"eAddresses\".\"time\", "
+  "\"bitcoin\".\"eAddresses\".\"is_used\", "
+  "\"bitcoin\".\"eAddresses\".\"id\", "
+  "\"bitcoin\".\"eAddresses\".\"address\" "
+  "FROM \"bitcoin\".\"eAddresses\" "
+  "WHERE \"bitcoin\".\"eAddresses\".\"id\"=$1";
 
   const char access::object_traits_impl< ::eAddresses, id_pgsql >::update_statement[] =
-  "UPDATE \"eAddresses\" "
+  "UPDATE \"bitcoin\".\"eAddresses\" "
   "SET "
   "\"name\"=$1, "
   "\"purpose\"=$2, "
@@ -498,24 +498,24 @@ namespace odb
   "WHERE \"id\"=$6";
 
   const char access::object_traits_impl< ::eAddresses, id_pgsql >::erase_statement[] =
-  "DELETE FROM \"eAddresses\" "
+  "DELETE FROM \"bitcoin\".\"eAddresses\" "
   "WHERE \"id\"=$1";
 
   const char access::object_traits_impl< ::eAddresses, id_pgsql >::query_statement[] =
   "SELECT "
-  "\"eAddresses\".\"name\", "
-  "\"eAddresses\".\"purpose\", "
-  "\"eAddresses\".\"time\", "
-  "\"eAddresses\".\"is_used\", "
-  "\"eAddresses\".\"id\", "
-  "\"eAddresses\".\"address\" "
-  "FROM \"eAddresses\"";
+  "\"bitcoin\".\"eAddresses\".\"name\", "
+  "\"bitcoin\".\"eAddresses\".\"purpose\", "
+  "\"bitcoin\".\"eAddresses\".\"time\", "
+  "\"bitcoin\".\"eAddresses\".\"is_used\", "
+  "\"bitcoin\".\"eAddresses\".\"id\", "
+  "\"bitcoin\".\"eAddresses\".\"address\" "
+  "FROM \"bitcoin\".\"eAddresses\"";
 
   const char access::object_traits_impl< ::eAddresses, id_pgsql >::erase_query_statement[] =
-  "DELETE FROM \"eAddresses\"";
+  "DELETE FROM \"bitcoin\".\"eAddresses\"";
 
   const char access::object_traits_impl< ::eAddresses, id_pgsql >::table_name[] =
-  "\"eAddresses\"";
+  "\"bitcoin\".\"eAddresses\"";
 
   void access::object_traits_impl< ::eAddresses, id_pgsql >::
   persist (database& db, object_type& obj)
@@ -982,9 +982,9 @@ namespace odb
   {
     query_base_type r (
       "SELECT "
-      "count(\"eAddresses\".\"id\") ");
+      "count(\"bitcoin\".\"eAddresses\".\"id\") ");
 
-    r += "FROM \"eAddresses\"";
+    r += "FROM \"bitcoin\".\"eAddresses\"";
 
     if (!q.empty ())
     {

@@ -2,11 +2,11 @@
  * compiler for C++.
  */
 
-DROP TABLE IF EXISTS "eTransactions" CASCADE;
+DROP TABLE IF EXISTS "bitcoin"."eTransactions" CASCADE;
 
 DROP TABLE IF EXISTS "schema_version";
 
-CREATE TABLE "eTransactions" (
+CREATE TABLE "bitcoin"."eTransactions" (
   "id" SERIAL NOT NULL PRIMARY KEY,
   "block_index" INTEGER NOT NULL,
   "is_trusted" BOOLEAN NOT NULL,
@@ -16,7 +16,7 @@ CREATE TABLE "eTransactions" (
   "txid" TEXT NOT NULL);
 
 CREATE UNIQUE INDEX "eTransactions_txid_i"
-  ON "eTransactions" ("txid");
+  ON "bitcoin"."eTransactions" ("txid");
 
 CREATE TABLE "schema_version" (
   "name" TEXT NOT NULL PRIMARY KEY,

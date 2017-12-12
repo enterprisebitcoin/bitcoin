@@ -476,7 +476,7 @@ namespace odb
   }
 
   const char access::object_traits_impl< ::eTransactions, id_pgsql >::persist_statement[] =
-  "INSERT INTO \"eTransactions\" "
+  "INSERT INTO \"bitcoin\".\"eTransactions\" "
   "(\"id\", "
   "\"block_index\", "
   "\"is_trusted\", "
@@ -490,18 +490,18 @@ namespace odb
 
   const char access::object_traits_impl< ::eTransactions, id_pgsql >::find_statement[] =
   "SELECT "
-  "\"eTransactions\".\"id\", "
-  "\"eTransactions\".\"block_index\", "
-  "\"eTransactions\".\"is_trusted\", "
-  "\"eTransactions\".\"size\", "
-  "\"eTransactions\".\"time\", "
-  "\"eTransactions\".\"time_received\", "
-  "\"eTransactions\".\"txid\" "
-  "FROM \"eTransactions\" "
-  "WHERE \"eTransactions\".\"id\"=$1";
+  "\"bitcoin\".\"eTransactions\".\"id\", "
+  "\"bitcoin\".\"eTransactions\".\"block_index\", "
+  "\"bitcoin\".\"eTransactions\".\"is_trusted\", "
+  "\"bitcoin\".\"eTransactions\".\"size\", "
+  "\"bitcoin\".\"eTransactions\".\"time\", "
+  "\"bitcoin\".\"eTransactions\".\"time_received\", "
+  "\"bitcoin\".\"eTransactions\".\"txid\" "
+  "FROM \"bitcoin\".\"eTransactions\" "
+  "WHERE \"bitcoin\".\"eTransactions\".\"id\"=$1";
 
   const char access::object_traits_impl< ::eTransactions, id_pgsql >::update_statement[] =
-  "UPDATE \"eTransactions\" "
+  "UPDATE \"bitcoin\".\"eTransactions\" "
   "SET "
   "\"block_index\"=$1, "
   "\"is_trusted\"=$2, "
@@ -512,25 +512,25 @@ namespace odb
   "WHERE \"id\"=$7";
 
   const char access::object_traits_impl< ::eTransactions, id_pgsql >::erase_statement[] =
-  "DELETE FROM \"eTransactions\" "
+  "DELETE FROM \"bitcoin\".\"eTransactions\" "
   "WHERE \"id\"=$1";
 
   const char access::object_traits_impl< ::eTransactions, id_pgsql >::query_statement[] =
   "SELECT "
-  "\"eTransactions\".\"id\", "
-  "\"eTransactions\".\"block_index\", "
-  "\"eTransactions\".\"is_trusted\", "
-  "\"eTransactions\".\"size\", "
-  "\"eTransactions\".\"time\", "
-  "\"eTransactions\".\"time_received\", "
-  "\"eTransactions\".\"txid\" "
-  "FROM \"eTransactions\"";
+  "\"bitcoin\".\"eTransactions\".\"id\", "
+  "\"bitcoin\".\"eTransactions\".\"block_index\", "
+  "\"bitcoin\".\"eTransactions\".\"is_trusted\", "
+  "\"bitcoin\".\"eTransactions\".\"size\", "
+  "\"bitcoin\".\"eTransactions\".\"time\", "
+  "\"bitcoin\".\"eTransactions\".\"time_received\", "
+  "\"bitcoin\".\"eTransactions\".\"txid\" "
+  "FROM \"bitcoin\".\"eTransactions\"";
 
   const char access::object_traits_impl< ::eTransactions, id_pgsql >::erase_query_statement[] =
-  "DELETE FROM \"eTransactions\"";
+  "DELETE FROM \"bitcoin\".\"eTransactions\"";
 
   const char access::object_traits_impl< ::eTransactions, id_pgsql >::table_name[] =
-  "\"eTransactions\"";
+  "\"bitcoin\".\"eTransactions\"";
 
   void access::object_traits_impl< ::eTransactions, id_pgsql >::
   persist (database& db, object_type& obj)

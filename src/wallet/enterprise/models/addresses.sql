@@ -2,11 +2,11 @@
  * compiler for C++.
  */
 
-DROP TABLE IF EXISTS "eAddresses" CASCADE;
+DROP TABLE IF EXISTS "bitcoin"."eAddresses" CASCADE;
 
 DROP TABLE IF EXISTS "schema_version";
 
-CREATE TABLE "eAddresses" (
+CREATE TABLE "bitcoin"."eAddresses" (
   "name" TEXT NOT NULL,
   "purpose" TEXT NOT NULL,
   "time" BIGINT NOT NULL,
@@ -15,7 +15,7 @@ CREATE TABLE "eAddresses" (
   "address" TEXT NOT NULL);
 
 CREATE UNIQUE INDEX "eAddresses_address_i"
-  ON "eAddresses" ("address");
+  ON "bitcoin"."eAddresses" ("address");
 
 CREATE TABLE "schema_version" (
   "name" TEXT NOT NULL PRIMARY KEY,
