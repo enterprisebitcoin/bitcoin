@@ -2,11 +2,11 @@
  * compiler for C++.
  */
 
-DROP TABLE IF EXISTS "bitcoin"."eOutputEntries" CASCADE;
+DROP TABLE IF EXISTS "wallet"."eOutputEntries" CASCADE;
 
 DROP TABLE IF EXISTS "schema_version";
 
-CREATE TABLE "bitcoin"."eOutputEntries" (
+CREATE TABLE "wallet"."eOutputEntries" (
   "etransaction_id" INTEGER NOT NULL,
   "vector" INTEGER NOT NULL,
   "amount" BIGINT NOT NULL,

@@ -4,11 +4,12 @@
 
 #include "wallet/enterprise/database.h"
 #include "wallet/enterprise/models/addresses.h"
-#include "wallet/enterprise/models/addresses-odb.hxx"
 #include "wallet/enterprise/models/output_entries.h"
-#include "wallet/enterprise/models/output_entries-odb.hxx"
 #include "wallet/enterprise/models/transactions.h"
-#include "wallet/enterprise/models/transactions-odb.hxx"
+
+#include "wallet/enterprise/models/support/addresses-odb.hxx"
+#include "wallet/enterprise/models/support/output_entries-odb.hxx"
+#include "wallet/enterprise/models/support/transactions-odb.hxx"
 
 #include <odb/database.hxx>
 #include <odb/transaction.hxx>
