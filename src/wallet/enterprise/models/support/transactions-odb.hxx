@@ -13,7 +13,7 @@
 
 #include <odb/pre.hxx>
 
-#include "transactions.h"
+#include "wallet/enterprise/models/transactions.h"
 
 #include <memory>
 #include <cstddef>
@@ -389,7 +389,7 @@ namespace odb
   //
 }
 
-#include "transactions-odb.ixx"
+#include "wallet/enterprise/models/transactions-odb.ixx"
 
 #include <odb/post.hxx>
 

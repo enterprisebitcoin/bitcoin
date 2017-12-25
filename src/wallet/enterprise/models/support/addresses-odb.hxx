@@ -13,7 +13,7 @@
 
 #include <odb/pre.hxx>
 
-#include "addresses.h"
+#include "wallet/enterprise/models/addresses.h"
 
 #include <memory>
 #include <cstddef>
@@ -453,7 +453,7 @@ namespace odb
   };
 }
 
-#include "addresses-odb.ixx"
+#include "wallet/enterprise/models/addresses-odb.ixx"
 
 #include <odb/post.hxx>
 

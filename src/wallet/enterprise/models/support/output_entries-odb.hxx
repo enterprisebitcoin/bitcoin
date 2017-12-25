@@ -13,7 +13,7 @@
 
 #include <odb/pre.hxx>
 
-#include "output_entries.h"
+#include "wallet/enterprise/models/output_entries.h"
 
 #include <memory>
 #include <cstddef>
@@ -368,7 +368,7 @@ namespace odb
   //
 }
 
-#include "output_entries-odb.ixx"
+#include "wallet/enterprise/models/output_entries-odb.ixx"
 
 #include <odb/post.hxx>
 
