@@ -4,7 +4,7 @@
 
 #include <odb/pre.hxx>
 
-#include "wallet/enterprise/models/transactions-odb.hxx"
+#include "wallet/enterprise/models/support/transactions-odb.hxx"
 
 #include <cassert>
 #include <cstring>  // std::memcpy

@@ -368,7 +368,7 @@ namespace odb
   //
 }
 
-#include "wallet/enterprise/models/output_entries-odb.ixx"
+#include "wallet/enterprise/models/support/output_entries-odb.ixx"
 
 #include <odb/post.hxx>
 

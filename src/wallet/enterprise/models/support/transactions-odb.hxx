@@ -389,7 +389,7 @@ namespace odb
   //
 }
 
-#include "wallet/enterprise/models/transactions-odb.ixx"
+#include "wallet/enterprise/models/support/transactions-odb.ixx"
 
 #include <odb/post.hxx>
 

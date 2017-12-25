@@ -253,9 +253,9 @@ libbitcoin_wallet_a_SOURCES = \
   wallet/crypter.cpp \
   wallet/db.cpp \
   wallet/enterprise/enterprise_wallet.cpp \
-  wallet/enterprise/models/addresses-odb.cxx \
-  wallet/enterprise/models/output_entries-odb.cxx \
-  wallet/enterprise/models/transactions-odb.cxx \
+  wallet/enterprise/models/support/addresses-odb.cxx \
+  wallet/enterprise/models/support/output_entries-odb.cxx \
+  wallet/enterprise/models/support/transactions-odb.cxx \
   wallet/feebumper.cpp \
   wallet/fees.cpp \
   wallet/init.cpp \

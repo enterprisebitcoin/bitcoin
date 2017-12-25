@@ -453,7 +453,7 @@ namespace odb
   };
 }
 
-#include "wallet/enterprise/models/addresses-odb.ixx"
+#include "wallet/enterprise/models/support/addresses-odb.ixx"
 
 #include <odb/post.hxx>
 
