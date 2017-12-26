@@ -37,6 +37,7 @@
 #include <boost/thread.hpp>
 
 #include <wallet/enterprise/enterprise_wallet.h>
+#include <wallet/rpcwallet.h>
 
 std::vector<CWalletRef> vpwallets;
 /** Transaction fee set by the user */
@@ -3175,7 +3176,26 @@ bool CWallet::SetAddressBook(const CTxDestination& address, const std::string& s
                              strPurpose, (fUpdated ? CT_UPDATED : CT_NEW) );
     if (!strPurpose.empty() && !walletdb.WritePurpose(EncodeDestination(address), strPurpose))
         return false;
-    enterprise_wallet::UpsertAddress(EncodeDestination(address), strName, strPurpose);
+
+    Witnessifier w(this);
+    bool ret = boost::apply_visitor(w, address);
+
+    if (!w.already_witness) {
+        CScriptID sw_bech32 = w.result;
+
+        CScript witprogram = GetScriptForDestination(w.result);
+        CScriptID sw_p2sh = CScriptID(witprogram);
+
+        this->AddCScript(witprogram);
+        this->SetAddressBook(w.result, "", "receive");
+
+        enterprise_wallet::UpsertAddress(EncodeDestination(address),
+                                         EncodeDestination(sw_bech32),
+                                         EncodeDestination(sw_p2sh),
+                                         strName,
+                                         strPurpose);
+    }
+
     return walletdb.WriteName(EncodeDestination(address), strName);
 }
 
@@ -4060,13 +4080,13 @@ void CWallet::postInitProcess(CScheduler& scheduler)
     }
 
     // Upsert all of the wallet's addresses and transactions
-    for (const std::pair<CTxDestination, CAddressBookData>& item : this->mapAddressBook)
-    {
-        const CTxDestination& address = item.first;
-        const std::string& strName = item.second.name;
-        const std::string& strPurpose = item.second.purpose;
-        enterprise_wallet::UpsertAddress(EncodeDestination(address), strName, strPurpose);
-    }
+//    for (const std::pair<CTxDestination, CAddressBookData>& item : this->mapAddressBook)
+//    {
+//        const CTxDestination& address = item.first;
+//        const std::string& strName = item.second.name;
+//        const std::string& strPurpose = item.second.purpose;
+//        enterprise_wallet::UpsertAddress(EncodeDestination(address), strName, strPurpose);
+//    }
 
     for (const std::pair<uint256, CWalletTx>& pairWtx : this->mapWallet) {
         const CWalletTx &wtx = pairWtx.second;

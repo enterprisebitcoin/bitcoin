@@ -13,12 +13,16 @@
 class eAddresses {
 public:
     eAddresses(
-            std::string address,
+            std::string p2pkh_address,
+            std::string sw_bech32_address,
+            std::string sw_p2sh_address,
             std::string name,
             std::string purpose,
             int64_t time,
             bool is_used
-    ) : address(address),
+    ) : p2pkh_address(p2pkh_address),
+        sw_bech32_address(sw_bech32_address),
+        sw_p2sh_address(sw_p2sh_address),
         name(name),
         purpose(purpose),
         time(time),
@@ -28,14 +32,18 @@ public:
     std::string purpose;
     int64_t time;
 
+    std::string sw_bech32_address;
+    std::string sw_p2sh_address;
+
 #pragma db default(false)
     bool is_used;
 
 #pragma db id auto
     unsigned int id;
 
+//    traditional base58 address
 #pragma db unique
-    std::string address;
+    std::string p2pkh_address;
 
 private:
     friend class odb::access;

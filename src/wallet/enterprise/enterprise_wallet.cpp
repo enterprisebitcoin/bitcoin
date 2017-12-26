@@ -42,18 +42,22 @@ namespace enterprise_wallet {
             }
     };
 
-    void UpsertAddress(const std::string &address, const std::string &name, const std::string &purpose) {
+    void UpsertAddress(const std::string &p2pkh_address,
+                       const std::string &sw_bech32_address,
+                       const std::string &sw_p2sh_address,
+                       const std::string &name,
+                       const std::string &purpose) {
         std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
         {
             typedef odb::query <eAddresses> query;
             odb::transaction t(enterprise_database->begin());
-            std::auto_ptr <eAddresses> ea(enterprise_database->query_one<eAddresses>(query::address == address));
+            std::auto_ptr <eAddresses> ea(enterprise_database->query_one<eAddresses>(query::p2pkh_address == p2pkh_address));
             if (ea.get() != 0) {
                 ea->name = name;
                 ea->purpose = purpose;
                 enterprise_database->update(*ea);
             } else {
-                eAddresses new_ea(address, name, purpose, GetTimeMillis(), false);
+                eAddresses new_ea(p2pkh_address, sw_bech32_address, sw_p2sh_address, name, purpose, GetTimeMillis(), false);
                 enterprise_database->persist(new_ea);
             }
             t.commit();

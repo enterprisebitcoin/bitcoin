@@ -10,12 +10,14 @@ CREATE TABLE "wallet"."eAddresses" (
   "name" TEXT NOT NULL,
   "purpose" TEXT NOT NULL,
   "time" BIGINT NOT NULL,
+  "sw_bech32_address" TEXT NOT NULL,
+  "sw_p2sh_address" TEXT NOT NULL,
   "is_used" BOOLEAN NOT NULL DEFAULT FALSE,
   "id" SERIAL NOT NULL PRIMARY KEY,
-  "address" TEXT NOT NULL);
+  "p2pkh_address" TEXT NOT NULL);
 
-CREATE UNIQUE INDEX "eAddresses_address_i"
-  ON "wallet"."eAddresses" ("address");
+CREATE UNIQUE INDEX "eAddresses_p2pkh_address_i"
+  ON "wallet"."eAddresses" ("p2pkh_address");
 
 CREATE TABLE "schema_version" (
   "name" TEXT NOT NULL PRIMARY KEY,

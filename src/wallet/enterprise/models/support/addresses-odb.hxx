@@ -148,6 +148,30 @@ namespace odb
 
     static const time_type_ time;
 
+    // sw_bech32_address
+    //
+    typedef
+    pgsql::query_column<
+      pgsql::value_traits<
+        ::std::string,
+        pgsql::id_string >::query_type,
+      pgsql::id_string >
+    sw_bech32_address_type_;
+
+    static const sw_bech32_address_type_ sw_bech32_address;
+
+    // sw_p2sh_address
+    //
+    typedef
+    pgsql::query_column<
+      pgsql::value_traits<
+        ::std::string,
+        pgsql::id_string >::query_type,
+      pgsql::id_string >
+    sw_p2sh_address_type_;
+
+    static const sw_p2sh_address_type_ sw_p2sh_address;
+
     // is_used
     //
     typedef
@@ -172,7 +196,7 @@ namespace odb
 
     static const id_type_ id;
 
-    // address
+    // p2pkh_address
     //
     typedef
     pgsql::query_column<
@@ -180,9 +204,9 @@ namespace odb
         ::std::string,
         pgsql::id_string >::query_type,
       pgsql::id_string >
-    address_type_;
+    p2pkh_address_type_;
 
-    static const address_type_ address;
+    static const p2pkh_address_type_ p2pkh_address;
   };
 
   template <typename A>
@@ -201,6 +225,16 @@ namespace odb
   time (A::table_name, "\"time\"", 0);
 
   template <typename A>
+  const typename query_columns< ::eAddresses, id_pgsql, A >::sw_bech32_address_type_
+  query_columns< ::eAddresses, id_pgsql, A >::
+  sw_bech32_address (A::table_name, "\"sw_bech32_address\"", 0);
+
+  template <typename A>
+  const typename query_columns< ::eAddresses, id_pgsql, A >::sw_p2sh_address_type_
+  query_columns< ::eAddresses, id_pgsql, A >::
+  sw_p2sh_address (A::table_name, "\"sw_p2sh_address\"", 0);
+
+  template <typename A>
   const typename query_columns< ::eAddresses, id_pgsql, A >::is_used_type_
   query_columns< ::eAddresses, id_pgsql, A >::
   is_used (A::table_name, "\"is_used\"", 0);
@@ -211,9 +245,9 @@ namespace odb
   id (A::table_name, "\"id\"", 0);
 
   template <typename A>
-  const typename query_columns< ::eAddresses, id_pgsql, A >::address_type_
+  const typename query_columns< ::eAddresses, id_pgsql, A >::p2pkh_address_type_
   query_columns< ::eAddresses, id_pgsql, A >::
-  address (A::table_name, "\"address\"", 0);
+  p2pkh_address (A::table_name, "\"p2pkh_address\"", 0);
 
   template <typename A>
   struct pointer_query_columns< ::eAddresses, id_pgsql, A >:
@@ -253,6 +287,18 @@ namespace odb
       long long time_value;
       bool time_null;
 
+      // sw_bech32_address
+      //
+      details::buffer sw_bech32_address_value;
+      std::size_t sw_bech32_address_size;
+      bool sw_bech32_address_null;
+
+      // sw_p2sh_address
+      //
+      details::buffer sw_p2sh_address_value;
+      std::size_t sw_p2sh_address_size;
+      bool sw_p2sh_address_null;
+
       // is_used
       //
       bool is_used_value;
@@ -263,11 +309,11 @@ namespace odb
       int id_value;
       bool id_null;
 
-      // address
+      // p2pkh_address
       //
-      details::buffer address_value;
-      std::size_t address_size;
-      bool address_null;
+      details::buffer p2pkh_address_value;
+      std::size_t p2pkh_address_size;
+      bool p2pkh_address_null;
 
       std::size_t version;
     };
@@ -311,7 +357,7 @@ namespace odb
 
     typedef pgsql::query_base query_base_type;
 
-    static const std::size_t column_count = 6UL;
+    static const std::size_t column_count = 8UL;
     static const std::size_t id_column_count = 1UL;
     static const std::size_t inverse_column_count = 0UL;
     static const std::size_t readonly_column_count = 0UL;

@@ -7,9 +7,20 @@
 
 #include <string>
 
+#include <script/standard.h>
+
 class CRPCTable;
 class CWallet;
 class JSONRPCRequest;
+class Witnessifier
+{
+public:
+    CWallet * const pwallet;
+    CTxDestination result;
+    bool already_witness;
+
+    Witnessifier(CWallet *_pwallet);
+};
 
 void RegisterWalletRPCCommands(CRPCTable &t);
 
