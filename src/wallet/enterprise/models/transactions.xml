@@ -1,0 +1,19 @@
+<changelog xmlns="http://www.codesynthesis.com/xmlns/odb/changelog" database="pgsql" version="1">
+  <model version="1">
+    <table name="wallet.eTransactions" kind="object">
+      <column name="id" type="INTEGER" null="false"/>
+      <column name="block_index" type="INTEGER" null="false"/>
+      <column name="is_trusted" type="BOOLEAN" null="false"/>
+      <column name="size" type="INTEGER" null="false"/>
+      <column name="time" type="BIGINT" null="false"/>
+      <column name="time_received" type="BIGINT" null="false"/>
+      <column name="txid" type="TEXT" null="false"/>
+      <primary-key auto="true">
+        <column name="id"/>
+      </primary-key>
+      <index name="eTransactions_txid_i" type="UNIQUE">
+        <column name="txid"/>
+      </index>
+    </table>
+  </model>
+</changelog>
