@@ -24,7 +24,7 @@ import struct
 import time
 
 from test_framework.siphash import siphash256
-from test_framework.util import hex_str_to_bytes, bytes_to_hex_str, wait_until
+from test_framework.util import hex_str_to_bytes, bytes_to_hex_str
 
 MIN_VERSION_SUPPORTED = 60001
 MY_VERSION = 70014  # past bip-31 for ping/pong
@@ -38,10 +38,11 @@ COIN = 100000000 # 1 btc in satoshis
 
 NODE_NETWORK = (1 << 0)
 # NODE_GETUTXO = (1 << 1)
-# NODE_BLOOM = (1 << 2)
+NODE_BLOOM = (1 << 2)
 NODE_WITNESS = (1 << 3)
 NODE_UNSUPPORTED_SERVICE_BIT_5 = (1 << 5)
 NODE_UNSUPPORTED_SERVICE_BIT_7 = (1 << 7)
+NODE_NETWORK_LIMITED = (1 << 10)
 
 # Serialization/deserialization tools
 def sha256(s):

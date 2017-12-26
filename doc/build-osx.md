@@ -29,7 +29,7 @@ NOTE: Building with Qt4 is still supported, however, could result in a broken UI
 Berkeley DB
 -----------
 It is recommended to use Berkeley DB 4.8. If you have to build it yourself,
-you can use [the installation script included in contrib/](contrib/install_db4.sh)
+you can use [the installation script included in contrib/](/contrib/install_db4.sh)
 like so
 
 ```shell
@@ -110,6 +110,6 @@ Uncheck everything except Qt Creator during the installation process.
 Notes
 -----
 
-* Tested on OS X 10.8 through 10.12 on 64-bit Intel processors only.
+* Tested on OS X 10.8 through 10.13 on 64-bit Intel processors only.
 
 * Building with downloaded Qt binaries is not officially supported. See the notes in [#7714](https://github.com/bitcoin/bitcoin/issues/7714)

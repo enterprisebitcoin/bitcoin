@@ -4,8 +4,6 @@
 
 #include <dbwrapper.h>
 
-#include <fs.h>
-#include <util.h>
 #include <random.h>
 
 #include <leveldb/cache.h>
@@ -64,7 +62,7 @@ public:
 
                 assert(p <= limit);
                 base[std::min(bufsize - 1, (int)(p - base))] = '\0';
-                LogPrintStr(base);
+                LogPrintf("leveldb: %s", base);
                 if (base != buffer) {
                     delete[] base;
                 }

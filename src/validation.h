@@ -159,7 +159,7 @@ extern CCriticalSection cs_main;
 extern CBlockPolicyEstimator feeEstimator;
 extern CTxMemPool mempool;
 typedef std::unordered_map<uint256, CBlockIndex*, BlockHasher> BlockMap;
-extern BlockMap mapBlockIndex;
+extern BlockMap& mapBlockIndex;
 extern uint64_t nLastBlockTx;
 extern uint64_t nLastBlockWeight;
 extern const std::string strMessageMagic;
@@ -203,6 +203,8 @@ extern bool fPruneMode;
 extern uint64_t nPruneTarget;
 /** Block files containing a block-height within MIN_BLOCKS_TO_KEEP of chainActive.Tip() will not be pruned. */
 static const unsigned int MIN_BLOCKS_TO_KEEP = 288;
+/** Minimum blocks required to signal NODE_NETWORK_LIMITED */
+static const unsigned int NODE_NETWORK_LIMITED_MIN_BLOCKS = 288;
 
 static const signed int DEFAULT_CHECKBLOCKS = 6;
 static const unsigned int DEFAULT_CHECKLEVEL = 3;
@@ -273,13 +275,13 @@ void ThreadScriptCheck();
 /** Check whether we are doing an initial block download (synchronizing from disk or network) */
 bool IsInitialBlockDownload();
 /** Retrieve a transaction (from memory pool, or from disk, if possible) */
-bool GetTransaction(const uint256 &hash, CTransactionRef &tx, const Consensus::Params& params, uint256 &hashBlock, bool fAllowSlow = false);
+bool GetTransaction(const uint256& hash, CTransactionRef& tx, const Consensus::Params& params, uint256& hashBlock, bool fAllowSlow = false, CBlockIndex* blockIndex = nullptr);
 /** Find the best known block, and make it the tip of the block chain */
 bool ActivateBestChain(CValidationState& state, const CChainParams& chainparams, std::shared_ptr<const CBlock> pblock = std::shared_ptr<const CBlock>());
 CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams);
 
 /** Guess verification progress (as a fraction between 0.0=genesis and 1.0=current tip). */
-double GuessVerificationProgress(const ChainTxData& data, CBlockIndex* pindex);
+double GuessVerificationProgress(const ChainTxData& data, const CBlockIndex* pindex);
 
 /** Calculate the amount of disk space the block & undo files currently use */
 uint64_t CalculateCurrentUsage();
@@ -294,8 +296,6 @@ void PruneOneBlockFile(const int fileNumber);
  */
 void UnlinkPrunedFiles(const std::set<int>& setFilesToPrune);
 
-/** Create a new block index entry for a given block hash */
-CBlockIndex * InsertBlockIndex(uint256 hash);
 /** Flush all state, indexes and buffers to disk. */
 void FlushStateToDisk();
 /** Prune block files and flush state to disk. */
@@ -441,7 +441,7 @@ bool InvalidateBlock(CValidationState& state, const CChainParams& chainparams, C
 bool ResetBlockFailureFlags(CBlockIndex *pindex);
 
 /** The currently-connected chain of blocks (protected by cs_main). */
-extern CChain chainActive;
+extern CChain& chainActive;
 
 /** Global variable that points to the coins database (protected by cs_main) */
 extern std::unique_ptr<CCoinsViewDB> pcoinsdbview;

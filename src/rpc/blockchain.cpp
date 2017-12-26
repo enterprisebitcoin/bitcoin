@@ -47,18 +47,20 @@ static CUpdatedBlock latestblock;
 
 extern void TxToJSON(const CTransaction& tx, const uint256 hashBlock, UniValue& entry);
 
-double GetDifficulty(const CBlockIndex* blockindex)
+/* Calculate the difficulty for a given block index,
+ * or the block index of the given chain.
+ */
+double GetDifficulty(const CChain& chain, const CBlockIndex* blockindex)
 {
     if (blockindex == nullptr)
     {
-        if (chainActive.Tip() == nullptr)
+        if (chain.Tip() == nullptr)
             return 1.0;
         else
-            blockindex = chainActive.Tip();
+            blockindex = chain.Tip();
     }
 
     int nShift = (blockindex->nBits >> 24) & 0xff;
-
     double dDiff =
         (double)0x0000ffff / (double)(blockindex->nBits & 0x00ffffff);
 
@@ -74,6 +76,11 @@ double GetDifficulty(const CBlockIndex* blockindex)
     }
 
     return dDiff;
+}
+
+double GetDifficulty(const CBlockIndex* blockindex)
+{
+    return GetDifficulty(chainActive, blockindex);
 }
 
 UniValue blockheaderToJSON(const CBlockIndex* blockindex)
@@ -1113,13 +1120,13 @@ static UniValue BIP9SoftForkDesc(const Consensus::Params& consensusParams, Conse
     return rv;
 }
 
-void BIP9SoftForkDescPushBack(UniValue& bip9_softforks, const std::string &name, const Consensus::Params& consensusParams, Consensus::DeploymentPos id)
+void BIP9SoftForkDescPushBack(UniValue& bip9_softforks, const Consensus::Params& consensusParams, Consensus::DeploymentPos id)
 {
     // Deployments with timeout value of 0 are hidden.
     // A timeout value of 0 guarantees a softfork will never be activated.
     // This is used when softfork codes are merged without specifying the deployment schedule.
     if (consensusParams.vDeployments[id].nTimeout > 0)
-        bip9_softforks.push_back(Pair(name, BIP9SoftForkDesc(consensusParams, id)));
+        bip9_softforks.push_back(Pair(VersionBitsDeploymentInfo[id].name, BIP9SoftForkDesc(consensusParams, id)));
 }
 
 UniValue getblockchaininfo(const JSONRPCRequest& request)
@@ -1214,8 +1221,9 @@ UniValue getblockchaininfo(const JSONRPCRequest& request)
     softforks.push_back(SoftForkDesc("bip34", 2, tip, consensusParams));
     softforks.push_back(SoftForkDesc("bip66", 3, tip, consensusParams));
     softforks.push_back(SoftForkDesc("bip65", 4, tip, consensusParams));
-    BIP9SoftForkDescPushBack(bip9_softforks, "csv", consensusParams, Consensus::DEPLOYMENT_CSV);
-    BIP9SoftForkDescPushBack(bip9_softforks, "segwit", consensusParams, Consensus::DEPLOYMENT_SEGWIT);
+    for (int pos = Consensus::DEPLOYMENT_CSV; pos != Consensus::MAX_VERSION_BITS_DEPLOYMENTS; ++pos) {
+        BIP9SoftForkDescPushBack(bip9_softforks, consensusParams, static_cast<Consensus::DeploymentPos>(pos));
+    }
     obj.push_back(Pair("softforks",             softforks));
     obj.push_back(Pair("bip9_softforks", bip9_softforks));
 
@@ -1349,7 +1357,7 @@ UniValue mempoolInfoToJSON()
     ret.push_back(Pair("usage", (int64_t) mempool.DynamicMemoryUsage()));
     size_t maxmempool = gArgs.GetArg("-maxmempool", DEFAULT_MAX_MEMPOOL_SIZE) * 1000000;
     ret.push_back(Pair("maxmempool", (int64_t) maxmempool));
-    ret.push_back(Pair("mempoolminfee", ValueFromAmount(mempool.GetMinFee(maxmempool).GetFeePerK())));
+    ret.push_back(Pair("mempoolminfee", ValueFromAmount(std::max(mempool.GetMinFee(maxmempool), ::minRelayTxFee).GetFeePerK())));
 
     return ret;
 }

@@ -17,15 +17,15 @@ from test_framework.mininode import *
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import *
 
-class TestNode(NodeConnCB):
+class TestNode(P2PInterface):
     def __init__(self):
         super().__init__()
         self.block_receive_map = defaultdict(int)
 
-    def on_inv(self, conn, message):
+    def on_inv(self, message):
         pass
 
-    def on_block(self, conn, message):
+    def on_block(self, message):
         message.block.calc_sha256()
         self.block_receive_map[message.block.sha256] += 1
 
@@ -57,7 +57,7 @@ class MaxUploadTest(BitcoinTestFramework):
         for _ in range(3):
             p2p_conns.append(self.nodes[0].add_p2p_connection(TestNode()))
 
-        NetworkThread().start() # Start up network handling in another thread
+        network_thread_start()
         for p2pc in p2p_conns:
             p2pc.wait_for_verack()
 
@@ -149,7 +149,7 @@ class MaxUploadTest(BitcoinTestFramework):
         # Reconnect to self.nodes[0]
         self.nodes[0].add_p2p_connection(TestNode())
 
-        NetworkThread().start() # Start up network handling in another thread
+        network_thread_start()
         self.nodes[0].p2p.wait_for_verack()
 
         #retrieve 20 blocks which should be enough to break the 1MB limit

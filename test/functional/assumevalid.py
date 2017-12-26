@@ -38,15 +38,16 @@ from test_framework.mininode import (CBlockHeader,
                                      CTransaction,
                                      CTxIn,
                                      CTxOut,
-                                     NetworkThread,
-                                     NodeConnCB,
+                                     network_thread_join,
+                                     network_thread_start,
+                                     P2PInterface,
                                      msg_block,
                                      msg_headers)
 from test_framework.script import (CScript, OP_TRUE)
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import assert_equal
 
-class BaseNode(NodeConnCB):
+class BaseNode(P2PInterface):
     def send_header_for_blocks(self, new_blocks):
         headers_message = msg_headers()
         headers_message.headers = [CBlockHeader(b) for b in new_blocks]
@@ -67,7 +68,7 @@ class AssumeValidTest(BitcoinTestFramework):
     def send_blocks_until_disconnected(self, p2p_conn):
         """Keep sending blocks to the node until we're disconnected."""
         for i in range(len(self.blocks)):
-            if not p2p_conn.connection:
+            if p2p_conn.state != "connected":
                 break
             try:
                 p2p_conn.send_message(msg_block(self.blocks[i]))
@@ -98,7 +99,7 @@ class AssumeValidTest(BitcoinTestFramework):
         # Connect to node0
         p2p0 = self.nodes[0].add_p2p_connection(BaseNode())
 
-        NetworkThread().start()  # Start up network handling in another thread
+        network_thread_start()
         self.nodes[0].p2p.wait_for_verack()
 
         # Build the blockchain
@@ -159,13 +160,22 @@ class AssumeValidTest(BitcoinTestFramework):
             self.block_time += 1
             height += 1
 
+        # We're adding new connections so terminate the network thread
+        self.nodes[0].disconnect_p2ps()
+        network_thread_join()
+
         # Start node1 and node2 with assumevalid so they accept a block with a bad signature.
         self.start_node(1, extra_args=["-assumevalid=" + hex(block102.sha256)])
-        p2p1 = self.nodes[1].add_p2p_connection(BaseNode())
-        p2p1.wait_for_verack()
-
         self.start_node(2, extra_args=["-assumevalid=" + hex(block102.sha256)])
+
+        p2p0 = self.nodes[0].add_p2p_connection(BaseNode())
+        p2p1 = self.nodes[1].add_p2p_connection(BaseNode())
         p2p2 = self.nodes[2].add_p2p_connection(BaseNode())
+
+        network_thread_start()
+
+        p2p0.wait_for_verack()
+        p2p1.wait_for_verack()
         p2p2.wait_for_verack()
 
         # send header lists to all three nodes

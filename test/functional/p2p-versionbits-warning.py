@@ -23,8 +23,8 @@ WARN_UNKNOWN_RULES_MINED = "Unknown block versions being mined! It's possible un
 WARN_UNKNOWN_RULES_ACTIVE = "unknown new rules activated (versionbit {})".format(VB_UNKNOWN_BIT)
 VB_PATTERN = re.compile("^Warning.*versionbit")
 
-class TestNode(NodeConnCB):
-    def on_inv(self, conn, message):
+class TestNode(P2PInterface):
+    def on_inv(self, message):
         pass
 
 class VersionBitsWarningTest(BitcoinTestFramework):
@@ -66,7 +66,7 @@ class VersionBitsWarningTest(BitcoinTestFramework):
         # Setup the p2p connection and start up the network thread.
         self.nodes[0].add_p2p_connection(TestNode())
 
-        NetworkThread().start() # Start up network handling in another thread
+        network_thread_start()
 
         # Test logic begins here
         self.nodes[0].p2p.wait_for_verack()

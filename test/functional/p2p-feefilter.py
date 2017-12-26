@@ -22,12 +22,12 @@ def allInvsMatch(invsExpected, testnode):
         time.sleep(1)
     return False
 
-class TestNode(NodeConnCB):
+class TestNode(P2PInterface):
     def __init__(self):
         super().__init__()
         self.txinvs = []
 
-    def on_inv(self, conn, message):
+    def on_inv(self, message):
         for i in message.inv:
             if (i.type == 1):
                 self.txinvs.append(hashToHex(i.hash))
@@ -49,7 +49,7 @@ class FeeFilterTest(BitcoinTestFramework):
 
         # Setup the p2p connections and start up the network thread.
         self.nodes[0].add_p2p_connection(TestNode())
-        NetworkThread().start()
+        network_thread_start()
         self.nodes[0].p2p.wait_for_verack()
 
         # Test that invs are received for all txs at feerate of 20 sat/byte
