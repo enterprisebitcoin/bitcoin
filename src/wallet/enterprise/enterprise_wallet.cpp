@@ -60,7 +60,7 @@ namespace enterprise_wallet {
         }
     }
 
-    void UpsertTx(const CWalletTx wtx) {
+    void UpsertTx(const CWalletTx &wtx) {
         CAmount nFee;
         std::string strSentAccount;
         std::list <COutputEntry> listReceived;
@@ -148,7 +148,7 @@ namespace enterprise_wallet {
         }
     }
 
-    void DeleteTx(uint256 hash) {
+    void DeleteTx(uint256 &hash) {
 
         std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
         {

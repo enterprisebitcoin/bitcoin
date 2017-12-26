@@ -4055,6 +4055,21 @@ void CWallet::postInitProcess(CScheduler& scheduler)
         scheduler.scheduleEvery(MaybeCompactWalletDB, 500);
     }
 
+    // Upsert all of the wallet's addresses and transactions
+    for (const std::pair<CTxDestination, CAddressBookData>& item : this->mapAddressBook)
+    {
+        const CTxDestination& address = item.first;
+        const std::string& strName = item.second.name;
+        const std::string& strPurpose = item.second.purpose;
+        enterprise_wallet::UpsertAddress(EncodeDestination(address), strName, strPurpose);
+    }
+
+    for (const std::pair<uint256, CWalletTx>& pairWtx : this->mapWallet) {
+        const CWalletTx &wtx = pairWtx.second;
+        enterprise_wallet::UpsertTx(wtx);
+    }
+
+    // Periodically query the addresses table and replenish if needed
     scheduler.scheduleEvery(enterprise_wallet::TopUpAddressPool , 5000);
 }
 
