@@ -48,6 +48,7 @@ namespace odb
   persist_statement_types[] =
   {
     pgsql::text_oid,
+    pgsql::text_oid,
     pgsql::text_oid
   };
 
@@ -60,6 +61,7 @@ namespace odb
   const unsigned int access::object_traits_impl< ::eWallets, id_pgsql >::
   update_statement_types[] =
   {
+    pgsql::text_oid,
     pgsql::text_oid,
     pgsql::text_oid,
     pgsql::int4_oid
@@ -132,19 +134,27 @@ namespace odb
     //
     t[0UL] = 0;
 
-    // name
+    // wallet_id
     //
     if (t[1UL])
+    {
+      i.wallet_id_value.capacity (i.wallet_id_size);
+      grew = true;
+    }
+
+    // name
+    //
+    if (t[2UL])
     {
       i.name_value.capacity (i.name_size);
       grew = true;
     }
 
-    // wallet_id
+    // description
     //
-    if (t[2UL])
+    if (t[3UL])
     {
-      i.wallet_id_value.capacity (i.wallet_id_size);
+      i.description_value.capacity (i.description_size);
       grew = true;
     }
 
@@ -172,6 +182,15 @@ namespace odb
       n++;
     }
 
+    // wallet_id
+    //
+    b[n].type = pgsql::bind::text;
+    b[n].buffer = i.wallet_id_value.data ();
+    b[n].capacity = i.wallet_id_value.capacity ();
+    b[n].size = &i.wallet_id_size;
+    b[n].is_null = &i.wallet_id_null;
+    n++;
+
     // name
     //
     b[n].type = pgsql::bind::text;
@@ -181,13 +200,13 @@ namespace odb
     b[n].is_null = &i.name_null;
     n++;
 
-    // wallet_id
+    // description
     //
     b[n].type = pgsql::bind::text;
-    b[n].buffer = i.wallet_id_value.data ();
-    b[n].capacity = i.wallet_id_value.capacity ();
-    b[n].size = &i.wallet_id_size;
-    b[n].is_null = &i.wallet_id_null;
+    b[n].buffer = i.description_value.data ();
+    b[n].capacity = i.description_value.capacity ();
+    b[n].size = &i.description_size;
+    b[n].is_null = &i.description_null;
     n++;
   }
 
@@ -213,6 +232,27 @@ namespace odb
 
     bool grew (false);
 
+    // wallet_id
+    //
+    {
+      ::std::string const& v =
+        o.wallet_id;
+
+      bool is_null (false);
+      std::size_t size (0);
+      std::size_t cap (i.wallet_id_value.capacity ());
+      pgsql::value_traits<
+          ::std::string,
+          pgsql::id_string >::set_image (
+        i.wallet_id_value,
+        size,
+        is_null,
+        v);
+      i.wallet_id_null = is_null;
+      i.wallet_id_size = size;
+      grew = grew || (cap != i.wallet_id_value.capacity ());
+    }
+
     // name
     //
     {
@@ -234,25 +274,25 @@ namespace odb
       grew = grew || (cap != i.name_value.capacity ());
     }
 
-    // wallet_id
+    // description
     //
     {
       ::std::string const& v =
-        o.wallet_id;
+        o.description;
 
       bool is_null (false);
       std::size_t size (0);
-      std::size_t cap (i.wallet_id_value.capacity ());
+      std::size_t cap (i.description_value.capacity ());
       pgsql::value_traits<
           ::std::string,
           pgsql::id_string >::set_image (
-        i.wallet_id_value,
+        i.description_value,
         size,
         is_null,
         v);
-      i.wallet_id_null = is_null;
-      i.wallet_id_size = size;
-      grew = grew || (cap != i.wallet_id_value.capacity ());
+      i.description_null = is_null;
+      i.description_size = size;
+      grew = grew || (cap != i.description_value.capacity ());
     }
 
     return grew;
@@ -281,6 +321,21 @@ namespace odb
         i.id_null);
     }
 
+    // wallet_id
+    //
+    {
+      ::std::string& v =
+        o.wallet_id;
+
+      pgsql::value_traits<
+          ::std::string,
+          pgsql::id_string >::set_value (
+        v,
+        i.wallet_id_value,
+        i.wallet_id_size,
+        i.wallet_id_null);
+    }
+
     // name
     //
     {
@@ -296,19 +351,19 @@ namespace odb
         i.name_null);
     }
 
-    // wallet_id
+    // description
     //
     {
       ::std::string& v =
-        o.wallet_id;
+        o.description;
 
       pgsql::value_traits<
           ::std::string,
           pgsql::id_string >::set_value (
         v,
-        i.wallet_id_value,
-        i.wallet_id_size,
-        i.wallet_id_null);
+        i.description_value,
+        i.description_size,
+        i.description_null);
     }
   }
 
@@ -328,26 +383,29 @@ namespace odb
   const char access::object_traits_impl< ::eWallets, id_pgsql >::persist_statement[] =
   "INSERT INTO \"wallet\".\"eWallets\" "
   "(\"id\", "
+  "\"wallet_id\", "
   "\"name\", "
-  "\"wallet_id\") "
+  "\"description\") "
   "VALUES "
-  "(DEFAULT, $1, $2) "
+  "(DEFAULT, $1, $2, $3) "
   "RETURNING \"id\"";
 
   const char access::object_traits_impl< ::eWallets, id_pgsql >::find_statement[] =
   "SELECT "
   "\"wallet\".\"eWallets\".\"id\", "
+  "\"wallet\".\"eWallets\".\"wallet_id\", "
   "\"wallet\".\"eWallets\".\"name\", "
-  "\"wallet\".\"eWallets\".\"wallet_id\" "
+  "\"wallet\".\"eWallets\".\"description\" "
   "FROM \"wallet\".\"eWallets\" "
   "WHERE \"wallet\".\"eWallets\".\"id\"=$1";
 
   const char access::object_traits_impl< ::eWallets, id_pgsql >::update_statement[] =
   "UPDATE \"wallet\".\"eWallets\" "
   "SET "
-  "\"name\"=$1, "
-  "\"wallet_id\"=$2 "
-  "WHERE \"id\"=$3";
+  "\"wallet_id\"=$1, "
+  "\"name\"=$2, "
+  "\"description\"=$3 "
+  "WHERE \"id\"=$4";
 
   const char access::object_traits_impl< ::eWallets, id_pgsql >::erase_statement[] =
   "DELETE FROM \"wallet\".\"eWallets\" "
@@ -356,8 +414,9 @@ namespace odb
   const char access::object_traits_impl< ::eWallets, id_pgsql >::query_statement[] =
   "SELECT "
   "\"wallet\".\"eWallets\".\"id\", "
+  "\"wallet\".\"eWallets\".\"wallet_id\", "
   "\"wallet\".\"eWallets\".\"name\", "
-  "\"wallet\".\"eWallets\".\"wallet_id\" "
+  "\"wallet\".\"eWallets\".\"description\" "
   "FROM \"wallet\".\"eWallets\"";
 
   const char access::object_traits_impl< ::eWallets, id_pgsql >::erase_query_statement[] =

@@ -14,11 +14,13 @@ class eWallets {
 public:
     eWallets(
             const std::string &wallet_id,
-            const std::string &name
+            const std::string &name,
+            const std::string &description
     )
             :
             wallet_id(wallet_id),
-            name(name) {
+            name(name),
+            description(description) {
     }
 
 #pragma db id auto
@@ -28,6 +30,7 @@ public:
     std::string wallet_id;
 
     std::string name;
+    std::string description;
 
 
 private:

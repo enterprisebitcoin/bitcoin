@@ -42,7 +42,7 @@ namespace enterprise_wallet {
                 r->name = name;
                 enterprise_database->update(*r);
             } else {
-                eWallets new_r(wallet_id, name);
+                eWallets new_r(wallet_id, name, "New wallet");
                 enterprise_database->persist(new_r);
             }
             t.commit();

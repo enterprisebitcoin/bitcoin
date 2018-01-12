@@ -103,6 +103,18 @@ namespace odb
 
     static const id_type_ id;
 
+    // wallet_id
+    //
+    typedef
+    pgsql::query_column<
+      pgsql::value_traits<
+        ::std::string,
+        pgsql::id_string >::query_type,
+      pgsql::id_string >
+    wallet_id_type_;
+
+    static const wallet_id_type_ wallet_id;
+
     // name
     //
     typedef
@@ -115,7 +127,7 @@ namespace odb
 
     static const name_type_ name;
 
-    // wallet_id
+    // description
     //
     typedef
     pgsql::query_column<
@@ -123,9 +135,9 @@ namespace odb
         ::std::string,
         pgsql::id_string >::query_type,
       pgsql::id_string >
-    wallet_id_type_;
+    description_type_;
 
-    static const wallet_id_type_ wallet_id;
+    static const description_type_ description;
   };
 
   template <typename A>
@@ -134,14 +146,19 @@ namespace odb
   id (A::table_name, "\"id\"", 0);
 
   template <typename A>
+  const typename query_columns< ::eWallets, id_pgsql, A >::wallet_id_type_
+  query_columns< ::eWallets, id_pgsql, A >::
+  wallet_id (A::table_name, "\"wallet_id\"", 0);
+
+  template <typename A>
   const typename query_columns< ::eWallets, id_pgsql, A >::name_type_
   query_columns< ::eWallets, id_pgsql, A >::
   name (A::table_name, "\"name\"", 0);
 
   template <typename A>
-  const typename query_columns< ::eWallets, id_pgsql, A >::wallet_id_type_
+  const typename query_columns< ::eWallets, id_pgsql, A >::description_type_
   query_columns< ::eWallets, id_pgsql, A >::
-  wallet_id (A::table_name, "\"wallet_id\"", 0);
+  description (A::table_name, "\"description\"", 0);
 
   template <typename A>
   struct pointer_query_columns< ::eWallets, id_pgsql, A >:
@@ -169,17 +186,23 @@ namespace odb
       int id_value;
       bool id_null;
 
+      // wallet_id
+      //
+      details::buffer wallet_id_value;
+      std::size_t wallet_id_size;
+      bool wallet_id_null;
+
       // name
       //
       details::buffer name_value;
       std::size_t name_size;
       bool name_null;
 
-      // wallet_id
+      // description
       //
-      details::buffer wallet_id_value;
-      std::size_t wallet_id_size;
-      bool wallet_id_null;
+      details::buffer description_value;
+      std::size_t description_size;
+      bool description_null;
 
       std::size_t version;
     };
@@ -223,7 +246,7 @@ namespace odb
 
     typedef pgsql::query_base query_base_type;
 
-    static const std::size_t column_count = 3UL;
+    static const std::size_t column_count = 4UL;
     static const std::size_t id_column_count = 1UL;
     static const std::size_t inverse_column_count = 0UL;
     static const std::size_t readonly_column_count = 0UL;

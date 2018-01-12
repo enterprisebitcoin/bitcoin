@@ -8,8 +8,9 @@ DROP TABLE IF EXISTS "schema_version";
 
 CREATE TABLE "wallet"."eWallets" (
   "id" SERIAL NOT NULL PRIMARY KEY,
+  "wallet_id" TEXT NOT NULL,
   "name" TEXT NOT NULL,
-  "wallet_id" TEXT NOT NULL);
+  "description" TEXT NOT NULL);
 
 CREATE UNIQUE INDEX "eWallets_wallet_id_i"
   ON "wallet"."eWallets" ("wallet_id");

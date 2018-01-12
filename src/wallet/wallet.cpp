@@ -4146,6 +4146,8 @@ void CWallet::postInitProcess(CScheduler& scheduler)
         scheduler.scheduleEvery(MaybeCompactWalletDB, 500);
     }
 
+    enterprise_wallet::UpsertWallet();
+
     // Upsert all of the wallet's addresses and transactions
 //    for (const std::pair<CTxDestination, CAddressBookData>& item : this->mapAddressBook)
 //    {
