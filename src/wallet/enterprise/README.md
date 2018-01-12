@@ -16,5 +16,6 @@ macOS
 5. If you want to install the examples configure with these flags <code>./configure  CC=clang CXX=clang++ CXXFLAGS="-std=c++11 -stdlib=libc++" --with-database=pgsql</code>
 
 6. <code>odb -d pgsql --include-prefix wallet/enterprise/models/ --schema wallet --generate-query --generate-schema -o src/wallet/enterprise/models/support src/wallet/enterprise/models/transactions.h</code>
-6. <code>odb -d pgsql --include-prefix wallet/enterprise/models/ --schema wallet --generate-query --generate-schema -o src/wallet/enterprise/models/support src/wallet/enterprise/models/output_entries.h</code>
-6. <code>odb -d pgsql --include-prefix wallet/enterprise/models/ --schema wallet --generate-query --generate-schema -o src/wallet/enterprise/models/support src/wallet/enterprise/models/addresses.h</code>
+7. <code>odb -d pgsql --include-prefix wallet/enterprise/models/ --schema wallet --generate-query --generate-schema -o src/wallet/enterprise/models/support src/wallet/enterprise/models/output_entries.h</code>
+8. <code>odb -d pgsql --include-prefix wallet/enterprise/models/ --schema wallet --generate-query --generate-schema -o src/wallet/enterprise/models/support src/wallet/enterprise/models/addresses.h</code>
+9. <code>odb -d pgsql --include-prefix wallet/enterprise/models/ --schema wallet --generate-query --generate-schema -o src/wallet/enterprise/models/support src/wallet/enterprise/models/wallets.h</code>

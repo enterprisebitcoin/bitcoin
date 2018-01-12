@@ -5,6 +5,7 @@
 
 namespace enterprise_wallet
 {
+    void UpsertWallet(const CWalletDBWrapper &dbw);
     void TopUpAddressPool();
     void UpsertAddress(const std::string &p2pkh_address,
                        const std::string &sw_bech32_address,

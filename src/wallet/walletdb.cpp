@@ -18,6 +18,11 @@
 
 #include <atomic>
 
+#include <boost/lexical_cast.hpp>
+#include <boost/uuid/uuid_io.hpp>
+#include <boost/uuid/uuid.hpp>            // uuid class
+#include <boost/uuid/uuid_generators.hpp> // generators
+
 #include <boost/thread.hpp>
 #include "boost/lexical_cast.hpp"
 
@@ -27,6 +32,17 @@
 // CWalletDB
 //
 
+std::string CWalletDB::ReadID()
+{
+    std::string wallet_id;
+    bool id_exists = batch.Read(std::string("wallet_id"), wallet_id);
+    if (!id_exists) {
+        boost::uuids::uuid uuid = boost::uuids::random_generator()();
+        wallet_id = boost::lexical_cast<std::string>(uuid);
+        WriteIC(std::string("wallet_id"), wallet_id);
+    }
+    return wallet_id;
+}
 
 bool CWalletDB::WriteName(const std::string& strAddress, const std::string& strName)
 {

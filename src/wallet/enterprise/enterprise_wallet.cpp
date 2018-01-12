@@ -6,10 +6,12 @@
 #include "wallet/enterprise/models/addresses.h"
 #include "wallet/enterprise/models/output_entries.h"
 #include "wallet/enterprise/models/transactions.h"
+#include "wallet/enterprise/models/wallets.h"
 
 #include "wallet/enterprise/models/support/addresses-odb.hxx"
 #include "wallet/enterprise/models/support/output_entries-odb.hxx"
 #include "wallet/enterprise/models/support/transactions-odb.hxx"
+#include "wallet/enterprise/models/support/wallets-odb.hxx"
 
 #include <odb/database.hxx>
 #include <odb/transaction.hxx>
@@ -19,7 +21,30 @@
 
 namespace enterprise_wallet {
 
+    void UpsertWallet() {
+        CWalletDBWrapper& dbw = vpwallets[0]->GetDBHandle();
+        CWalletDB walletdb(dbw);
+        std::string name = dbw.GetName();
+        std::string wallet_id = walletdb.ReadID();
+
+        std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
+        {
+            typedef odb::query <eWallets> query;
+            odb::transaction t(enterprise_database->begin());
+            std::auto_ptr <eWallets> r(enterprise_database->query_one<eWallets>(query::wallet_id == wallet_id));
+            if (r.get() != 0) {
+                r->name = name;
+                enterprise_database->update(*r);
+            } else {
+                eWallets new_r(wallet_id, name);
+                enterprise_database->persist(new_r);
+            }
+            t.commit();
+        }
+    }
+
     void TopUpAddressPool() {
+        UpsertWallet();
         std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
             {
                 typedef odb::query <address_stats> query;
