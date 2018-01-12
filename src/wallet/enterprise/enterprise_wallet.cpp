@@ -21,11 +21,17 @@
 
 namespace enterprise_wallet {
 
+    std::string GetWalletID() {
+        CWalletDBWrapper& dbw = vpwallets[0]->GetDBHandle();
+        CWalletDB wallet_db(dbw);
+        std::string wallet_id = wallet_db.ReadID();
+        return wallet_id;
+    }
+
     void UpsertWallet() {
         CWalletDBWrapper& dbw = vpwallets[0]->GetDBHandle();
-        CWalletDB walletdb(dbw);
         std::string name = dbw.GetName();
-        std::string wallet_id = walletdb.ReadID();
+        std::string wallet_id = GetWalletID();
 
         std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
         {
@@ -44,7 +50,6 @@ namespace enterprise_wallet {
     }
 
     void TopUpAddressPool() {
-        UpsertWallet();
         std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
             {
                 typedef odb::query <address_stats> query;
@@ -72,6 +77,8 @@ namespace enterprise_wallet {
                        const std::string &sw_p2sh_address,
                        const std::string &name,
                        const std::string &purpose) {
+        std::string wallet_id = GetWalletID();
+
         std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
         {
             typedef odb::query <eAddresses> query;
@@ -82,7 +89,8 @@ namespace enterprise_wallet {
                 ea->purpose = purpose;
                 enterprise_database->update(*ea);
             } else {
-                eAddresses new_ea(p2pkh_address, sw_bech32_address, sw_p2sh_address, name, purpose, GetTimeMillis(), false);
+                eAddresses new_ea(p2pkh_address, sw_bech32_address, sw_p2sh_address,
+                                  name, purpose, wallet_id, GetTimeMillis(), false);
                 enterprise_database->persist(new_ea);
             }
             t.commit();
@@ -96,6 +104,7 @@ namespace enterprise_wallet {
         std::list <COutputEntry> listSent;
         isminefilter filter = ISMINE_ALL;
         wtx.GetAmounts(listReceived, listSent, nFee, strSentAccount, filter);
+        std::string wallet_id = GetWalletID();
 
         std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
         {
@@ -122,7 +131,8 @@ namespace enterprise_wallet {
                                       wtx.tx->GetTotalSize(),
                                       wtx.GetTxTime(),
                                       wtx.nTimeReceived,
-                                      txid);
+                                      txid,
+                                      wallet_id);
                 etransaction_id = enterprise_database->persist(new_etx);
             }
             t.commit();

@@ -9,6 +9,7 @@ DROP TABLE IF EXISTS "schema_version";
 CREATE TABLE "wallet"."eAddresses" (
   "name" TEXT NOT NULL,
   "purpose" TEXT NOT NULL,
+  "wallet_id" TEXT NOT NULL,
   "time" BIGINT NOT NULL,
   "sw_bech32_address" TEXT NOT NULL,
   "sw_p2sh_address" TEXT NOT NULL,

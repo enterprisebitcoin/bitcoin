@@ -8,6 +8,7 @@
       <column name="time" type="BIGINT" null="false"/>
       <column name="time_received" type="BIGINT" null="false"/>
       <column name="txid" type="TEXT" null="false"/>
+      <column name="wallet_id" type="TEXT" null="false"/>
       <primary-key auto="true">
         <column name="id"/>
       </primary-key>

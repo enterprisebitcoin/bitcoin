@@ -174,6 +174,18 @@ namespace odb
     txid_type_;
 
     static const txid_type_ txid;
+
+    // wallet_id
+    //
+    typedef
+    pgsql::query_column<
+      pgsql::value_traits<
+        ::std::string,
+        pgsql::id_string >::query_type,
+      pgsql::id_string >
+    wallet_id_type_;
+
+    static const wallet_id_type_ wallet_id;
   };
 
   template <typename A>
@@ -210,6 +222,11 @@ namespace odb
   const typename query_columns< ::eTransactions, id_pgsql, A >::txid_type_
   query_columns< ::eTransactions, id_pgsql, A >::
   txid (A::table_name, "\"txid\"", 0);
+
+  template <typename A>
+  const typename query_columns< ::eTransactions, id_pgsql, A >::wallet_id_type_
+  query_columns< ::eTransactions, id_pgsql, A >::
+  wallet_id (A::table_name, "\"wallet_id\"", 0);
 
   template <typename A>
   struct pointer_query_columns< ::eTransactions, id_pgsql, A >:
@@ -268,6 +285,12 @@ namespace odb
       std::size_t txid_size;
       bool txid_null;
 
+      // wallet_id
+      //
+      details::buffer wallet_id_value;
+      std::size_t wallet_id_size;
+      bool wallet_id_null;
+
       std::size_t version;
     };
 
@@ -310,7 +333,7 @@ namespace odb
 
     typedef pgsql::query_base query_base_type;
 
-    static const std::size_t column_count = 7UL;
+    static const std::size_t column_count = 8UL;
     static const std::size_t id_column_count = 1UL;
     static const std::size_t inverse_column_count = 0UL;
     static const std::size_t readonly_column_count = 0UL;

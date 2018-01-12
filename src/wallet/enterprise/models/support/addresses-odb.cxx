@@ -51,6 +51,7 @@ namespace odb
   {
     pgsql::text_oid,
     pgsql::text_oid,
+    pgsql::text_oid,
     pgsql::int8_oid,
     pgsql::text_oid,
     pgsql::text_oid,
@@ -67,6 +68,7 @@ namespace odb
   const unsigned int access::object_traits_impl< ::eAddresses, id_pgsql >::
   update_statement_types[] =
   {
+    pgsql::text_oid,
     pgsql::text_oid,
     pgsql::text_oid,
     pgsql::int8_oid,
@@ -156,13 +158,21 @@ namespace odb
       grew = true;
     }
 
+    // wallet_id
+    //
+    if (t[2UL])
+    {
+      i.wallet_id_value.capacity (i.wallet_id_size);
+      grew = true;
+    }
+
     // time
     //
-    t[2UL] = 0;
+    t[3UL] = 0;
 
     // sw_bech32_address
     //
-    if (t[3UL])
+    if (t[4UL])
     {
       i.sw_bech32_address_value.capacity (i.sw_bech32_address_size);
       grew = true;
@@ -170,7 +180,7 @@ namespace odb
 
     // sw_p2sh_address
     //
-    if (t[4UL])
+    if (t[5UL])
     {
       i.sw_p2sh_address_value.capacity (i.sw_p2sh_address_size);
       grew = true;
@@ -178,15 +188,15 @@ namespace odb
 
     // is_used
     //
-    t[5UL] = 0;
+    t[6UL] = 0;
 
     // id
     //
-    t[6UL] = 0;
+    t[7UL] = 0;
 
     // p2pkh_address
     //
-    if (t[7UL])
+    if (t[8UL])
     {
       i.p2pkh_address_value.capacity (i.p2pkh_address_size);
       grew = true;
@@ -222,6 +232,15 @@ namespace odb
     b[n].capacity = i.purpose_value.capacity ();
     b[n].size = &i.purpose_size;
     b[n].is_null = &i.purpose_null;
+    n++;
+
+    // wallet_id
+    //
+    b[n].type = pgsql::bind::text;
+    b[n].buffer = i.wallet_id_value.data ();
+    b[n].capacity = i.wallet_id_value.capacity ();
+    b[n].size = &i.wallet_id_size;
+    b[n].is_null = &i.wallet_id_null;
     n++;
 
     // time
@@ -338,6 +357,27 @@ namespace odb
       i.purpose_null = is_null;
       i.purpose_size = size;
       grew = grew || (cap != i.purpose_value.capacity ());
+    }
+
+    // wallet_id
+    //
+    {
+      ::std::string const& v =
+        o.wallet_id;
+
+      bool is_null (false);
+      std::size_t size (0);
+      std::size_t cap (i.wallet_id_value.capacity ());
+      pgsql::value_traits<
+          ::std::string,
+          pgsql::id_string >::set_image (
+        i.wallet_id_value,
+        size,
+        is_null,
+        v);
+      i.wallet_id_null = is_null;
+      i.wallet_id_size = size;
+      grew = grew || (cap != i.wallet_id_value.capacity ());
     }
 
     // time
@@ -473,6 +513,21 @@ namespace odb
         i.purpose_null);
     }
 
+    // wallet_id
+    //
+    {
+      ::std::string& v =
+        o.wallet_id;
+
+      pgsql::value_traits<
+          ::std::string,
+          pgsql::id_string >::set_value (
+        v,
+        i.wallet_id_value,
+        i.wallet_id_size,
+        i.wallet_id_null);
+    }
+
     // time
     //
     {
@@ -578,6 +633,7 @@ namespace odb
   "INSERT INTO \"wallet\".\"eAddresses\" "
   "(\"name\", "
   "\"purpose\", "
+  "\"wallet_id\", "
   "\"time\", "
   "\"sw_bech32_address\", "
   "\"sw_p2sh_address\", "
@@ -585,13 +641,14 @@ namespace odb
   "\"id\", "
   "\"p2pkh_address\") "
   "VALUES "
-  "($1, $2, $3, $4, $5, $6, DEFAULT, $7) "
+  "($1, $2, $3, $4, $5, $6, $7, DEFAULT, $8) "
   "RETURNING \"id\"";
 
   const char access::object_traits_impl< ::eAddresses, id_pgsql >::find_statement[] =
   "SELECT "
   "\"wallet\".\"eAddresses\".\"name\", "
   "\"wallet\".\"eAddresses\".\"purpose\", "
+  "\"wallet\".\"eAddresses\".\"wallet_id\", "
   "\"wallet\".\"eAddresses\".\"time\", "
   "\"wallet\".\"eAddresses\".\"sw_bech32_address\", "
   "\"wallet\".\"eAddresses\".\"sw_p2sh_address\", "
@@ -606,12 +663,13 @@ namespace odb
   "SET "
   "\"name\"=$1, "
   "\"purpose\"=$2, "
-  "\"time\"=$3, "
-  "\"sw_bech32_address\"=$4, "
-  "\"sw_p2sh_address\"=$5, "
-  "\"is_used\"=$6, "
-  "\"p2pkh_address\"=$7 "
-  "WHERE \"id\"=$8";
+  "\"wallet_id\"=$3, "
+  "\"time\"=$4, "
+  "\"sw_bech32_address\"=$5, "
+  "\"sw_p2sh_address\"=$6, "
+  "\"is_used\"=$7, "
+  "\"p2pkh_address\"=$8 "
+  "WHERE \"id\"=$9";
 
   const char access::object_traits_impl< ::eAddresses, id_pgsql >::erase_statement[] =
   "DELETE FROM \"wallet\".\"eAddresses\" "
@@ -621,6 +679,7 @@ namespace odb
   "SELECT "
   "\"wallet\".\"eAddresses\".\"name\", "
   "\"wallet\".\"eAddresses\".\"purpose\", "
+  "\"wallet\".\"eAddresses\".\"wallet_id\", "
   "\"wallet\".\"eAddresses\".\"time\", "
   "\"wallet\".\"eAddresses\".\"sw_bech32_address\", "
   "\"wallet\".\"eAddresses\".\"sw_p2sh_address\", "

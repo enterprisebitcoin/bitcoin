@@ -18,6 +18,7 @@ public:
             std::string sw_p2sh_address,
             std::string name,
             std::string purpose,
+            std::string wallet_id,
             int64_t time,
             bool is_used
     ) : p2pkh_address(p2pkh_address),
@@ -30,6 +31,7 @@ public:
 
     std::string name;
     std::string purpose;
+    std::string wallet_id;
     int64_t time;
 
     std::string sw_bech32_address;

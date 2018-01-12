@@ -136,6 +136,18 @@ namespace odb
 
     static const purpose_type_ purpose;
 
+    // wallet_id
+    //
+    typedef
+    pgsql::query_column<
+      pgsql::value_traits<
+        ::std::string,
+        pgsql::id_string >::query_type,
+      pgsql::id_string >
+    wallet_id_type_;
+
+    static const wallet_id_type_ wallet_id;
+
     // time
     //
     typedef
@@ -220,6 +232,11 @@ namespace odb
   purpose (A::table_name, "\"purpose\"", 0);
 
   template <typename A>
+  const typename query_columns< ::eAddresses, id_pgsql, A >::wallet_id_type_
+  query_columns< ::eAddresses, id_pgsql, A >::
+  wallet_id (A::table_name, "\"wallet_id\"", 0);
+
+  template <typename A>
   const typename query_columns< ::eAddresses, id_pgsql, A >::time_type_
   query_columns< ::eAddresses, id_pgsql, A >::
   time (A::table_name, "\"time\"", 0);
@@ -281,6 +298,12 @@ namespace odb
       details::buffer purpose_value;
       std::size_t purpose_size;
       bool purpose_null;
+
+      // wallet_id
+      //
+      details::buffer wallet_id_value;
+      std::size_t wallet_id_size;
+      bool wallet_id_null;
 
       // time
       //
@@ -357,7 +380,7 @@ namespace odb
 
     typedef pgsql::query_base query_base_type;
 
-    static const std::size_t column_count = 8UL;
+    static const std::size_t column_count = 9UL;
     static const std::size_t id_column_count = 1UL;
     static const std::size_t inverse_column_count = 0UL;
     static const std::size_t readonly_column_count = 0UL;

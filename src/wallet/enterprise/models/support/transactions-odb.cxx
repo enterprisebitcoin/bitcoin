@@ -52,6 +52,7 @@ namespace odb
     pgsql::int4_oid,
     pgsql::int8_oid,
     pgsql::int8_oid,
+    pgsql::text_oid,
     pgsql::text_oid
   };
 
@@ -69,6 +70,7 @@ namespace odb
     pgsql::int4_oid,
     pgsql::int8_oid,
     pgsql::int8_oid,
+    pgsql::text_oid,
     pgsql::text_oid,
     pgsql::int4_oid
   };
@@ -168,6 +170,14 @@ namespace odb
       grew = true;
     }
 
+    // wallet_id
+    //
+    if (t[7UL])
+    {
+      i.wallet_id_value.capacity (i.wallet_id_size);
+      grew = true;
+    }
+
     return grew;
   }
 
@@ -234,6 +244,15 @@ namespace odb
     b[n].capacity = i.txid_value.capacity ();
     b[n].size = &i.txid_size;
     b[n].is_null = &i.txid_null;
+    n++;
+
+    // wallet_id
+    //
+    b[n].type = pgsql::bind::text;
+    b[n].buffer = i.wallet_id_value.data ();
+    b[n].capacity = i.wallet_id_value.capacity ();
+    b[n].size = &i.wallet_id_size;
+    b[n].is_null = &i.wallet_id_null;
     n++;
   }
 
@@ -350,6 +369,27 @@ namespace odb
       grew = grew || (cap != i.txid_value.capacity ());
     }
 
+    // wallet_id
+    //
+    {
+      ::std::string const& v =
+        o.wallet_id;
+
+      bool is_null (false);
+      std::size_t size (0);
+      std::size_t cap (i.wallet_id_value.capacity ());
+      pgsql::value_traits<
+          ::std::string,
+          pgsql::id_string >::set_image (
+        i.wallet_id_value,
+        size,
+        is_null,
+        v);
+      i.wallet_id_null = is_null;
+      i.wallet_id_size = size;
+      grew = grew || (cap != i.wallet_id_value.capacity ());
+    }
+
     return grew;
   }
 
@@ -460,6 +500,21 @@ namespace odb
         i.txid_size,
         i.txid_null);
     }
+
+    // wallet_id
+    //
+    {
+      ::std::string& v =
+        o.wallet_id;
+
+      pgsql::value_traits<
+          ::std::string,
+          pgsql::id_string >::set_value (
+        v,
+        i.wallet_id_value,
+        i.wallet_id_size,
+        i.wallet_id_null);
+    }
   }
 
   void access::object_traits_impl< ::eTransactions, id_pgsql >::
@@ -483,9 +538,10 @@ namespace odb
   "\"size\", "
   "\"time\", "
   "\"time_received\", "
-  "\"txid\") "
+  "\"txid\", "
+  "\"wallet_id\") "
   "VALUES "
-  "(DEFAULT, $1, $2, $3, $4, $5, $6) "
+  "(DEFAULT, $1, $2, $3, $4, $5, $6, $7) "
   "RETURNING \"id\"";
 
   const char access::object_traits_impl< ::eTransactions, id_pgsql >::find_statement[] =
@@ -496,7 +552,8 @@ namespace odb
   "\"wallet\".\"eTransactions\".\"size\", "
   "\"wallet\".\"eTransactions\".\"time\", "
   "\"wallet\".\"eTransactions\".\"time_received\", "
-  "\"wallet\".\"eTransactions\".\"txid\" "
+  "\"wallet\".\"eTransactions\".\"txid\", "
+  "\"wallet\".\"eTransactions\".\"wallet_id\" "
   "FROM \"wallet\".\"eTransactions\" "
   "WHERE \"wallet\".\"eTransactions\".\"id\"=$1";
 
@@ -508,8 +565,9 @@ namespace odb
   "\"size\"=$3, "
   "\"time\"=$4, "
   "\"time_received\"=$5, "
-  "\"txid\"=$6 "
-  "WHERE \"id\"=$7";
+  "\"txid\"=$6, "
+  "\"wallet_id\"=$7 "
+  "WHERE \"id\"=$8";
 
   const char access::object_traits_impl< ::eTransactions, id_pgsql >::erase_statement[] =
   "DELETE FROM \"wallet\".\"eTransactions\" "
@@ -523,7 +581,8 @@ namespace odb
   "\"wallet\".\"eTransactions\".\"size\", "
   "\"wallet\".\"eTransactions\".\"time\", "
   "\"wallet\".\"eTransactions\".\"time_received\", "
-  "\"wallet\".\"eTransactions\".\"txid\" "
+  "\"wallet\".\"eTransactions\".\"txid\", "
+  "\"wallet\".\"eTransactions\".\"wallet_id\" "
   "FROM \"wallet\".\"eTransactions\"";
 
   const char access::object_traits_impl< ::eTransactions, id_pgsql >::erase_query_statement[] =
