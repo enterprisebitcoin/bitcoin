@@ -6,6 +6,8 @@
 
 #include <odb/core.hxx>
 
+#include <boost/uuid/uuid.hpp>
+
 #include "../version.h"
 
 #pragma db object
@@ -13,7 +15,7 @@
 class eWallets {
 public:
     eWallets(
-            const std::string &wallet_id,
+            const boost::uuids::uuid &wallet_id,
             const std::string &name,
             const std::string &description
     )
@@ -26,8 +28,8 @@ public:
 #pragma db id auto
     unsigned int id;
 
-#pragma db unique
-    std::string wallet_id;
+#pragma db unique type("UUID")
+    boost::uuids::uuid wallet_id;
 
     std::string name;
     std::string description;

@@ -53,7 +53,7 @@ namespace odb
     pgsql::int8_oid,
     pgsql::int8_oid,
     pgsql::text_oid,
-    pgsql::text_oid
+    pgsql::uuid_oid
   };
 
   const unsigned int access::object_traits_impl< ::eTransactions, id_pgsql >::
@@ -71,7 +71,7 @@ namespace odb
     pgsql::int8_oid,
     pgsql::int8_oid,
     pgsql::text_oid,
-    pgsql::text_oid,
+    pgsql::uuid_oid,
     pgsql::int4_oid
   };
 
@@ -172,11 +172,7 @@ namespace odb
 
     // wallet_id
     //
-    if (t[7UL])
-    {
-      i.wallet_id_value.capacity (i.wallet_id_size);
-      grew = true;
-    }
+    t[7UL] = 0;
 
     return grew;
   }
@@ -248,10 +244,8 @@ namespace odb
 
     // wallet_id
     //
-    b[n].type = pgsql::bind::text;
-    b[n].buffer = i.wallet_id_value.data ();
-    b[n].capacity = i.wallet_id_value.capacity ();
-    b[n].size = &i.wallet_id_size;
+    b[n].type = pgsql::bind::uuid;
+    b[n].buffer = i.wallet_id_value;
     b[n].is_null = &i.wallet_id_null;
     n++;
   }
@@ -372,22 +366,15 @@ namespace odb
     // wallet_id
     //
     {
-      ::std::string const& v =
+      ::boost::uuids::uuid const& v =
         o.wallet_id;
 
       bool is_null (false);
-      std::size_t size (0);
-      std::size_t cap (i.wallet_id_value.capacity ());
       pgsql::value_traits<
-          ::std::string,
-          pgsql::id_string >::set_image (
-        i.wallet_id_value,
-        size,
-        is_null,
-        v);
+          ::boost::uuids::uuid,
+          pgsql::id_uuid >::set_image (
+        i.wallet_id_value, is_null, v);
       i.wallet_id_null = is_null;
-      i.wallet_id_size = size;
-      grew = grew || (cap != i.wallet_id_value.capacity ());
     }
 
     return grew;
@@ -504,15 +491,14 @@ namespace odb
     // wallet_id
     //
     {
-      ::std::string& v =
+      ::boost::uuids::uuid& v =
         o.wallet_id;
 
       pgsql::value_traits<
-          ::std::string,
-          pgsql::id_string >::set_value (
+          ::boost::uuids::uuid,
+          pgsql::id_uuid >::set_value (
         v,
         i.wallet_id_value,
-        i.wallet_id_size,
         i.wallet_id_null);
     }
   }

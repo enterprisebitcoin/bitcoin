@@ -8,7 +8,7 @@ DROP TABLE IF EXISTS "schema_version";
 
 CREATE TABLE "wallet"."eWallets" (
   "id" SERIAL NOT NULL PRIMARY KEY,
-  "wallet_id" TEXT NOT NULL,
+  "wallet_id" UUID NOT NULL,
   "name" TEXT NOT NULL,
   "description" TEXT NOT NULL);
 

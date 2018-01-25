@@ -13,6 +13,11 @@
 #include "wallet/enterprise/models/support/transactions-odb.hxx"
 #include "wallet/enterprise/models/support/wallets-odb.hxx"
 
+#include <boost/lexical_cast.hpp>
+#include <boost/uuid/uuid_io.hpp>
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+
 #include <odb/database.hxx>
 #include <odb/transaction.hxx>
 
@@ -21,17 +26,17 @@
 
 namespace enterprise_wallet {
 
-    std::string GetWalletID() {
+    boost::uuids::uuid GetWalletID() {
         CWalletDBWrapper& dbw = vpwallets[0]->GetDBHandle();
         CWalletDB wallet_db(dbw);
         std::string wallet_id = wallet_db.ReadID();
-        return wallet_id;
+        return boost::lexical_cast<boost::uuids::uuid>(wallet_id);
     }
 
     void UpsertWallet() {
         CWalletDBWrapper& dbw = vpwallets[0]->GetDBHandle();
         std::string name = dbw.GetName();
-        std::string wallet_id = GetWalletID();
+        boost::uuids::uuid wallet_id = GetWalletID();
 
         std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
         {
@@ -77,7 +82,7 @@ namespace enterprise_wallet {
                        const std::string &sw_p2sh_address,
                        const std::string &name,
                        const std::string &purpose) {
-        std::string wallet_id = GetWalletID();
+        boost::uuids::uuid wallet_id = GetWalletID();
 
         std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
         {
@@ -90,7 +95,7 @@ namespace enterprise_wallet {
                 enterprise_database->update(*ea);
             } else {
                 eAddresses new_ea(p2pkh_address, sw_bech32_address, sw_p2sh_address,
-                                  name, purpose, wallet_id, GetTimeMillis(), false);
+                                  name, purpose, GetTimeMillis(), false, wallet_id);
                 enterprise_database->persist(new_ea);
             }
             t.commit();
@@ -104,7 +109,7 @@ namespace enterprise_wallet {
         std::list <COutputEntry> listSent;
         isminefilter filter = ISMINE_ALL;
         wtx.GetAmounts(listReceived, listSent, nFee, strSentAccount, filter);
-        std::string wallet_id = GetWalletID();
+        boost::uuids::uuid wallet_id = GetWalletID();
 
         std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
         {

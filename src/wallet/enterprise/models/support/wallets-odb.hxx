@@ -108,9 +108,9 @@ namespace odb
     typedef
     pgsql::query_column<
       pgsql::value_traits<
-        ::std::string,
-        pgsql::id_string >::query_type,
-      pgsql::id_string >
+        ::boost::uuids::uuid,
+        pgsql::id_uuid >::query_type,
+      pgsql::id_uuid >
     wallet_id_type_;
 
     static const wallet_id_type_ wallet_id;
@@ -188,8 +188,7 @@ namespace odb
 
       // wallet_id
       //
-      details::buffer wallet_id_value;
-      std::size_t wallet_id_size;
+      unsigned char wallet_id_value[16];
       bool wallet_id_null;
 
       // name

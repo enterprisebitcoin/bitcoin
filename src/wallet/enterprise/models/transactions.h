@@ -6,6 +6,8 @@
 
 #include <odb/core.hxx>
 
+#include <boost/uuid/uuid.hpp>
+
 #include "../version.h"
 
 #pragma db object
@@ -19,7 +21,7 @@ public:
             const int64_t time,
             const int64_t time_received,
             const std::string &txid,
-            const std::string &wallet_id
+            const boost::uuids::uuid &wallet_id
     )
             :
             block_index(block_index),
@@ -43,7 +45,8 @@ public:
 #pragma db unique
     std::string txid;
 
-    std::string wallet_id;
+#pragma db type("UUID")
+    boost::uuids::uuid wallet_id;
 
 private:
     friend class odb::access;

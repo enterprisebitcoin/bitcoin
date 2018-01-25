@@ -14,7 +14,7 @@ CREATE TABLE "wallet"."eTransactions" (
   "time" BIGINT NOT NULL,
   "time_received" BIGINT NOT NULL,
   "txid" TEXT NOT NULL,
-  "wallet_id" TEXT NOT NULL);
+  "wallet_id" UUID NOT NULL);
 
 CREATE UNIQUE INDEX "eTransactions_txid_i"
   ON "wallet"."eTransactions" ("txid");

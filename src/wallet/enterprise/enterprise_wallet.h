@@ -5,7 +5,7 @@
 
 namespace enterprise_wallet
 {
-    std::string GetWalletID();
+    boost::uuids::uuid GetWalletID();
     void UpsertWallet();
     void TopUpAddressPool();
     void UpsertAddress(const std::string &p2pkh_address,
