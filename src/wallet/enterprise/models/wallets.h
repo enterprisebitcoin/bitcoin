@@ -28,7 +28,7 @@ public:
 #pragma db id auto
     unsigned int id;
 
-#pragma db unique type("UUID")
+#pragma db unique type("UUID") not_null
     boost::uuids::uuid wallet_id;
 
     std::string name;

@@ -51,12 +51,12 @@ namespace odb
   {
     pgsql::text_oid,
     pgsql::text_oid,
-    pgsql::uuid_oid,
+    pgsql::text_oid,
+    pgsql::text_oid,
+    pgsql::text_oid,
     pgsql::int8_oid,
-    pgsql::text_oid,
-    pgsql::text_oid,
     pgsql::bool_oid,
-    pgsql::text_oid
+    pgsql::uuid_oid
   };
 
   const unsigned int access::object_traits_impl< ::eAddresses, id_pgsql >::
@@ -70,12 +70,12 @@ namespace odb
   {
     pgsql::text_oid,
     pgsql::text_oid,
-    pgsql::uuid_oid,
+    pgsql::text_oid,
+    pgsql::text_oid,
+    pgsql::text_oid,
     pgsql::int8_oid,
-    pgsql::text_oid,
-    pgsql::text_oid,
     pgsql::bool_oid,
-    pgsql::text_oid,
+    pgsql::uuid_oid,
     pgsql::int4_oid
   };
 
@@ -142,33 +142,17 @@ namespace odb
 
     bool grew (false);
 
-    // name
+    // p2pkh_address
     //
     if (t[0UL])
     {
-      i.name_value.capacity (i.name_size);
+      i.p2pkh_address_value.capacity (i.p2pkh_address_size);
       grew = true;
     }
-
-    // purpose
-    //
-    if (t[1UL])
-    {
-      i.purpose_value.capacity (i.purpose_size);
-      grew = true;
-    }
-
-    // wallet_id
-    //
-    t[2UL] = 0;
-
-    // time
-    //
-    t[3UL] = 0;
 
     // sw_bech32_address
     //
-    if (t[4UL])
+    if (t[1UL])
     {
       i.sw_bech32_address_value.capacity (i.sw_bech32_address_size);
       grew = true;
@@ -176,27 +160,43 @@ namespace odb
 
     // sw_p2sh_address
     //
-    if (t[5UL])
+    if (t[2UL])
     {
       i.sw_p2sh_address_value.capacity (i.sw_p2sh_address_size);
       grew = true;
     }
 
+    // name
+    //
+    if (t[3UL])
+    {
+      i.name_value.capacity (i.name_size);
+      grew = true;
+    }
+
+    // purpose
+    //
+    if (t[4UL])
+    {
+      i.purpose_value.capacity (i.purpose_size);
+      grew = true;
+    }
+
+    // time
+    //
+    t[5UL] = 0;
+
     // is_used
     //
     t[6UL] = 0;
 
-    // id
+    // wallet_id
     //
     t[7UL] = 0;
 
-    // p2pkh_address
+    // id
     //
-    if (t[8UL])
-    {
-      i.p2pkh_address_value.capacity (i.p2pkh_address_size);
-      grew = true;
-    }
+    t[8UL] = 0;
 
     return grew;
   }
@@ -212,36 +212,13 @@ namespace odb
 
     std::size_t n (0);
 
-    // name
+    // p2pkh_address
     //
     b[n].type = pgsql::bind::text;
-    b[n].buffer = i.name_value.data ();
-    b[n].capacity = i.name_value.capacity ();
-    b[n].size = &i.name_size;
-    b[n].is_null = &i.name_null;
-    n++;
-
-    // purpose
-    //
-    b[n].type = pgsql::bind::text;
-    b[n].buffer = i.purpose_value.data ();
-    b[n].capacity = i.purpose_value.capacity ();
-    b[n].size = &i.purpose_size;
-    b[n].is_null = &i.purpose_null;
-    n++;
-
-    // wallet_id
-    //
-    b[n].type = pgsql::bind::uuid;
-    b[n].buffer = i.wallet_id_value;
-    b[n].is_null = &i.wallet_id_null;
-    n++;
-
-    // time
-    //
-    b[n].type = pgsql::bind::bigint;
-    b[n].buffer = &i.time_value;
-    b[n].is_null = &i.time_null;
+    b[n].buffer = i.p2pkh_address_value.data ();
+    b[n].capacity = i.p2pkh_address_value.capacity ();
+    b[n].size = &i.p2pkh_address_size;
+    b[n].is_null = &i.p2pkh_address_null;
     n++;
 
     // sw_bech32_address
@@ -262,11 +239,43 @@ namespace odb
     b[n].is_null = &i.sw_p2sh_address_null;
     n++;
 
+    // name
+    //
+    b[n].type = pgsql::bind::text;
+    b[n].buffer = i.name_value.data ();
+    b[n].capacity = i.name_value.capacity ();
+    b[n].size = &i.name_size;
+    b[n].is_null = &i.name_null;
+    n++;
+
+    // purpose
+    //
+    b[n].type = pgsql::bind::text;
+    b[n].buffer = i.purpose_value.data ();
+    b[n].capacity = i.purpose_value.capacity ();
+    b[n].size = &i.purpose_size;
+    b[n].is_null = &i.purpose_null;
+    n++;
+
+    // time
+    //
+    b[n].type = pgsql::bind::bigint;
+    b[n].buffer = &i.time_value;
+    b[n].is_null = &i.time_null;
+    n++;
+
     // is_used
     //
     b[n].type = pgsql::bind::boolean_;
     b[n].buffer = &i.is_used_value;
     b[n].is_null = &i.is_used_null;
+    n++;
+
+    // wallet_id
+    //
+    b[n].type = pgsql::bind::uuid;
+    b[n].buffer = i.wallet_id_value;
+    b[n].is_null = &i.wallet_id_null;
     n++;
 
     // id
@@ -278,15 +287,6 @@ namespace odb
       b[n].is_null = &i.id_null;
       n++;
     }
-
-    // p2pkh_address
-    //
-    b[n].type = pgsql::bind::text;
-    b[n].buffer = i.p2pkh_address_value.data ();
-    b[n].capacity = i.p2pkh_address_value.capacity ();
-    b[n].size = &i.p2pkh_address_size;
-    b[n].is_null = &i.p2pkh_address_null;
-    n++;
   }
 
   void access::object_traits_impl< ::eAddresses, id_pgsql >::
@@ -311,74 +311,25 @@ namespace odb
 
     bool grew (false);
 
-    // name
+    // p2pkh_address
     //
     {
       ::std::string const& v =
-        o.name;
+        o.p2pkh_address;
 
       bool is_null (false);
       std::size_t size (0);
-      std::size_t cap (i.name_value.capacity ());
+      std::size_t cap (i.p2pkh_address_value.capacity ());
       pgsql::value_traits<
           ::std::string,
           pgsql::id_string >::set_image (
-        i.name_value,
+        i.p2pkh_address_value,
         size,
         is_null,
         v);
-      i.name_null = is_null;
-      i.name_size = size;
-      grew = grew || (cap != i.name_value.capacity ());
-    }
-
-    // purpose
-    //
-    {
-      ::std::string const& v =
-        o.purpose;
-
-      bool is_null (false);
-      std::size_t size (0);
-      std::size_t cap (i.purpose_value.capacity ());
-      pgsql::value_traits<
-          ::std::string,
-          pgsql::id_string >::set_image (
-        i.purpose_value,
-        size,
-        is_null,
-        v);
-      i.purpose_null = is_null;
-      i.purpose_size = size;
-      grew = grew || (cap != i.purpose_value.capacity ());
-    }
-
-    // wallet_id
-    //
-    {
-      ::boost::uuids::uuid const& v =
-        o.wallet_id;
-
-      bool is_null (false);
-      pgsql::value_traits<
-          ::boost::uuids::uuid,
-          pgsql::id_uuid >::set_image (
-        i.wallet_id_value, is_null, v);
-      i.wallet_id_null = is_null;
-    }
-
-    // time
-    //
-    {
-      ::int64_t const& v =
-        o.time;
-
-      bool is_null (false);
-      pgsql::value_traits<
-          ::int64_t,
-          pgsql::id_bigint >::set_image (
-        i.time_value, is_null, v);
-      i.time_null = is_null;
+      i.p2pkh_address_null = is_null;
+      i.p2pkh_address_size = size;
+      grew = grew || (cap != i.p2pkh_address_value.capacity ());
     }
 
     // sw_bech32_address
@@ -423,6 +374,62 @@ namespace odb
       grew = grew || (cap != i.sw_p2sh_address_value.capacity ());
     }
 
+    // name
+    //
+    {
+      ::std::string const& v =
+        o.name;
+
+      bool is_null (false);
+      std::size_t size (0);
+      std::size_t cap (i.name_value.capacity ());
+      pgsql::value_traits<
+          ::std::string,
+          pgsql::id_string >::set_image (
+        i.name_value,
+        size,
+        is_null,
+        v);
+      i.name_null = is_null;
+      i.name_size = size;
+      grew = grew || (cap != i.name_value.capacity ());
+    }
+
+    // purpose
+    //
+    {
+      ::std::string const& v =
+        o.purpose;
+
+      bool is_null (false);
+      std::size_t size (0);
+      std::size_t cap (i.purpose_value.capacity ());
+      pgsql::value_traits<
+          ::std::string,
+          pgsql::id_string >::set_image (
+        i.purpose_value,
+        size,
+        is_null,
+        v);
+      i.purpose_null = is_null;
+      i.purpose_size = size;
+      grew = grew || (cap != i.purpose_value.capacity ());
+    }
+
+    // time
+    //
+    {
+      ::int64_t const& v =
+        o.time;
+
+      bool is_null (false);
+      pgsql::value_traits<
+          ::int64_t,
+          pgsql::id_bigint >::set_image (
+        i.time_value, is_null, v);
+      i.time_null = is_null;
+    }
+
     // is_used
     //
     {
@@ -437,25 +444,18 @@ namespace odb
       i.is_used_null = is_null;
     }
 
-    // p2pkh_address
+    // wallet_id
     //
     {
-      ::std::string const& v =
-        o.p2pkh_address;
+      ::boost::uuids::uuid const& v =
+        o.wallet_id;
 
       bool is_null (false);
-      std::size_t size (0);
-      std::size_t cap (i.p2pkh_address_value.capacity ());
       pgsql::value_traits<
-          ::std::string,
-          pgsql::id_string >::set_image (
-        i.p2pkh_address_value,
-        size,
-        is_null,
-        v);
-      i.p2pkh_address_null = is_null;
-      i.p2pkh_address_size = size;
-      grew = grew || (cap != i.p2pkh_address_value.capacity ());
+          ::boost::uuids::uuid,
+          pgsql::id_uuid >::set_image (
+        i.wallet_id_value, is_null, v);
+      i.wallet_id_null = is_null;
     }
 
     return grew;
@@ -470,62 +470,19 @@ namespace odb
     ODB_POTENTIALLY_UNUSED (i);
     ODB_POTENTIALLY_UNUSED (db);
 
-    // name
+    // p2pkh_address
     //
     {
       ::std::string& v =
-        o.name;
+        o.p2pkh_address;
 
       pgsql::value_traits<
           ::std::string,
           pgsql::id_string >::set_value (
         v,
-        i.name_value,
-        i.name_size,
-        i.name_null);
-    }
-
-    // purpose
-    //
-    {
-      ::std::string& v =
-        o.purpose;
-
-      pgsql::value_traits<
-          ::std::string,
-          pgsql::id_string >::set_value (
-        v,
-        i.purpose_value,
-        i.purpose_size,
-        i.purpose_null);
-    }
-
-    // wallet_id
-    //
-    {
-      ::boost::uuids::uuid& v =
-        o.wallet_id;
-
-      pgsql::value_traits<
-          ::boost::uuids::uuid,
-          pgsql::id_uuid >::set_value (
-        v,
-        i.wallet_id_value,
-        i.wallet_id_null);
-    }
-
-    // time
-    //
-    {
-      ::int64_t& v =
-        o.time;
-
-      pgsql::value_traits<
-          ::int64_t,
-          pgsql::id_bigint >::set_value (
-        v,
-        i.time_value,
-        i.time_null);
+        i.p2pkh_address_value,
+        i.p2pkh_address_size,
+        i.p2pkh_address_null);
     }
 
     // sw_bech32_address
@@ -558,6 +515,50 @@ namespace odb
         i.sw_p2sh_address_null);
     }
 
+    // name
+    //
+    {
+      ::std::string& v =
+        o.name;
+
+      pgsql::value_traits<
+          ::std::string,
+          pgsql::id_string >::set_value (
+        v,
+        i.name_value,
+        i.name_size,
+        i.name_null);
+    }
+
+    // purpose
+    //
+    {
+      ::std::string& v =
+        o.purpose;
+
+      pgsql::value_traits<
+          ::std::string,
+          pgsql::id_string >::set_value (
+        v,
+        i.purpose_value,
+        i.purpose_size,
+        i.purpose_null);
+    }
+
+    // time
+    //
+    {
+      ::int64_t& v =
+        o.time;
+
+      pgsql::value_traits<
+          ::int64_t,
+          pgsql::id_bigint >::set_value (
+        v,
+        i.time_value,
+        i.time_null);
+    }
+
     // is_used
     //
     {
@@ -572,6 +573,20 @@ namespace odb
         i.is_used_null);
     }
 
+    // wallet_id
+    //
+    {
+      ::boost::uuids::uuid& v =
+        o.wallet_id;
+
+      pgsql::value_traits<
+          ::boost::uuids::uuid,
+          pgsql::id_uuid >::set_value (
+        v,
+        i.wallet_id_value,
+        i.wallet_id_null);
+    }
+
     // id
     //
     {
@@ -584,21 +599,6 @@ namespace odb
         v,
         i.id_value,
         i.id_null);
-    }
-
-    // p2pkh_address
-    //
-    {
-      ::std::string& v =
-        o.p2pkh_address;
-
-      pgsql::value_traits<
-          ::std::string,
-          pgsql::id_string >::set_value (
-        v,
-        i.p2pkh_address_value,
-        i.p2pkh_address_size,
-        i.p2pkh_address_null);
     }
   }
 
@@ -617,44 +617,44 @@ namespace odb
 
   const char access::object_traits_impl< ::eAddresses, id_pgsql >::persist_statement[] =
   "INSERT INTO \"wallet\".\"eAddresses\" "
-  "(\"name\", "
-  "\"purpose\", "
-  "\"wallet_id\", "
-  "\"time\", "
+  "(\"p2pkh_address\", "
   "\"sw_bech32_address\", "
   "\"sw_p2sh_address\", "
+  "\"name\", "
+  "\"purpose\", "
+  "\"time\", "
   "\"is_used\", "
-  "\"id\", "
-  "\"p2pkh_address\") "
+  "\"wallet_id\", "
+  "\"id\") "
   "VALUES "
-  "($1, $2, $3, $4, $5, $6, $7, DEFAULT, $8) "
+  "($1, $2, $3, $4, $5, $6, $7, $8, DEFAULT) "
   "RETURNING \"id\"";
 
   const char access::object_traits_impl< ::eAddresses, id_pgsql >::find_statement[] =
   "SELECT "
-  "\"wallet\".\"eAddresses\".\"name\", "
-  "\"wallet\".\"eAddresses\".\"purpose\", "
-  "\"wallet\".\"eAddresses\".\"wallet_id\", "
-  "\"wallet\".\"eAddresses\".\"time\", "
+  "\"wallet\".\"eAddresses\".\"p2pkh_address\", "
   "\"wallet\".\"eAddresses\".\"sw_bech32_address\", "
   "\"wallet\".\"eAddresses\".\"sw_p2sh_address\", "
+  "\"wallet\".\"eAddresses\".\"name\", "
+  "\"wallet\".\"eAddresses\".\"purpose\", "
+  "\"wallet\".\"eAddresses\".\"time\", "
   "\"wallet\".\"eAddresses\".\"is_used\", "
-  "\"wallet\".\"eAddresses\".\"id\", "
-  "\"wallet\".\"eAddresses\".\"p2pkh_address\" "
+  "\"wallet\".\"eAddresses\".\"wallet_id\", "
+  "\"wallet\".\"eAddresses\".\"id\" "
   "FROM \"wallet\".\"eAddresses\" "
   "WHERE \"wallet\".\"eAddresses\".\"id\"=$1";
 
   const char access::object_traits_impl< ::eAddresses, id_pgsql >::update_statement[] =
   "UPDATE \"wallet\".\"eAddresses\" "
   "SET "
-  "\"name\"=$1, "
-  "\"purpose\"=$2, "
-  "\"wallet_id\"=$3, "
-  "\"time\"=$4, "
-  "\"sw_bech32_address\"=$5, "
-  "\"sw_p2sh_address\"=$6, "
+  "\"p2pkh_address\"=$1, "
+  "\"sw_bech32_address\"=$2, "
+  "\"sw_p2sh_address\"=$3, "
+  "\"name\"=$4, "
+  "\"purpose\"=$5, "
+  "\"time\"=$6, "
   "\"is_used\"=$7, "
-  "\"p2pkh_address\"=$8 "
+  "\"wallet_id\"=$8 "
   "WHERE \"id\"=$9";
 
   const char access::object_traits_impl< ::eAddresses, id_pgsql >::erase_statement[] =
@@ -663,15 +663,15 @@ namespace odb
 
   const char access::object_traits_impl< ::eAddresses, id_pgsql >::query_statement[] =
   "SELECT "
-  "\"wallet\".\"eAddresses\".\"name\", "
-  "\"wallet\".\"eAddresses\".\"purpose\", "
-  "\"wallet\".\"eAddresses\".\"wallet_id\", "
-  "\"wallet\".\"eAddresses\".\"time\", "
+  "\"wallet\".\"eAddresses\".\"p2pkh_address\", "
   "\"wallet\".\"eAddresses\".\"sw_bech32_address\", "
   "\"wallet\".\"eAddresses\".\"sw_p2sh_address\", "
+  "\"wallet\".\"eAddresses\".\"name\", "
+  "\"wallet\".\"eAddresses\".\"purpose\", "
+  "\"wallet\".\"eAddresses\".\"time\", "
   "\"wallet\".\"eAddresses\".\"is_used\", "
-  "\"wallet\".\"eAddresses\".\"id\", "
-  "\"wallet\".\"eAddresses\".\"p2pkh_address\" "
+  "\"wallet\".\"eAddresses\".\"wallet_id\", "
+  "\"wallet\".\"eAddresses\".\"id\" "
   "FROM \"wallet\".\"eAddresses\"";
 
   const char access::object_traits_impl< ::eAddresses, id_pgsql >::erase_query_statement[] =

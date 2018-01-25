@@ -5,6 +5,16 @@
 #ifndef ADDRESSES_ODB_HXX
 #define ADDRESSES_ODB_HXX
 
+// Begin prologue.
+//
+#include <odb/boost/version.hxx>
+#if ODB_BOOST_VERSION != 2040000 // 2.4.0
+#  error ODB and C++ compilers see different libodb-boost interface versions
+#endif
+#include <odb/boost/uuid/pgsql/uuid-traits.hxx>
+//
+// End prologue.
+
 #include <odb/version.hxx>
 
 #if (ODB_VERSION != 20400UL)
@@ -112,7 +122,7 @@ namespace odb
   template <typename A>
   struct query_columns< ::eAddresses, id_pgsql, A >
   {
-    // name
+    // p2pkh_address
     //
     typedef
     pgsql::query_column<
@@ -120,45 +130,9 @@ namespace odb
         ::std::string,
         pgsql::id_string >::query_type,
       pgsql::id_string >
-    name_type_;
+    p2pkh_address_type_;
 
-    static const name_type_ name;
-
-    // purpose
-    //
-    typedef
-    pgsql::query_column<
-      pgsql::value_traits<
-        ::std::string,
-        pgsql::id_string >::query_type,
-      pgsql::id_string >
-    purpose_type_;
-
-    static const purpose_type_ purpose;
-
-    // wallet_id
-    //
-    typedef
-    pgsql::query_column<
-      pgsql::value_traits<
-        ::boost::uuids::uuid,
-        pgsql::id_uuid >::query_type,
-      pgsql::id_uuid >
-    wallet_id_type_;
-
-    static const wallet_id_type_ wallet_id;
-
-    // time
-    //
-    typedef
-    pgsql::query_column<
-      pgsql::value_traits<
-        ::int64_t,
-        pgsql::id_bigint >::query_type,
-      pgsql::id_bigint >
-    time_type_;
-
-    static const time_type_ time;
+    static const p2pkh_address_type_ p2pkh_address;
 
     // sw_bech32_address
     //
@@ -184,6 +158,42 @@ namespace odb
 
     static const sw_p2sh_address_type_ sw_p2sh_address;
 
+    // name
+    //
+    typedef
+    pgsql::query_column<
+      pgsql::value_traits<
+        ::std::string,
+        pgsql::id_string >::query_type,
+      pgsql::id_string >
+    name_type_;
+
+    static const name_type_ name;
+
+    // purpose
+    //
+    typedef
+    pgsql::query_column<
+      pgsql::value_traits<
+        ::std::string,
+        pgsql::id_string >::query_type,
+      pgsql::id_string >
+    purpose_type_;
+
+    static const purpose_type_ purpose;
+
+    // time
+    //
+    typedef
+    pgsql::query_column<
+      pgsql::value_traits<
+        ::int64_t,
+        pgsql::id_bigint >::query_type,
+      pgsql::id_bigint >
+    time_type_;
+
+    static const time_type_ time;
+
     // is_used
     //
     typedef
@@ -196,6 +206,18 @@ namespace odb
 
     static const is_used_type_ is_used;
 
+    // wallet_id
+    //
+    typedef
+    pgsql::query_column<
+      pgsql::value_traits<
+        ::boost::uuids::uuid,
+        pgsql::id_uuid >::query_type,
+      pgsql::id_uuid >
+    wallet_id_type_;
+
+    static const wallet_id_type_ wallet_id;
+
     // id
     //
     typedef
@@ -207,39 +229,12 @@ namespace odb
     id_type_;
 
     static const id_type_ id;
-
-    // p2pkh_address
-    //
-    typedef
-    pgsql::query_column<
-      pgsql::value_traits<
-        ::std::string,
-        pgsql::id_string >::query_type,
-      pgsql::id_string >
-    p2pkh_address_type_;
-
-    static const p2pkh_address_type_ p2pkh_address;
   };
 
   template <typename A>
-  const typename query_columns< ::eAddresses, id_pgsql, A >::name_type_
+  const typename query_columns< ::eAddresses, id_pgsql, A >::p2pkh_address_type_
   query_columns< ::eAddresses, id_pgsql, A >::
-  name (A::table_name, "\"name\"", 0);
-
-  template <typename A>
-  const typename query_columns< ::eAddresses, id_pgsql, A >::purpose_type_
-  query_columns< ::eAddresses, id_pgsql, A >::
-  purpose (A::table_name, "\"purpose\"", 0);
-
-  template <typename A>
-  const typename query_columns< ::eAddresses, id_pgsql, A >::wallet_id_type_
-  query_columns< ::eAddresses, id_pgsql, A >::
-  wallet_id (A::table_name, "\"wallet_id\"", 0);
-
-  template <typename A>
-  const typename query_columns< ::eAddresses, id_pgsql, A >::time_type_
-  query_columns< ::eAddresses, id_pgsql, A >::
-  time (A::table_name, "\"time\"", 0);
+  p2pkh_address (A::table_name, "\"p2pkh_address\"", 0);
 
   template <typename A>
   const typename query_columns< ::eAddresses, id_pgsql, A >::sw_bech32_address_type_
@@ -252,19 +247,34 @@ namespace odb
   sw_p2sh_address (A::table_name, "\"sw_p2sh_address\"", 0);
 
   template <typename A>
+  const typename query_columns< ::eAddresses, id_pgsql, A >::name_type_
+  query_columns< ::eAddresses, id_pgsql, A >::
+  name (A::table_name, "\"name\"", 0);
+
+  template <typename A>
+  const typename query_columns< ::eAddresses, id_pgsql, A >::purpose_type_
+  query_columns< ::eAddresses, id_pgsql, A >::
+  purpose (A::table_name, "\"purpose\"", 0);
+
+  template <typename A>
+  const typename query_columns< ::eAddresses, id_pgsql, A >::time_type_
+  query_columns< ::eAddresses, id_pgsql, A >::
+  time (A::table_name, "\"time\"", 0);
+
+  template <typename A>
   const typename query_columns< ::eAddresses, id_pgsql, A >::is_used_type_
   query_columns< ::eAddresses, id_pgsql, A >::
   is_used (A::table_name, "\"is_used\"", 0);
 
   template <typename A>
+  const typename query_columns< ::eAddresses, id_pgsql, A >::wallet_id_type_
+  query_columns< ::eAddresses, id_pgsql, A >::
+  wallet_id (A::table_name, "\"wallet_id\"", 0);
+
+  template <typename A>
   const typename query_columns< ::eAddresses, id_pgsql, A >::id_type_
   query_columns< ::eAddresses, id_pgsql, A >::
   id (A::table_name, "\"id\"", 0);
-
-  template <typename A>
-  const typename query_columns< ::eAddresses, id_pgsql, A >::p2pkh_address_type_
-  query_columns< ::eAddresses, id_pgsql, A >::
-  p2pkh_address (A::table_name, "\"p2pkh_address\"", 0);
 
   template <typename A>
   struct pointer_query_columns< ::eAddresses, id_pgsql, A >:
@@ -287,27 +297,11 @@ namespace odb
 
     struct image_type
     {
-      // name
+      // p2pkh_address
       //
-      details::buffer name_value;
-      std::size_t name_size;
-      bool name_null;
-
-      // purpose
-      //
-      details::buffer purpose_value;
-      std::size_t purpose_size;
-      bool purpose_null;
-
-      // wallet_id
-      //
-      unsigned char wallet_id_value[16];
-      bool wallet_id_null;
-
-      // time
-      //
-      long long time_value;
-      bool time_null;
+      details::buffer p2pkh_address_value;
+      std::size_t p2pkh_address_size;
+      bool p2pkh_address_null;
 
       // sw_bech32_address
       //
@@ -321,21 +315,37 @@ namespace odb
       std::size_t sw_p2sh_address_size;
       bool sw_p2sh_address_null;
 
+      // name
+      //
+      details::buffer name_value;
+      std::size_t name_size;
+      bool name_null;
+
+      // purpose
+      //
+      details::buffer purpose_value;
+      std::size_t purpose_size;
+      bool purpose_null;
+
+      // time
+      //
+      long long time_value;
+      bool time_null;
+
       // is_used
       //
       bool is_used_value;
       bool is_used_null;
 
+      // wallet_id
+      //
+      unsigned char wallet_id_value[16];
+      bool wallet_id_null;
+
       // id
       //
       int id_value;
       bool id_null;
-
-      // p2pkh_address
-      //
-      details::buffer p2pkh_address_value;
-      std::size_t p2pkh_address_size;
-      bool p2pkh_address_null;
 
       std::size_t version;
     };

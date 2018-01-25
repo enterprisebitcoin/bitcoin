@@ -5,6 +5,16 @@
 #ifndef WALLETS_ODB_HXX
 #define WALLETS_ODB_HXX
 
+// Begin prologue.
+//
+#include <odb/boost/version.hxx>
+#if ODB_BOOST_VERSION != 2040000 // 2.4.0
+#  error ODB and C++ compilers see different libodb-boost interface versions
+#endif
+#include <odb/boost/uuid/pgsql/uuid-traits.hxx>
+//
+// End prologue.
+
 #include <odb/version.hxx>
 
 #if (ODB_VERSION != 20400UL)

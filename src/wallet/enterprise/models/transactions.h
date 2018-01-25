@@ -45,7 +45,7 @@ public:
 #pragma db unique
     std::string txid;
 
-#pragma db type("UUID")
+#pragma db type("UUID") not_null
     boost::uuids::uuid wallet_id;
 
 private:

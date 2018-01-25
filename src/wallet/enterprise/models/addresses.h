@@ -49,7 +49,7 @@ public:
 #pragma db default(false)
     bool is_used;
 
-#pragma db type("UUID")
+#pragma db type("UUID") not_null
     boost::uuids::uuid wallet_id;
 
 #pragma db id auto

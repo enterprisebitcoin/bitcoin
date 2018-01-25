@@ -7,15 +7,15 @@ DROP TABLE IF EXISTS "wallet"."eAddresses" CASCADE;
 DROP TABLE IF EXISTS "schema_version";
 
 CREATE TABLE "wallet"."eAddresses" (
-  "name" TEXT NOT NULL,
-  "purpose" TEXT NOT NULL,
-  "wallet_id" UUID NOT NULL,
-  "time" BIGINT NOT NULL,
+  "p2pkh_address" TEXT NOT NULL,
   "sw_bech32_address" TEXT NOT NULL,
   "sw_p2sh_address" TEXT NOT NULL,
+  "name" TEXT NOT NULL,
+  "purpose" TEXT NOT NULL,
+  "time" BIGINT NOT NULL,
   "is_used" BOOLEAN NOT NULL DEFAULT FALSE,
-  "id" SERIAL NOT NULL PRIMARY KEY,
-  "p2pkh_address" TEXT NOT NULL);
+  "wallet_id" UUID NOT NULL,
+  "id" SERIAL NOT NULL PRIMARY KEY);
 
 CREATE UNIQUE INDEX "eAddresses_p2pkh_address_i"
   ON "wallet"."eAddresses" ("p2pkh_address");
