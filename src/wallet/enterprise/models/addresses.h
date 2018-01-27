@@ -29,7 +29,8 @@ public:
         name(name),
         purpose(purpose),
         time(time),
-        is_used(is_used) {};
+        is_used(is_used),
+        wallet_id(wallet_id) {};
 
 
 //    traditional base58 address

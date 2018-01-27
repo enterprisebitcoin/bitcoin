@@ -1,3 +1,5 @@
+#include <boost/uuid/uuid.hpp>
+
 #include <wallet/wallet.h>
 
 #ifndef ENTERPRISE_WALLET_H
