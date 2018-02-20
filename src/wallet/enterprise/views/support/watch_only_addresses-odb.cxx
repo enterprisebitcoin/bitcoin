@@ -4,7 +4,7 @@
 
 #include <odb/pre.hxx>
 
-#include "wallet/enterprise/views/watch_only_addresses-odb.hxx"
+#include "wallet/enterprise/views/support/watch_only_addresses-odb.hxx"
 
 #include <cassert>
 #include <cstring>  // std::memcpy

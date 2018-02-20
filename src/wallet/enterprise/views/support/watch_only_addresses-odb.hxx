@@ -148,7 +148,7 @@ namespace odb
   };
 }
 
-#include "wallet/enterprise/views/watch_only_addresses-odb.ixx"
+#include "wallet/enterprise/views/support/watch_only_addresses-odb.ixx"
 
 #include <odb/post.hxx>
 

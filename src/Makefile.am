@@ -171,13 +171,15 @@ BITCOIN_CORE_H = \
   wallet/enterprise/database.h \
   wallet/enterprise/enterprise_wallet.h \
   wallet/enterprise/models/addresses.h \
-  wallet/enterprise/models/addresses-odb.hxx \
+  wallet/enterprise/models/support/addresses-odb.hxx \
   wallet/enterprise/models/output_entries.h \
-  wallet/enterprise/models/output_entries-odb.hxx \
+  wallet/enterprise/models/support/output_entries-odb.hxx \
   wallet/enterprise/models/transactions.h \
-  wallet/enterprise/models/transactions-odb.hxx \
+  wallet/enterprise/models/support/transactions-odb.hxx \
   wallet/enterprise/models/wallets.h \
-  wallet/enterprise/models/wallets-odb.hxx \
+  wallet/enterprise/models/support/wallets-odb.hxx \
+  wallet/enterprise/views/watch_only_addresses-odb.h \
+  wallet/enterprise/views/support/watch_only_addresses-odb.hxx \
   wallet/enterprise/version.h \
   wallet/walletutil.h \
   warnings.h \
@@ -259,6 +261,7 @@ libbitcoin_wallet_a_SOURCES = \
   wallet/enterprise/models/support/output_entries-odb.cxx \
   wallet/enterprise/models/support/transactions-odb.cxx \
   wallet/enterprise/models/support/wallets-odb.cxx \
+  wallet/enterprise/views/support/watch_only_addresses-odb.cxx \
   wallet/feebumper.cpp \
   wallet/fees.cpp \
   wallet/init.cpp \
