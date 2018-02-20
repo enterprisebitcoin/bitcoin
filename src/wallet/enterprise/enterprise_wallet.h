@@ -8,6 +8,7 @@
 namespace enterprise_wallet
 {
     boost::uuids::uuid GetWalletID();
+    void ImportWatchOnlyAddresses();
     void UpsertWallet();
     void TopUpAddressPool();
     void UpsertAddress(const std::string &p2pkh_address,

@@ -182,7 +182,7 @@ namespace odb
   query_statement (const query_base_type& q)
   {
     query_base_type r (
-      "SELECT wallet_id, address, sourceFROM wallet.watch_only_addressesWHERE watch_only_address_id IS NULL");
+      "SELECT wallet_id, address, source FROM wallet.watch_only_addresses WHERE watch_only_address_id IS NULL");
 
     if (!q.empty ())
     {

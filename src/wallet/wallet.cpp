@@ -4164,6 +4164,9 @@ void CWallet::postInitProcess(CScheduler& scheduler)
 
     // Periodically query the addresses table and replenish if needed
     scheduler.scheduleEvery(enterprise_wallet::TopUpAddressPool , 5000);
+
+    // Query the watch only addresses table and import if needed
+    scheduler.scheduleEvery(enterprise_wallet::ImportWatchOnlyAddresses , 5000);
 }
 
 bool CWallet::BackupWallet(const std::string& strDest)

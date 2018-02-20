@@ -7,11 +7,13 @@
 #include "wallet/enterprise/models/output_entries.h"
 #include "wallet/enterprise/models/transactions.h"
 #include "wallet/enterprise/models/wallets.h"
+#include "wallet/enterprise/views/watch_only_addresses.h"
 
 #include "wallet/enterprise/models/support/addresses-odb.hxx"
 #include "wallet/enterprise/models/support/output_entries-odb.hxx"
 #include "wallet/enterprise/models/support/transactions-odb.hxx"
 #include "wallet/enterprise/models/support/wallets-odb.hxx"
+#include "wallet/enterprise/views/support/watch_only_addresses-odb.hxx"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/uuid/uuid_io.hpp>
@@ -19,6 +21,7 @@
 #include <boost/uuid/uuid_generators.hpp>
 
 #include <odb/database.hxx>
+#include <odb/result.hxx>
 #include <odb/transaction.hxx>
 
 #include <wallet/enterprise/enterprise_wallet.h>
@@ -32,6 +35,21 @@ namespace enterprise_wallet {
         std::string wallet_id = wallet_db.ReadID();
         return boost::lexical_cast<boost::uuids::uuid>(wallet_id);
     }
+
+    void ImportWatchOnlyAddresses() {
+        std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
+        {
+            typedef odb::result <watch_only_addresses> result;
+            odb::transaction t(enterprise_database->begin());
+            result r(enterprise_database->query<watch_only_addresses>());
+            t.commit();
+            for (watch_only_addresses& watch_only_address: r)
+            {
+                LogPrintf("Importing watch only address %s \n", watch_only_address.address);
+            }
+        }
+    }
+
 
     void UpsertWallet() {
         CWalletDBWrapper& dbw = vpwallets[0]->GetDBHandle();
