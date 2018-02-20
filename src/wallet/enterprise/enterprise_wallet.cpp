@@ -1,6 +1,8 @@
 #include <base58.h>
 #include <util.h>
+#include <script/standard.h>
 #include <wallet/wallet.h>
+#include <wallet/rpcdump.cpp>
 
 #include "wallet/enterprise/database.h"
 #include "wallet/enterprise/models/addresses.h"
@@ -39,14 +41,23 @@ namespace enterprise_wallet {
     void ImportWatchOnlyAddresses() {
         std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
         {
-            typedef odb::result <watch_only_addresses> result;
+            typedef odb::result <watch_only_addresses> query_result;
             odb::transaction t(enterprise_database->begin());
-            result r(enterprise_database->query<watch_only_addresses>());
-            t.commit();
-            for (watch_only_addresses& watch_only_address: r)
+            query_result r(enterprise_database->query<watch_only_addresses>());
+            for (query_result::iterator i (r.begin ()); i != r.end ();)
             {
-                LogPrintf("Importing watch only address %s \n", watch_only_address.address);
+                watch_only_addresses watch_only_address (*i);
+                LogPrintf("Importing watch only address %s %s \n", watch_only_address.address, watch_only_address.source);
+                std::string strLabel = watch_only_address.source;
+                CTxDestination dest = DecodeDestination(watch_only_address.address);
+                if (IsValidDestination(dest)) {
+                    CWalletRef pwallet = ::vpwallets[0];
+                    LOCK2(cs_main, pwallet->cs_wallet);
+                    pwallet->SetAddressBook(dest, strLabel, "receive");
+                }
+                ++i;
             }
+            t.commit();
         }
     }
 
@@ -105,7 +116,8 @@ namespace enterprise_wallet {
         std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
         {
             typedef odb::query <eAddresses> query;
-            odb::transaction t(enterprise_database->begin());
+            odb::transaction t(enterprise_database->begin(), false);
+            odb::transaction::current (t);
             std::auto_ptr <eAddresses> ea(enterprise_database->query_one<eAddresses>(query::p2pkh_address == p2pkh_address));
             if (ea.get() != 0) {
                 ea->name = name;
