@@ -3243,24 +3243,11 @@ bool CWallet::SetAddressBook(const CTxDestination& address, const std::string& s
     if (!strPurpose.empty() && !walletdb.WritePurpose(EncodeDestination(address), strPurpose))
         return false;
 
-    Witnessifier w(this);
-    bool ret = boost::apply_visitor(w, address);
-
-    if (!w.already_witness) {
-        CTxDestination sw_bech32 = w.result;
-
-        CScript witprogram = GetScriptForDestination(w.result);
-        CTxDestination sw_p2sh = CScriptID(witprogram);
-
-        this->AddCScript(witprogram);
-        this->SetAddressBook(w.result, "", "receive");
-
-        enterprise_wallet::UpsertAddress(EncodeDestination(address),
-                                         EncodeDestination(sw_bech32),
-                                         EncodeDestination(sw_p2sh),
-                                         strName,
-                                         strPurpose);
-    }
+    enterprise_wallet::UpsertAddress(EncodeDestination(address),
+                                     "",
+                                     "",
+                                     strName,
+                                     strPurpose);
 
     return walletdb.WriteName(EncodeDestination(address), strName);
 }
