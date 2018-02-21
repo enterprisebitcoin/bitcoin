@@ -34,7 +34,6 @@ public:
 
 
 //    traditional base58 address
-#pragma db unique
     std::string p2pkh_address;
 
     std::string sw_bech32_address;

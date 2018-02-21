@@ -17,9 +17,6 @@ CREATE TABLE "wallet"."eAddresses" (
   "wallet_id" UUID NOT NULL,
   "id" SERIAL NOT NULL PRIMARY KEY);
 
-CREATE UNIQUE INDEX "eAddresses_p2pkh_address_i"
-  ON "wallet"."eAddresses" ("p2pkh_address");
-
 CREATE TABLE "schema_version" (
   "name" TEXT NOT NULL PRIMARY KEY,
   "version" BIGINT NOT NULL,
