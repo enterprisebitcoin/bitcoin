@@ -132,9 +132,6 @@ namespace odb
 
     static const std::size_t column_count = 4UL;
 
-    static query_base_type
-    query_statement (const query_base_type&);
-
     static result<view_type>
     query (database&, const query_base_type&);
 

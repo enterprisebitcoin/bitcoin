@@ -177,23 +177,6 @@ namespace odb
     }
   }
 
-  access::view_traits_impl< ::watch_only_addresses, id_pgsql >::query_base_type
-  access::view_traits_impl< ::watch_only_addresses, id_pgsql >::
-  query_statement (const query_base_type& q)
-  {
-    query_base_type r (
-      "SELECT wallet_id, address, source FROM wallet.watch_only_addresses WHERE watch_only_address_id IS NULL");
-
-    if (!q.empty ())
-    {
-      r += " ";
-      r += q.clause_prefix ();
-      r += q;
-    }
-
-    return r;
-  }
-
   result< access::view_traits_impl< ::watch_only_addresses, id_pgsql >::view_type >
   access::view_traits_impl< ::watch_only_addresses, id_pgsql >::
   query (database&, const query_base_type& q)
@@ -217,7 +200,7 @@ namespace odb
       imb.version++;
     }
 
-    const query_base_type& qs (query_statement (q));
+    const query_base_type& qs (q);
     qs.init_parameters ();
     shared_ptr<select_statement> st (
       new (shared) select_statement (

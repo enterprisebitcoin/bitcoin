@@ -10,9 +10,7 @@
 
 #include "../version.h"
 
-#pragma db view query("SELECT wallet_id, address, source " \
-                        "FROM wallet.watch_only_addresses " \
-                                "WHERE watch_only_address_id IS NULL")
+#pragma db view
 
 struct watch_only_addresses {
     boost::uuids::uuid wallet_id;

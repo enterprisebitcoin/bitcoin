@@ -42,20 +42,24 @@ namespace enterprise_wallet {
         std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
         {
             typedef odb::result <watch_only_addresses> query_result;
+            std::string wallet_id = boost::lexical_cast<std::string>(GetWalletID());
             odb::transaction t(enterprise_database->begin());
-            query_result r(enterprise_database->query<watch_only_addresses>());
-            for (query_result::iterator i (r.begin ()); i != r.end ();)
+            query_result r(enterprise_database->query<watch_only_addresses>(
+                    "SELECT wallet_id, address, source " \
+                     "FROM wallet.watch_only_addresses " \
+                     "WHERE watch_only_address_id IS NULL AND wallet_id='" + wallet_id + "'"
+            ));
+            for (query_result::iterator i (r.begin ()); i != r.end (); ++i)
             {
                 watch_only_addresses watch_only_address (*i);
                 LogPrintf("Importing watch only address %s %s \n", watch_only_address.address, watch_only_address.source);
-                std::string strLabel = watch_only_address.source;
+                std::string strLabel = "Source: " + watch_only_address.source;
                 CTxDestination dest = DecodeDestination(watch_only_address.address);
                 if (IsValidDestination(dest)) {
                     CWalletRef pwallet = ::vpwallets[0];
                     LOCK2(cs_main, pwallet->cs_wallet);
                     pwallet->SetAddressBook(dest, strLabel, "receive");
                 }
-                ++i;
             }
             t.commit();
         }
@@ -84,11 +88,12 @@ namespace enterprise_wallet {
     }
 
     void TopUpAddressPool() {
+        boost::uuids::uuid wallet_id = GetWalletID();
         std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
             {
                 typedef odb::query <address_stats> query;
                 odb::transaction t (enterprise_database->begin ());
-                address_stats as (enterprise_database->query_value<address_stats> (query::is_used == false));
+                address_stats as (enterprise_database->query_value<address_stats> (query::is_used == false && query::wallet_id == wallet_id));
                 LogPrintf("Unused address count %d \n", as.count);
                 t.commit ();
                 if (as.count < 100) {
@@ -118,7 +123,7 @@ namespace enterprise_wallet {
             typedef odb::query <eAddresses> query;
             odb::transaction t(enterprise_database->begin(), false);
             odb::transaction::current (t);
-            std::auto_ptr <eAddresses> ea(enterprise_database->query_one<eAddresses>(query::p2pkh_address == p2pkh_address));
+            std::auto_ptr <eAddresses> ea(enterprise_database->query_one<eAddresses>(query::p2pkh_address == p2pkh_address && query::wallet_id == wallet_id));
             if (ea.get() != 0) {
                 ea->name = name;
                 ea->purpose = purpose;
@@ -151,7 +156,7 @@ namespace enterprise_wallet {
 
             odb::transaction t(enterprise_database->begin());
             // Select the transaction by its txid, insert if it's not found, update if it is
-            std::auto_ptr <eTransactions> etx(enterprise_database->query_one<eTransactions>(query::txid == txid));
+            std::auto_ptr <eTransactions> etx(enterprise_database->query_one<eTransactions>(query::txid == txid && query::wallet_id == wallet_id));
             if (etx.get() != 0) {
                 etx->block_index = wtx.nIndex;
                 etx->is_trusted = wtx.IsTrusted();
@@ -223,6 +228,7 @@ namespace enterprise_wallet {
     }
 
     void DeleteTx(uint256 &hash) {
+        boost::uuids::uuid wallet_id = GetWalletID();
 
         std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
         {
@@ -230,7 +236,7 @@ namespace enterprise_wallet {
 
             odb::transaction t(enterprise_database->begin());
             std::auto_ptr <eTransactions> etx(
-                    enterprise_database->query_one<eTransactions>(query::txid == hash.GetHex()));
+                    enterprise_database->query_one<eTransactions>(query::txid == hash.GetHex() && query::wallet_id == wallet_id));
 
             if (etx.get() != 0)
                 enterprise_database->erase(*etx);
