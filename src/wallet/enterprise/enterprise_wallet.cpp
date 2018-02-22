@@ -154,6 +154,8 @@ namespace enterprise_wallet {
             uint256 hash = wtx.GetHash();
             std::string txid = hash.GetHex();
 
+            LOCK(cs_main);
+
             odb::transaction t(enterprise_database->begin());
             // Select the transaction by its txid, insert if it's not found, update if it is
             std::auto_ptr <eTransactions> etx(enterprise_database->query_one<eTransactions>(query::txid == txid && query::wallet_id == wallet_id));
