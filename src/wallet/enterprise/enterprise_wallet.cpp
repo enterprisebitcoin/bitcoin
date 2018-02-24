@@ -44,6 +44,7 @@ namespace enterprise_wallet {
             typedef odb::result <watch_only_addresses> query_result;
             std::string wallet_id = boost::lexical_cast<std::string>(GetWalletID());
             odb::transaction t(enterprise_database->begin());
+            LogPrintf("Querying for watch only addresses\n");
             query_result r(enterprise_database->query<watch_only_addresses>(
                     "SELECT wallet_id, address, source " \
                      "FROM wallet.watch_only_addresses " \
@@ -56,9 +57,17 @@ namespace enterprise_wallet {
                 std::string strLabel = "Source: " + watch_only_address.source;
                 CTxDestination dest = DecodeDestination(watch_only_address.address);
                 if (IsValidDestination(dest)) {
+                    CScript script = GetScriptForDestination(dest);
+
                     CWalletRef pwallet = ::vpwallets[0];
                     LOCK2(cs_main, pwallet->cs_wallet);
-                    pwallet->SetAddressBook(dest, strLabel, "receive");
+                    pwallet->MarkDirty();
+
+                    CTxDestination destination;
+                    if (ExtractDestination(script, destination)) {
+                        pwallet->AddWatchOnly(script, 0);
+                        pwallet->SetAddressBook(destination, strLabel, "receive");
+                    }
                 }
             }
             t.commit();

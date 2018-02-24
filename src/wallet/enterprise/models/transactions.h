@@ -41,8 +41,6 @@ public:
     unsigned int size;
     int64_t time;
     int64_t time_received;
-
-#pragma db unique
     std::string txid;
 
 #pragma db type("UUID") not_null
