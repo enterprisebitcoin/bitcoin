@@ -147,21 +147,29 @@ namespace enterprise_wallet {
     }
 
     void UpsertTx(const CWalletTx &wtx) {
+
         CAmount nFee;
         std::string strSentAccount;
         std::list <COutputEntry> listReceived;
         std::list <COutputEntry> listSent;
         isminefilter filter = ISMINE_ALL;
         wtx.GetAmounts(listReceived, listSent, nFee, strSentAccount, filter);
+
+        uint256 hash = wtx.GetHash();
+        std::string txid = hash.GetHex();
+
         boost::uuids::uuid wallet_id = GetWalletID();
+
+        CBlockIndex *blockindex = nullptr;
+        CTransactionRef tx;
+        uint256 hash_block;
+        GetTransaction(hash, tx, Params().GetConsensus(), hash_block, true, blockindex);
 
         std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
         {
             typedef odb::query <eTransactions> query;
             typedef odb::query <eOutputEntries> output_query;
             unsigned int etransaction_id;
-            uint256 hash = wtx.GetHash();
-            std::string txid = hash.GetHex();
 
             LOCK(cs_main);
 
