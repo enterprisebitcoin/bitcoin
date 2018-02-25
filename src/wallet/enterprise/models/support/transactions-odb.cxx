@@ -48,6 +48,7 @@ namespace odb
   persist_statement_types[] =
   {
     pgsql::int4_oid,
+    pgsql::int4_oid,
     pgsql::bool_oid,
     pgsql::int4_oid,
     pgsql::int8_oid,
@@ -65,6 +66,7 @@ namespace odb
   const unsigned int access::object_traits_impl< ::eTransactions, id_pgsql >::
   update_statement_types[] =
   {
+    pgsql::int4_oid,
     pgsql::int4_oid,
     pgsql::bool_oid,
     pgsql::int4_oid,
@@ -142,29 +144,33 @@ namespace odb
     //
     t[0UL] = 0;
 
-    // block_index
+    // block_id
     //
     t[1UL] = 0;
 
-    // is_trusted
+    // block_index
     //
     t[2UL] = 0;
 
-    // size
+    // is_trusted
     //
     t[3UL] = 0;
 
-    // time
+    // size
     //
     t[4UL] = 0;
 
-    // time_received
+    // time
     //
     t[5UL] = 0;
 
+    // time_received
+    //
+    t[6UL] = 0;
+
     // txid
     //
-    if (t[6UL])
+    if (t[7UL])
     {
       i.txid_value.capacity (i.txid_size);
       grew = true;
@@ -172,7 +178,7 @@ namespace odb
 
     // wallet_id
     //
-    t[7UL] = 0;
+    t[8UL] = 0;
 
     return grew;
   }
@@ -197,6 +203,13 @@ namespace odb
       b[n].is_null = &i.id_null;
       n++;
     }
+
+    // block_id
+    //
+    b[n].type = pgsql::bind::integer;
+    b[n].buffer = &i.block_id_value;
+    b[n].is_null = &i.block_id_null;
+    n++;
 
     // block_index
     //
@@ -271,6 +284,20 @@ namespace odb
     using namespace pgsql;
 
     bool grew (false);
+
+    // block_id
+    //
+    {
+      unsigned int const& v =
+        o.block_id;
+
+      bool is_null (false);
+      pgsql::value_traits<
+          unsigned int,
+          pgsql::id_integer >::set_image (
+        i.block_id_value, is_null, v);
+      i.block_id_null = is_null;
+    }
 
     // block_index
     //
@@ -403,6 +430,20 @@ namespace odb
         i.id_null);
     }
 
+    // block_id
+    //
+    {
+      unsigned int& v =
+        o.block_id;
+
+      pgsql::value_traits<
+          unsigned int,
+          pgsql::id_integer >::set_value (
+        v,
+        i.block_id_value,
+        i.block_id_null);
+    }
+
     // block_index
     //
     {
@@ -519,6 +560,7 @@ namespace odb
   const char access::object_traits_impl< ::eTransactions, id_pgsql >::persist_statement[] =
   "INSERT INTO \"wallet\".\"eTransactions\" "
   "(\"id\", "
+  "\"block_id\", "
   "\"block_index\", "
   "\"is_trusted\", "
   "\"size\", "
@@ -527,12 +569,13 @@ namespace odb
   "\"txid\", "
   "\"wallet_id\") "
   "VALUES "
-  "(DEFAULT, $1, $2, $3, $4, $5, $6, $7) "
+  "(DEFAULT, $1, $2, $3, $4, $5, $6, $7, $8) "
   "RETURNING \"id\"";
 
   const char access::object_traits_impl< ::eTransactions, id_pgsql >::find_statement[] =
   "SELECT "
   "\"wallet\".\"eTransactions\".\"id\", "
+  "\"wallet\".\"eTransactions\".\"block_id\", "
   "\"wallet\".\"eTransactions\".\"block_index\", "
   "\"wallet\".\"eTransactions\".\"is_trusted\", "
   "\"wallet\".\"eTransactions\".\"size\", "
@@ -546,14 +589,15 @@ namespace odb
   const char access::object_traits_impl< ::eTransactions, id_pgsql >::update_statement[] =
   "UPDATE \"wallet\".\"eTransactions\" "
   "SET "
-  "\"block_index\"=$1, "
-  "\"is_trusted\"=$2, "
-  "\"size\"=$3, "
-  "\"time\"=$4, "
-  "\"time_received\"=$5, "
-  "\"txid\"=$6, "
-  "\"wallet_id\"=$7 "
-  "WHERE \"id\"=$8";
+  "\"block_id\"=$1, "
+  "\"block_index\"=$2, "
+  "\"is_trusted\"=$3, "
+  "\"size\"=$4, "
+  "\"time\"=$5, "
+  "\"time_received\"=$6, "
+  "\"txid\"=$7, "
+  "\"wallet_id\"=$8 "
+  "WHERE \"id\"=$9";
 
   const char access::object_traits_impl< ::eTransactions, id_pgsql >::erase_statement[] =
   "DELETE FROM \"wallet\".\"eTransactions\" "
@@ -562,6 +606,7 @@ namespace odb
   const char access::object_traits_impl< ::eTransactions, id_pgsql >::query_statement[] =
   "SELECT "
   "\"wallet\".\"eTransactions\".\"id\", "
+  "\"wallet\".\"eTransactions\".\"block_id\", "
   "\"wallet\".\"eTransactions\".\"block_index\", "
   "\"wallet\".\"eTransactions\".\"is_trusted\", "
   "\"wallet\".\"eTransactions\".\"size\", "
