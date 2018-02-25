@@ -172,6 +172,8 @@ BITCOIN_CORE_H = \
   wallet/enterprise/enterprise_wallet.h \
   wallet/enterprise/models/addresses.h \
   wallet/enterprise/models/support/addresses-odb.hxx \
+  wallet/enterprise/models/blocks.h \
+  wallet/enterprise/models/support/blocks-odb.hxx \
   wallet/enterprise/models/output_entries.h \
   wallet/enterprise/models/support/output_entries-odb.hxx \
   wallet/enterprise/models/transactions.h \
@@ -258,6 +260,7 @@ libbitcoin_wallet_a_SOURCES = \
   wallet/db.cpp \
   wallet/enterprise/enterprise_wallet.cpp \
   wallet/enterprise/models/support/addresses-odb.cxx \
+  wallet/enterprise/models/support/blocks-odb.cxx \
   wallet/enterprise/models/support/output_entries-odb.cxx \
   wallet/enterprise/models/support/transactions-odb.cxx \
   wallet/enterprise/models/support/wallets-odb.cxx \

@@ -15,6 +15,7 @@
 class eTransactions {
 public:
     eTransactions(
+            const unsigned int block_id,
             const int block_index,
             const bool is_trusted,
             const unsigned int size,
@@ -24,6 +25,7 @@ public:
             const boost::uuids::uuid &wallet_id
     )
             :
+            block_id(block_id),
             block_index(block_index),
             is_trusted(is_trusted),
             size(size),
@@ -36,6 +38,7 @@ public:
 #pragma db id auto
     unsigned int id;
 
+    unsigned int block_id;
     int block_index;
     bool is_trusted;
     unsigned int size;

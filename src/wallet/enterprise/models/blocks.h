@@ -28,7 +28,9 @@ public:
 #pragma db id auto
     unsigned int id;
 
+#pragma db unique
     std::string hash;
+
     int64_t time;
     int64_t height;
 

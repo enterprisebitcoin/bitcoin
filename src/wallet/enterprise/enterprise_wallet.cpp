@@ -6,12 +6,14 @@
 
 #include "wallet/enterprise/database.h"
 #include "wallet/enterprise/models/addresses.h"
+#include "wallet/enterprise/models/blocks.h"
 #include "wallet/enterprise/models/output_entries.h"
 #include "wallet/enterprise/models/transactions.h"
 #include "wallet/enterprise/models/wallets.h"
 #include "wallet/enterprise/views/watch_only_addresses.h"
 
 #include "wallet/enterprise/models/support/addresses-odb.hxx"
+#include "wallet/enterprise/models/support/blocks-odb.hxx"
 #include "wallet/enterprise/models/support/output_entries-odb.hxx"
 #include "wallet/enterprise/models/support/transactions-odb.hxx"
 #include "wallet/enterprise/models/support/wallets-odb.hxx"
@@ -35,6 +37,7 @@ namespace enterprise_wallet {
         CWalletDBWrapper& dbw = vpwallets[0]->GetDBHandle();
         CWalletDB wallet_db(dbw);
         std::string wallet_id = wallet_db.ReadID();
+        return boost::lexical_cast<boost::uuids::uuid>(wallet_id);
     }
 
     void ImportWatchOnlyAddresses() {
@@ -146,23 +149,37 @@ namespace enterprise_wallet {
     }
 
     unsigned int UpsertBlock(const CBlockIndex &blockindex) {
+
+        uint256 binary_hash = blockindex.GetBlockHash();
+        std::string hash = binary_hash.GetHex();
+        int64_t time = blockindex.GetBlockTime();
+        int height = blockindex.nHeight;
+
         std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
         {
             typedef odb::query <eBlocks> query;
             odb::transaction t(enterprise_database->begin(), false);
             odb::transaction::current (t);
-            std::auto_ptr <eBlocks> ea(enterprise_database->query_one<eBlocks>(query::p2pkh_address == p2pkh_address && query::wallet_id == wallet_id));
-            if (ea.get() != 0) {
-                ea->name = name;
-                ea->purpose = purpose;
-                enterprise_database->update(*ea);
+            std::auto_ptr <eBlocks> eb(enterprise_database->query_one<eBlocks>(query::hash == hash));
+            if (eb.get() != 0) {
+                eb->time = time;
+                eb->height = height;
+                enterprise_database->update(*eb);
             } else {
-                eAddresses new_ea(p2pkh_address, sw_bech32_address, sw_p2sh_address,
-                                  name, purpose, GetTimeMillis(), false, wallet_id);
-                enterprise_database->persist(new_ea);
+                eBlocks new_eb(hash, time, height);
+                enterprise_database->persist(new_eb);
             }
             t.commit();
+
+            odb::transaction id_t(enterprise_database->begin(), false);
+            odb::transaction::current (id_t);
+            std::auto_ptr <eBlocks> eb_id(enterprise_database->query_one<eBlocks>(query::hash == hash));
+            unsigned int block_id = eb_id->id;
+            id_t.commit();
+            return block_id;
         }
+
+
     }
 
     void UpsertTx(const CWalletTx &wtx) {
@@ -179,12 +196,12 @@ namespace enterprise_wallet {
 
         boost::uuids::uuid wallet_id = GetWalletID();
 
-        CBlockIndex *blockindex = nullptr;
+        CBlockIndex blockindex;
         CTransactionRef tx;
         uint256 hash_block;
-        GetTransaction(hash, tx, Params().GetConsensus(), hash_block, true, blockindex);
+        GetTransaction(hash, tx, Params().GetConsensus(), hash_block, true, &blockindex);
 
-        unsigned int block_id = UpsertBlock(*blockindex);
+        unsigned int block_id = UpsertBlock(blockindex);
 
         std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
         {
@@ -198,6 +215,7 @@ namespace enterprise_wallet {
             // Select the transaction by its txid, insert if it's not found, update if it is
             std::auto_ptr <eTransactions> etx(enterprise_database->query_one<eTransactions>(query::txid == txid && query::wallet_id == wallet_id));
             if (etx.get() != 0) {
+                etx->block_id = block_id;
                 etx->block_index = wtx.nIndex;
                 etx->is_trusted = wtx.IsTrusted();
                 etx->size = wtx.tx->GetTotalSize();
@@ -206,7 +224,8 @@ namespace enterprise_wallet {
                 enterprise_database->update(*etx);
                 etransaction_id = etx->id;
             } else {
-                eTransactions new_etx(wtx.nIndex,
+                eTransactions new_etx(block_id,
+                                      wtx.nIndex,
                                       wtx.IsTrusted(),
                                       wtx.tx->GetTotalSize(),
                                       wtx.GetTxTime(),
