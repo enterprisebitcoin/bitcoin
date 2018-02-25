@@ -113,6 +113,18 @@ namespace odb
 
     static const id_type_ id;
 
+    // block_id
+    //
+    typedef
+    pgsql::query_column<
+      pgsql::value_traits<
+        unsigned int,
+        pgsql::id_integer >::query_type,
+      pgsql::id_integer >
+    block_id_type_;
+
+    static const block_id_type_ block_id;
+
     // block_index
     //
     typedef
@@ -204,6 +216,11 @@ namespace odb
   id (A::table_name, "\"id\"", 0);
 
   template <typename A>
+  const typename query_columns< ::eTransactions, id_pgsql, A >::block_id_type_
+  query_columns< ::eTransactions, id_pgsql, A >::
+  block_id (A::table_name, "\"block_id\"", 0);
+
+  template <typename A>
   const typename query_columns< ::eTransactions, id_pgsql, A >::block_index_type_
   query_columns< ::eTransactions, id_pgsql, A >::
   block_index (A::table_name, "\"block_index\"", 0);
@@ -263,6 +280,11 @@ namespace odb
       //
       int id_value;
       bool id_null;
+
+      // block_id
+      //
+      int block_id_value;
+      bool block_id_null;
 
       // block_index
       //
@@ -342,7 +364,7 @@ namespace odb
 
     typedef pgsql::query_base query_base_type;
 
-    static const std::size_t column_count = 8UL;
+    static const std::size_t column_count = 9UL;
     static const std::size_t id_column_count = 1UL;
     static const std::size_t inverse_column_count = 0UL;
     static const std::size_t readonly_column_count = 0UL;
