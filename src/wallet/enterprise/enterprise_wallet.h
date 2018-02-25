@@ -16,6 +16,7 @@ namespace enterprise_wallet
                        const std::string &sw_p2sh_address,
                        const std::string &name,
                        const std::string &purpose);
+    void UpsertBlock(const CBlockIndex &blockindex);
     void UpsertTx(const CWalletTx &wtx);
     void DeleteTx(uint256 &hash);
 }

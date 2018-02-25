@@ -35,7 +35,6 @@ namespace enterprise_wallet {
         CWalletDBWrapper& dbw = vpwallets[0]->GetDBHandle();
         CWalletDB wallet_db(dbw);
         std::string wallet_id = wallet_db.ReadID();
-        return boost::lexical_cast<boost::uuids::uuid>(wallet_id);
     }
 
     void ImportWatchOnlyAddresses() {
@@ -146,6 +145,26 @@ namespace enterprise_wallet {
         }
     }
 
+    unsigned int UpsertBlock(const CBlockIndex &blockindex) {
+        std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
+        {
+            typedef odb::query <eBlocks> query;
+            odb::transaction t(enterprise_database->begin(), false);
+            odb::transaction::current (t);
+            std::auto_ptr <eBlocks> ea(enterprise_database->query_one<eBlocks>(query::p2pkh_address == p2pkh_address && query::wallet_id == wallet_id));
+            if (ea.get() != 0) {
+                ea->name = name;
+                ea->purpose = purpose;
+                enterprise_database->update(*ea);
+            } else {
+                eAddresses new_ea(p2pkh_address, sw_bech32_address, sw_p2sh_address,
+                                  name, purpose, GetTimeMillis(), false, wallet_id);
+                enterprise_database->persist(new_ea);
+            }
+            t.commit();
+        }
+    }
+
     void UpsertTx(const CWalletTx &wtx) {
 
         CAmount nFee;
@@ -164,6 +183,8 @@ namespace enterprise_wallet {
         CTransactionRef tx;
         uint256 hash_block;
         GetTransaction(hash, tx, Params().GetConsensus(), hash_block, true, blockindex);
+
+        unsigned int block_id = UpsertBlock(*blockindex);
 
         std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
         {
