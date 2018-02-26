@@ -148,32 +148,41 @@ namespace enterprise_wallet {
         }
     }
 
-    unsigned int UpsertBlock(const CBlockIndex &blockindex) {
+    unsigned int UpsertBlock(const uint256 &binary_hash) {
 
-        uint256 binary_hash = blockindex.GetBlockHash();
-        std::string hash = binary_hash.GetHex();
-        int64_t time = blockindex.GetBlockTime();
-        int height = blockindex.nHeight;
+        std::string hash_str = binary_hash.ToString();
+
+        if (mapBlockIndex.count(binary_hash) == 0) {
+            LogPrintf("Block not found %s \n", hash_str);
+            return 0;
+        }
+
+        CBlockIndex* blockindex = mapBlockIndex[binary_hash];
+
+        int64_t time = blockindex->GetBlockTime();
+        int height = blockindex->nHeight;
+
+        LogPrintf("Upsert block %s \n", hash_str);
 
         std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
         {
             typedef odb::query <eBlocks> query;
             odb::transaction t(enterprise_database->begin(), false);
             odb::transaction::current (t);
-            std::auto_ptr <eBlocks> eb(enterprise_database->query_one<eBlocks>(query::hash == hash));
+            std::auto_ptr <eBlocks> eb(enterprise_database->query_one<eBlocks>(query::hash == hash_str));
             if (eb.get() != 0) {
                 eb->time = time;
                 eb->height = height;
                 enterprise_database->update(*eb);
             } else {
-                eBlocks new_eb(hash, time, height);
+                eBlocks new_eb(hash_str, time, height);
                 enterprise_database->persist(new_eb);
             }
             t.commit();
 
             odb::transaction id_t(enterprise_database->begin(), false);
             odb::transaction::current (id_t);
-            std::auto_ptr <eBlocks> eb_id(enterprise_database->query_one<eBlocks>(query::hash == hash));
+            std::auto_ptr <eBlocks> eb_id(enterprise_database->query_one<eBlocks>(query::hash == hash_str));
             unsigned int block_id = eb_id->id;
             id_t.commit();
             return block_id;
@@ -194,14 +203,24 @@ namespace enterprise_wallet {
         uint256 hash = wtx.GetHash();
         std::string txid = hash.GetHex();
 
+        LogPrintf("Upsert transaction %s \n", txid);
+
         boost::uuids::uuid wallet_id = GetWalletID();
 
-        CBlockIndex blockindex;
+        unsigned int block_id = 0;
         CTransactionRef tx;
         uint256 hash_block;
-        GetTransaction(hash, tx, Params().GetConsensus(), hash_block, true, &blockindex);
+        bool found_transaction = GetTransaction(hash, tx, Params().GetConsensus(), hash_block, true);
 
-        unsigned int block_id = UpsertBlock(blockindex);
+        if (found_transaction) {
+            block_id = UpsertBlock(hash_block);
+        } else {
+            if (fTxIndex) {
+                LogPrintf("No such mempool or blockchain transaction \n");
+            } else {
+                LogPrintf("No such mempool transaction. Use -txindex to enable blockchain transaction queries \n");
+            };
+        }
 
         std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
         {
