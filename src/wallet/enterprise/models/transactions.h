@@ -21,6 +21,8 @@ public:
             const unsigned int size,
             const int64_t time,
             const int64_t time_received,
+            const int64_t debit,
+            const int64_t credit,
             const std::string &txid,
             const boost::uuids::uuid &wallet_id
     )
@@ -31,6 +33,8 @@ public:
             size(size),
             time(time),
             time_received(time_received),
+            debit(debit),
+            credit(credit),
             txid(txid),
             wallet_id(wallet_id) {
     }
@@ -44,6 +48,8 @@ public:
     unsigned int size;
     int64_t time;
     int64_t time_received;
+    int64_t debit;
+    int64_t credit;
     std::string txid;
 
 #pragma db type("UUID") not_null

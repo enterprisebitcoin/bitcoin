@@ -197,9 +197,7 @@ namespace enterprise_wallet {
         std::string strSentAccount;
         std::list <COutputEntry> listReceived;
         std::list <COutputEntry> listSent;
-        isminefilter filter = ISMINE_ALL;
-        wtx.GetAmounts(listReceived, listSent, nFee, strSentAccount, filter);
-
+        wtx.GetAmounts(listReceived, listSent, nFee, strSentAccount, ISMINE_ALL);
         uint256 hash = wtx.GetHash();
         std::string txid = hash.GetHex();
 
@@ -240,6 +238,8 @@ namespace enterprise_wallet {
                 etx->size = wtx.tx->GetTotalSize();
                 etx->time = wtx.GetTxTime();
                 etx->time_received = wtx.nTimeReceived;
+                etx->debit = wtx.GetDebit(ISMINE_ALL);
+                etx->credit = wtx.GetCredit(ISMINE_ALL);
                 enterprise_database->update(*etx);
                 etransaction_id = etx->id;
             } else {
@@ -249,6 +249,8 @@ namespace enterprise_wallet {
                                       wtx.tx->GetTotalSize(),
                                       wtx.GetTxTime(),
                                       wtx.nTimeReceived,
+                                      wtx.GetDebit(ISMINE_ALL),
+                                      wtx.GetCredit(ISMINE_ALL),
                                       txid,
                                       wallet_id);
                 etransaction_id = enterprise_database->persist(new_etx);
