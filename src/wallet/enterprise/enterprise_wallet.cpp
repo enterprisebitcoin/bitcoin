@@ -33,6 +33,7 @@
 
 namespace enterprise_wallet {
 
+
     boost::uuids::uuid GetWalletID() {
         CWalletDBWrapper& dbw = vpwallets[0]->GetDBHandle();
         CWalletDB wallet_db(dbw);
@@ -187,31 +188,21 @@ namespace enterprise_wallet {
             id_t.commit();
             return block_id;
         }
-
-
     }
 
-    void UpsertTx(const CWalletTx &wtx) {
-
-        CAmount nFee;
-        std::string strSentAccount;
-        std::list <COutputEntry> listReceived;
-        std::list <COutputEntry> listSent;
-        wtx.GetAmounts(listReceived, listSent, nFee, strSentAccount, ISMINE_ALL);
-        uint256 hash = wtx.GetHash();
-        std::string txid = hash.GetHex();
-
-        LogPrintf("Upsert transaction %s \n", txid);
-
-        boost::uuids::uuid wallet_id = GetWalletID();
-
+    /**
+     * Utility function for upserting the block that tx_hash belongs to and returning the block ID
+     * @param tx_hash
+     * @return eBlocks ID
+     */
+    unsigned int GetBlockID(uint256& tx_hash) {
         unsigned int block_id = 0;
         CTransactionRef tx;
-        uint256 hash_block;
-        bool found_transaction = GetTransaction(hash, tx, Params().GetConsensus(), hash_block, true);
+        uint256 block_hash;
+        bool found_transaction = GetTransaction(hash, tx, Params().GetConsensus(), block_hash, true);
 
         if (found_transaction) {
-            block_id = UpsertBlock(hash_block);
+            block_id = UpsertBlock(block_hash);
         } else {
             if (fTxIndex) {
                 LogPrintf("No such mempool or blockchain transaction \n");
@@ -219,6 +210,55 @@ namespace enterprise_wallet {
                 LogPrintf("No such mempool transaction. Use -txindex to enable blockchain transaction queries \n");
             };
         }
+        return block_id;
+    }
+
+    void UpsertInputs(const std::vector<CTxIn> vin, const unsigned int input_etransaction_id) {
+        for(unsigned int index = 0; index < vin.size(); index++) {
+            const CTxIn& input = vin[index];
+
+            isminetype is_input_mine = vpwallets[0]->IsMine(input);
+
+            CTransactionRef output_transaction;
+            uint256 output_block_hash;
+            bool found_output_transaction = GetTransaction(input.prevout.hash, output_transaction, Params().GetConsensus(), block_hash, true);
+            const CTxOut& output = output_transaction->vout[input.prevout.n];
+
+            unsigned int output_etransaction_id = UpsertTx(output_transaction, false);
+
+            CTxDestination address;
+            ExtractDestination(output.scriptPubKey, address);
+
+            odb::transaction t(enterprise_database->begin());
+            std::auto_ptr <eOutputEntries> eout(
+                    enterprise_database->query_one<eOutputEntries>(output_query::input_etransaction_id == input_etransaction_id
+                                                                   && output_query::input_vector == vin));
+            if (eout.get() != 0) {
+                eout->output_etransaction_id = output_etransaction_id;
+                eout->output_vector = input.prevout.n;
+                eout->is_output_mine = is_input_mine;
+                eout->amount = output.nValue;
+                eout->destination = EncodeDestination(sent_output.destination);
+                enterprise_database->update(*eout);
+            } else {
+                eOutputEntries new_eout(
+                        etransaction_id,
+                        vout,
+                        -sent_output.amount,
+                        EncodeDestination(address)
+                );
+                enterprise_database->persist(new_eout);
+            }
+            t.commit();
+        }
+    }
+
+    unsigned int UpsertTransaction(const CTransactionRef tx) {
+
+        uint256 hash = tx.GetHash();
+        boost::uuids::uuid wallet_id = GetWalletID();
+        unsigned int block_id = GetBlockID(hash);
+        std::string txid = hash.GetHex();
 
         std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
         {
@@ -230,7 +270,53 @@ namespace enterprise_wallet {
 
             odb::transaction t(enterprise_database->begin());
             // Select the transaction by its txid, insert if it's not found, update if it is
-            std::auto_ptr <eTransactions> etx(enterprise_database->query_one<eTransactions>(query::txid == txid && query::wallet_id == wallet_id));
+            std::auto_ptr <eTransactions> etx(enterprise_database->query_one<eTransactions>(query::txid == txid
+                                                                                            && query::wallet_id ==
+                                                                                               wallet_id));
+            if (etx.get() != 0) {
+                etx->block_id = block_id;
+                etx->size = tx->GetTotalSize();
+                enterprise_database->update(*etx);
+                etransaction_id = etx->id;
+            } else {
+                eTransactions new_etx(block_id,
+                                      wtx.nIndex,
+                                      wtx.IsTrusted(),
+                                      wtx.tx->GetTotalSize(),
+                                      wtx.GetTxTime(),
+                                      wtx.nTimeReceived,
+                                      wtx.GetDebit(ISMINE_ALL),
+                                      wtx.GetCredit(ISMINE_ALL),
+                                      txid,
+                                      wallet_id);
+                etransaction_id = enterprise_database->persist(new_etx);
+            }
+            t.commit();
+            return etransaction_id;
+        }
+    }
+
+    void UpsertWalletTransaction(const CWalletTx &wtx) {
+        LogPrintf("Upsert transaction %s \n", txid);
+
+        uint256 hash = wtx.GetHash();
+        std::string txid = hash.GetHex();
+
+        boost::uuids::uuid wallet_id = GetWalletID();
+        unsigned int block_id = GetBlockID(hash);
+
+        std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
+        {
+            typedef odb::query <eTransactions> query;
+            typedef odb::query <eOutputEntries> output_query;
+            unsigned int etransaction_id;
+
+            LOCK(cs_main);
+
+            odb::transaction t(enterprise_database->begin());
+            // Select the transaction by its txid, insert if it's not found, update if it is
+            std::auto_ptr <eTransactions> etx(enterprise_database->query_one<eTransactions>(query::txid == txid
+                                                                                            && query::wallet_id == wallet_id));
             if (etx.get() != 0) {
                 etx->block_id = block_id;
                 etx->block_index = wtx.nIndex;
@@ -257,52 +343,32 @@ namespace enterprise_wallet {
             }
             t.commit();
 
-            for (const COutputEntry &sent_output : listSent) {
+            for(unsigned int vout = 0; vout < wtx.tx->vout.size(); vout++) {
+                const CTxOut& output = wtx.tx->vout[vout];
+                isminetype is_output_mine = vpwallets[0]->IsMine(output);
+                CTxDestination address;
+                ExtractDestination(output.scriptPubKey, address);
+
                 odb::transaction t(enterprise_database->begin());
                 std::auto_ptr <eOutputEntries> eout(
-                        enterprise_database->query_one<eOutputEntries>(output_query::etransaction_id == etransaction_id
-                                                                       && output_query::vector == sent_output.vout));
+                        enterprise_database->query_one<eOutputEntries>(output_query::output_etransaction_id == etransaction_id
+                                                                       && output_query::output_vector == vout));
                 if (eout.get() != 0) {
-                    eout->amount = -sent_output.amount;
-                    eout->category = std::string("send");
+                    eout->amount = output.nValue;
                     eout->destination = EncodeDestination(sent_output.destination);
                     enterprise_database->update(*eout);
                 } else {
                     eOutputEntries new_eout(
                             etransaction_id,
-                            sent_output.vout,
-                            -sent_output.amount,
-                            std::string("send"),
-                            EncodeDestination(sent_output.destination)
+                            vout,
+                            output.nValue,
+                            EncodeDestination(address)
                     );
                     enterprise_database->persist(new_eout);
                 }
                 t.commit();
             }
 
-            for (const COutputEntry &received_output : listReceived) {
-                odb::transaction t(enterprise_database->begin());
-                std::auto_ptr <eOutputEntries> eout(
-                        enterprise_database->query_one<eOutputEntries>(output_query::etransaction_id == etransaction_id
-                                                                       &&
-                                                                       output_query::vector == received_output.vout));
-                if (eout.get() != 0) {
-                    eout->amount = received_output.amount;
-                    eout->category = std::string("receive");
-                    eout->destination = EncodeDestination(received_output.destination);
-                    enterprise_database->update(*eout);
-                } else {
-                    eOutputEntries new_eout(
-                            etransaction_id,
-                            received_output.vout,
-                            received_output.amount,
-                            std::string("receive"),
-                            EncodeDestination(received_output.destination)
-                    );
-                    enterprise_database->persist(new_eout);
-                }
-                t.commit();
-            }
 
         }
     }

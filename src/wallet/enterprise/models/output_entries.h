@@ -13,21 +13,27 @@
 class eOutputEntries {
 public:
     eOutputEntries(
-            unsigned int etransaction_id,
-            unsigned int vector,
+            unsigned int output_etransaction_id,
+            unsigned int output_vector,
+            uint8_t is_output_mine,
+            unsigned int input_etransaction_id,
+            unsigned int input_vector,
             int64_t amount,
-            std::string category,
             std::string destination
-    ) : etransaction_id(etransaction_id),
-        vector(vector),
+    ) : output_etransaction_id(output_etransaction_id),
+        output_vector(output_vector),
+        output_is_mine(output_is_mine),
+        input_etransaction_id(input_etransaction_id),
+        input_vector(input_vector),
         amount(amount),
-        category(category),
         destination(destination) {};
 
-    unsigned int etransaction_id;
-    unsigned int vector;
+    unsigned int output_etransaction_id;
+    unsigned int output_vector;
+    uint8_t output_is_mine;
+    unsigned int input_etransaction_id;
+    unsigned int input_vector;
     int64_t amount;
-    std::string category;
     std::string destination;
 
 #pragma db id auto
