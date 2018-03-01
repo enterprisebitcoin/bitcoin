@@ -44,8 +44,7 @@ public:
             hash(hash),
             witness_hash(witness_hash),
             is_coinbase(is_coinbase),
-            has_witness(has_witness),
-            wallet_id(wallet_id) {
+            has_witness(has_witness) {
     }
 
 #pragma db id auto
@@ -62,9 +61,6 @@ public:
     const std::string witness_hash;
     const bool is_coinbase;
     const bool has_witness;
-
-#pragma db type("UUID") not_null
-    boost::uuids::uuid wallet_id;
 
 private:
     friend class odb::access;
