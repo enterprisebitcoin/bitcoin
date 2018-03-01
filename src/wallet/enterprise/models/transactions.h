@@ -12,45 +12,56 @@
 
 #pragma db object
 
+/**
+ *
+ * Based on the CTransaction class
+ *
+ **/
 class eTransactions {
 public:
     eTransactions(
             const unsigned int block_id,
-            const int block_index,
-            const bool is_trusted,
-            const unsigned int size,
-            const int64_t time,
-            const int64_t time_received,
-            const int64_t debit,
-            const int64_t credit,
-            const std::string &txid,
-            const boost::uuids::uuid &wallet_id
+            const unsigned int total_size,
+            const unsigned int inputs_count,
+            const unsigned int outputs_count,
+            const int64_t value_out,
+            const int32_t n_lock_time,
+            const int32_t n_version,
+            const std::string hash,
+            const std::string witness_hash,
+            const bool is_coinbase,
+            const bool has_witness,
+            const boost::uuids::uuid wallet_id
     )
             :
             block_id(block_id),
-            block_index(block_index),
-            is_trusted(is_trusted),
-            size(size),
-            time(time),
-            time_received(time_received),
-            debit(debit),
-            credit(credit),
-            txid(txid),
+            total_size(total_size),
+            inputs_count(inputs_count),
+            outputs_count(outputs_count),
+            value_out(value_out),
+            n_lock_time(n_lock_time),
+            n_version(n_version),
+            hash(hash),
+            witness_hash(witness_hash),
+            is_coinbase(is_coinbase),
+            has_witness(has_witness),
             wallet_id(wallet_id) {
     }
 
 #pragma db id auto
     unsigned int id;
 
-    unsigned int block_id;
-    int block_index;
-    bool is_trusted;
-    unsigned int size;
-    int64_t time;
-    int64_t time_received;
-    int64_t debit;
-    int64_t credit;
-    std::string txid;
+    const unsigned int block_id;
+    const unsigned int total_size;
+    const unsigned int inputs_count;
+    const unsigned int outputs_count;
+    const int64_t value_out;
+    const int32_t n_lock_time;
+    const int32_t n_version;
+    const std::string hash;
+    const std::string witness_hash;
+    const bool is_coinbase;
+    const bool has_witness;
 
 #pragma db type("UUID") not_null
     boost::uuids::uuid wallet_id;
