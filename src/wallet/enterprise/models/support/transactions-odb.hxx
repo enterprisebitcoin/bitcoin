@@ -125,31 +125,7 @@ namespace odb
 
     static const block_id_type_ block_id;
 
-    // block_index
-    //
-    typedef
-    pgsql::query_column<
-      pgsql::value_traits<
-        int,
-        pgsql::id_integer >::query_type,
-      pgsql::id_integer >
-    block_index_type_;
-
-    static const block_index_type_ block_index;
-
-    // is_trusted
-    //
-    typedef
-    pgsql::query_column<
-      pgsql::value_traits<
-        bool,
-        pgsql::id_boolean >::query_type,
-      pgsql::id_boolean >
-    is_trusted_type_;
-
-    static const is_trusted_type_ is_trusted;
-
-    // size
+    // total_size
     //
     typedef
     pgsql::query_column<
@@ -157,11 +133,35 @@ namespace odb
         unsigned int,
         pgsql::id_integer >::query_type,
       pgsql::id_integer >
-    size_type_;
+    total_size_type_;
 
-    static const size_type_ size;
+    static const total_size_type_ total_size;
 
-    // time
+    // inputs_count
+    //
+    typedef
+    pgsql::query_column<
+      pgsql::value_traits<
+        unsigned int,
+        pgsql::id_integer >::query_type,
+      pgsql::id_integer >
+    inputs_count_type_;
+
+    static const inputs_count_type_ inputs_count;
+
+    // outputs_count
+    //
+    typedef
+    pgsql::query_column<
+      pgsql::value_traits<
+        unsigned int,
+        pgsql::id_integer >::query_type,
+      pgsql::id_integer >
+    outputs_count_type_;
+
+    static const outputs_count_type_ outputs_count;
+
+    // value_out
     //
     typedef
     pgsql::query_column<
@@ -169,23 +169,35 @@ namespace odb
         ::int64_t,
         pgsql::id_bigint >::query_type,
       pgsql::id_bigint >
-    time_type_;
+    value_out_type_;
 
-    static const time_type_ time;
+    static const value_out_type_ value_out;
 
-    // time_received
+    // n_lock_time
     //
     typedef
     pgsql::query_column<
       pgsql::value_traits<
-        ::int64_t,
-        pgsql::id_bigint >::query_type,
-      pgsql::id_bigint >
-    time_received_type_;
+        ::int32_t,
+        pgsql::id_integer >::query_type,
+      pgsql::id_integer >
+    n_lock_time_type_;
 
-    static const time_received_type_ time_received;
+    static const n_lock_time_type_ n_lock_time;
 
-    // txid
+    // n_version
+    //
+    typedef
+    pgsql::query_column<
+      pgsql::value_traits<
+        ::int32_t,
+        pgsql::id_integer >::query_type,
+      pgsql::id_integer >
+    n_version_type_;
+
+    static const n_version_type_ n_version;
+
+    // hash
     //
     typedef
     pgsql::query_column<
@@ -193,21 +205,45 @@ namespace odb
         ::std::string,
         pgsql::id_string >::query_type,
       pgsql::id_string >
-    txid_type_;
+    hash_type_;
 
-    static const txid_type_ txid;
+    static const hash_type_ hash;
 
-    // wallet_id
+    // witness_hash
     //
     typedef
     pgsql::query_column<
       pgsql::value_traits<
-        ::boost::uuids::uuid,
-        pgsql::id_uuid >::query_type,
-      pgsql::id_uuid >
-    wallet_id_type_;
+        ::std::string,
+        pgsql::id_string >::query_type,
+      pgsql::id_string >
+    witness_hash_type_;
 
-    static const wallet_id_type_ wallet_id;
+    static const witness_hash_type_ witness_hash;
+
+    // is_coinbase
+    //
+    typedef
+    pgsql::query_column<
+      pgsql::value_traits<
+        bool,
+        pgsql::id_boolean >::query_type,
+      pgsql::id_boolean >
+    is_coinbase_type_;
+
+    static const is_coinbase_type_ is_coinbase;
+
+    // has_witness
+    //
+    typedef
+    pgsql::query_column<
+      pgsql::value_traits<
+        bool,
+        pgsql::id_boolean >::query_type,
+      pgsql::id_boolean >
+    has_witness_type_;
+
+    static const has_witness_type_ has_witness;
   };
 
   template <typename A>
@@ -221,39 +257,54 @@ namespace odb
   block_id (A::table_name, "\"block_id\"", 0);
 
   template <typename A>
-  const typename query_columns< ::eTransactions, id_pgsql, A >::block_index_type_
+  const typename query_columns< ::eTransactions, id_pgsql, A >::total_size_type_
   query_columns< ::eTransactions, id_pgsql, A >::
-  block_index (A::table_name, "\"block_index\"", 0);
+  total_size (A::table_name, "\"total_size\"", 0);
 
   template <typename A>
-  const typename query_columns< ::eTransactions, id_pgsql, A >::is_trusted_type_
+  const typename query_columns< ::eTransactions, id_pgsql, A >::inputs_count_type_
   query_columns< ::eTransactions, id_pgsql, A >::
-  is_trusted (A::table_name, "\"is_trusted\"", 0);
+  inputs_count (A::table_name, "\"inputs_count\"", 0);
 
   template <typename A>
-  const typename query_columns< ::eTransactions, id_pgsql, A >::size_type_
+  const typename query_columns< ::eTransactions, id_pgsql, A >::outputs_count_type_
   query_columns< ::eTransactions, id_pgsql, A >::
-  size (A::table_name, "\"size\"", 0);
+  outputs_count (A::table_name, "\"outputs_count\"", 0);
 
   template <typename A>
-  const typename query_columns< ::eTransactions, id_pgsql, A >::time_type_
+  const typename query_columns< ::eTransactions, id_pgsql, A >::value_out_type_
   query_columns< ::eTransactions, id_pgsql, A >::
-  time (A::table_name, "\"time\"", 0);
+  value_out (A::table_name, "\"value_out\"", 0);
 
   template <typename A>
-  const typename query_columns< ::eTransactions, id_pgsql, A >::time_received_type_
+  const typename query_columns< ::eTransactions, id_pgsql, A >::n_lock_time_type_
   query_columns< ::eTransactions, id_pgsql, A >::
-  time_received (A::table_name, "\"time_received\"", 0);
+  n_lock_time (A::table_name, "\"n_lock_time\"", 0);
 
   template <typename A>
-  const typename query_columns< ::eTransactions, id_pgsql, A >::txid_type_
+  const typename query_columns< ::eTransactions, id_pgsql, A >::n_version_type_
   query_columns< ::eTransactions, id_pgsql, A >::
-  txid (A::table_name, "\"txid\"", 0);
+  n_version (A::table_name, "\"n_version\"", 0);
 
   template <typename A>
-  const typename query_columns< ::eTransactions, id_pgsql, A >::wallet_id_type_
+  const typename query_columns< ::eTransactions, id_pgsql, A >::hash_type_
   query_columns< ::eTransactions, id_pgsql, A >::
-  wallet_id (A::table_name, "\"wallet_id\"", 0);
+  hash (A::table_name, "\"hash\"", 0);
+
+  template <typename A>
+  const typename query_columns< ::eTransactions, id_pgsql, A >::witness_hash_type_
+  query_columns< ::eTransactions, id_pgsql, A >::
+  witness_hash (A::table_name, "\"witness_hash\"", 0);
+
+  template <typename A>
+  const typename query_columns< ::eTransactions, id_pgsql, A >::is_coinbase_type_
+  query_columns< ::eTransactions, id_pgsql, A >::
+  is_coinbase (A::table_name, "\"is_coinbase\"", 0);
+
+  template <typename A>
+  const typename query_columns< ::eTransactions, id_pgsql, A >::has_witness_type_
+  query_columns< ::eTransactions, id_pgsql, A >::
+  has_witness (A::table_name, "\"has_witness\"", 0);
 
   template <typename A>
   struct pointer_query_columns< ::eTransactions, id_pgsql, A >:
@@ -286,41 +337,57 @@ namespace odb
       int block_id_value;
       bool block_id_null;
 
-      // block_index
+      // total_size
       //
-      int block_index_value;
-      bool block_index_null;
+      int total_size_value;
+      bool total_size_null;
 
-      // is_trusted
+      // inputs_count
       //
-      bool is_trusted_value;
-      bool is_trusted_null;
+      int inputs_count_value;
+      bool inputs_count_null;
 
-      // size
+      // outputs_count
       //
-      int size_value;
-      bool size_null;
+      int outputs_count_value;
+      bool outputs_count_null;
 
-      // time
+      // value_out
       //
-      long long time_value;
-      bool time_null;
+      long long value_out_value;
+      bool value_out_null;
 
-      // time_received
+      // n_lock_time
       //
-      long long time_received_value;
-      bool time_received_null;
+      int n_lock_time_value;
+      bool n_lock_time_null;
 
-      // txid
+      // n_version
       //
-      details::buffer txid_value;
-      std::size_t txid_size;
-      bool txid_null;
+      int n_version_value;
+      bool n_version_null;
 
-      // wallet_id
+      // hash
       //
-      unsigned char wallet_id_value[16];
-      bool wallet_id_null;
+      details::buffer hash_value;
+      std::size_t hash_size;
+      bool hash_null;
+
+      // witness_hash
+      //
+      details::buffer witness_hash_value;
+      std::size_t witness_hash_size;
+      bool witness_hash_null;
+
+      // is_coinbase
+      //
+      bool is_coinbase_value;
+      bool is_coinbase_null;
+
+      // has_witness
+      //
+      bool has_witness_value;
+      bool has_witness_null;
 
       std::size_t version;
     };
@@ -364,7 +431,7 @@ namespace odb
 
     typedef pgsql::query_base query_base_type;
 
-    static const std::size_t column_count = 9UL;
+    static const std::size_t column_count = 12UL;
     static const std::size_t id_column_count = 1UL;
     static const std::size_t inverse_column_count = 0UL;
     static const std::size_t readonly_column_count = 0UL;

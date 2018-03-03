@@ -9,13 +9,16 @@ DROP TABLE IF EXISTS "schema_version";
 CREATE TABLE "wallet"."eTransactions" (
   "id" SERIAL NOT NULL PRIMARY KEY,
   "block_id" INTEGER NOT NULL,
-  "block_index" INTEGER NOT NULL,
-  "is_trusted" BOOLEAN NOT NULL,
-  "size" INTEGER NOT NULL,
-  "time" BIGINT NOT NULL,
-  "time_received" BIGINT NOT NULL,
-  "txid" TEXT NOT NULL,
-  "wallet_id" UUID NOT NULL);
+  "total_size" INTEGER NOT NULL,
+  "inputs_count" INTEGER NOT NULL,
+  "outputs_count" INTEGER NOT NULL,
+  "value_out" BIGINT NOT NULL,
+  "n_lock_time" INTEGER NOT NULL,
+  "n_version" INTEGER NOT NULL,
+  "hash" TEXT NOT NULL,
+  "witness_hash" TEXT NOT NULL,
+  "is_coinbase" BOOLEAN NOT NULL,
+  "has_witness" BOOLEAN NOT NULL);
 
 CREATE TABLE "schema_version" (
   "name" TEXT NOT NULL PRIMARY KEY,

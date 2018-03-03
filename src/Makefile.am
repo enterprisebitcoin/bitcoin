@@ -178,6 +178,8 @@ BITCOIN_CORE_H = \
   wallet/enterprise/models/support/output_entries-odb.hxx \
   wallet/enterprise/models/transactions.h \
   wallet/enterprise/models/support/transactions-odb.hxx \
+  wallet/enterprise/models/wallet_transactions.h \
+  wallet/enterprise/models/support/wallet_transactions-odb.hxx \
   wallet/enterprise/models/wallets.h \
   wallet/enterprise/models/support/wallets-odb.hxx \
   wallet/enterprise/views/watch_only_addresses-odb.h \
@@ -263,6 +265,7 @@ libbitcoin_wallet_a_SOURCES = \
   wallet/enterprise/models/support/blocks-odb.cxx \
   wallet/enterprise/models/support/output_entries-odb.cxx \
   wallet/enterprise/models/support/transactions-odb.cxx \
+  wallet/enterprise/models/support/wallet_transactions-odb.cxx \
   wallet/enterprise/models/support/wallets-odb.cxx \
   wallet/enterprise/views/support/watch_only_addresses-odb.cxx \
   wallet/feebumper.cpp \

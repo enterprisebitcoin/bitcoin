@@ -50,17 +50,17 @@ public:
 #pragma db id auto
     unsigned int id;
 
-    const unsigned int block_id;
-    const unsigned int total_size;
-    const unsigned int inputs_count;
-    const unsigned int outputs_count;
-    const int64_t value_out;
-    const int32_t n_lock_time;
-    const int32_t n_version;
-    const std::string hash;
-    const std::string witness_hash;
-    const bool is_coinbase;
-    const bool has_witness;
+    unsigned int block_id;
+    unsigned int total_size;
+    unsigned int inputs_count;
+    unsigned int outputs_count;
+    int64_t value_out;
+    int32_t n_lock_time;
+    int32_t n_version;
+    std::string hash;
+    std::string witness_hash;
+    bool is_coinbase;
+    bool has_witness;
 
 private:
     friend class odb::access;
