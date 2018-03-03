@@ -10,6 +10,7 @@
 #include "wallet/enterprise/models/blocks.h"
 #include "wallet/enterprise/models/output_entries.h"
 #include "wallet/enterprise/models/transactions.h"
+#include "wallet/enterprise/models/wallet_transactions.h"
 #include "wallet/enterprise/models/wallets.h"
 #include "wallet/enterprise/views/watch_only_addresses.h"
 
@@ -17,6 +18,7 @@
 #include "wallet/enterprise/models/support/blocks-odb.hxx"
 #include "wallet/enterprise/models/support/output_entries-odb.hxx"
 #include "wallet/enterprise/models/support/transactions-odb.hxx"
+#include "wallet/enterprise/models/support/wallet_transactions-odb.hxx"
 #include "wallet/enterprise/models/support/wallets-odb.hxx"
 #include "wallet/enterprise/views/support/watch_only_addresses-odb.hxx"
 
@@ -326,10 +328,11 @@ namespace enterprise_wallet {
         boost::uuids::uuid wallet_id = GetWalletID();
         unsigned int block_id = GetBlockID(binary_hash);
 
+        unsigned int etransaction_id;
+
         std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
         {
             typedef odb::query <eTransactions> query;
-            unsigned int etransaction_id;
 
             LOCK(cs_main);
 
@@ -346,7 +349,7 @@ namespace enterprise_wallet {
                 etx->n_version = tx->nVersion;
                 etx->hash = hash;
                 etx->witness_hash = witness_hash;
-                etx->is_coinbase = tx->IsCoinbase();
+                etx->is_coinbase = tx->IsCoinBase();
                 etx->has_witness = tx->HasWitness();
 
                 enterprise_database->update(*etx);
@@ -369,10 +372,10 @@ namespace enterprise_wallet {
         }
 
         if (upsert_inputs) {
-            UpsertInputs(tx.vin, etransaction_id);
+            UpsertInputs(tx->vin, etransaction_id);
         }
 
-        UpsertOutputs(tx.vout, etransaction_id);
+        UpsertOutputs(tx->vout, etransaction_id);
 
         return etransaction_id;
     }
@@ -391,61 +394,30 @@ namespace enterprise_wallet {
 
             odb::transaction t(enterprise_database->begin());
             // Select the transaction by its txid, insert if it's not found, update if it is
-            std::auto_ptr <eTransactions> etx(enterprise_database->query_one<eTransactions>(query::txid == txid
+            std::auto_ptr <eWalletTransactions> etx(enterprise_database->query_one<eWalletTransactions>(query::etransaction_id == etransaction_id
                                                                                             && query::wallet_id == wallet_id));
             if (etx.get() != 0) {
-                etx->block_id = block_id;
-                etx->block_index = wtx.nIndex;
-                etx->is_trusted = wtx.IsTrusted();
-                etx->size = wtx.tx->GetTotalSize();
-                etx->time = wtx.GetTxTime();
-                etx->time_received = wtx.nTimeReceived;
-                etx->debit = wtx.GetDebit(ISMINE_ALL);
-                etx->credit = wtx.GetCredit(ISMINE_ALL);
+                etx->is_trusted = wallet_transaction.IsTrusted();
+                etx->size = wallet_transaction.tx->GetTotalSize();
+                etx->time = wallet_transaction.GetTxTime();
+                etx->time_received = wallet_transaction.nTimeReceived;
+                etx->debit = wallet_transaction.GetDebit(ISMINE_ALL);
+                etx->credit = wallet_transaction.GetCredit(ISMINE_ALL);
                 enterprise_database->update(*etx);
                 etransaction_id = etx->id;
             } else {
-                eTransactions new_etx(block_id,
-                                      wtx.nIndex,
-                                      wtx.IsTrusted(),
-                                      wtx.tx->GetTotalSize(),
-                                      wtx.GetTxTime(),
-                                      wtx.nTimeReceived,
-                                      wtx.GetDebit(ISMINE_ALL),
-                                      wtx.GetCredit(ISMINE_ALL),
+                eTransactions new_etx(etransaction_id,
+                                      wallet_transaction.IsTrusted(),
+                                      wallet_transaction.tx->GetTotalSize(),
+                                      wallet_transaction.GetTxTime(),
+                                      wallet_transaction.nTimeReceived,
+                                      wallet_transaction.GetDebit(ISMINE_ALL),
+                                      wallet_transaction.GetCredit(ISMINE_ALL),
                                       txid,
                                       wallet_id);
                 etransaction_id = enterprise_database->persist(new_etx);
             }
             t.commit();
-
-            for(unsigned int vout = 0; vout < wtx.tx->vout.size(); vout++) {
-                const CTxOut& output = wtx.tx->vout[vout];
-                isminetype is_output_mine = vpwallets[0]->IsMine(output);
-                CTxDestination address;
-                ExtractDestination(output.scriptPubKey, address);
-
-                odb::transaction t(enterprise_database->begin());
-                std::auto_ptr <eOutputEntries> eout(
-                        enterprise_database->query_one<eOutputEntries>(output_query::output_etransaction_id == etransaction_id
-                                                                       && output_query::output_vector == vout));
-                if (eout.get() != 0) {
-                    eout->amount = output.nValue;
-                    eout->destination = EncodeDestination(sent_output.destination);
-                    enterprise_database->update(*eout);
-                } else {
-                    eOutputEntries new_eout(
-                            etransaction_id,
-                            vout,
-                            output.nValue,
-                            EncodeDestination(address)
-                    );
-                    enterprise_database->persist(new_eout);
-                }
-                t.commit();
-            }
-
-
         }
     }
 
