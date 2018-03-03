@@ -283,10 +283,10 @@ namespace enterprise_wallet {
                     eout->output_vector = input.prevout.n;
                     eout->is_output_mine = is_output_mine;
                     eout->n_value = output.nValue;
-                    eout->destination = EncodeDestination(sent_output.destination);
+                    eout->destination = EncodeDestination(output_destination);
                     eout->script_pub_key = ScriptToAsmStr(scriptPubKey);
 
-                    eout->input_transaction_id = input_etransaction_id;
+                    eout->input_etransaction_id = input_etransaction_id;
                     eout->input_vector = index;
                     eout->script_sig = ScriptToAsmStr(input.scriptSig, true);
                     eout->script_witness = input.scriptWitness.ToString();
@@ -299,7 +299,7 @@ namespace enterprise_wallet {
                             input.prevout.n,
                             is_output_mine,
                             output.nValue,
-                            EncodeDestination(sent_output.destination),
+                            EncodeDestination(output_destination),
                             ScriptToAsmStr(scriptPubKey),
 
                             input_etransaction_id,
@@ -317,10 +317,14 @@ namespace enterprise_wallet {
 
     unsigned int UpsertTransaction(const CTransactionRef tx, const bool upsert_inputs) {
 
-        uint256 hash = tx.GetHash();
+        uint256 binary_hash = tx->GetHash();
+        std::string hash = binary_hash.GetHex();
+
+        uint256 binary_witness_hash = tx->GetWitnessHash();
+        std::string witness_hash = binary_witness_hash.GetHex();
+
         boost::uuids::uuid wallet_id = GetWalletID();
-        unsigned int block_id = GetBlockID(hash);
-        std::string txid = hash.GetHex();
+        unsigned int block_id = GetBlockID(binary_hash);
 
         std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
         {
@@ -331,25 +335,34 @@ namespace enterprise_wallet {
 
             odb::transaction t(enterprise_database->begin());
             // Select the transaction by its txid, insert if it's not found, update if it is
-            std::auto_ptr <eTransactions> etx(enterprise_database->query_one<eTransactions>(query::txid == txid
-                                                                                            && query::wallet_id ==
-                                                                                               wallet_id));
+            std::auto_ptr <eTransactions> etx(enterprise_database->query_one<eTransactions>(query::hash == hash));
             if (etx.get() != 0) {
                 etx->block_id = block_id;
-                etx->size = tx->GetTotalSize();
+                etx->total_size = tx->GetTotalSize();
+                etx->inputs_count = tx->vin.size();
+                etx->outputs_count = tx->vout.size();
+                etx->value_out = tx->GetValueOut();
+                etx->n_lock_time = tx->nLockTime;
+                etx->n_version = tx->nVersion;
+                etx->hash = hash;
+                etx->witness_hash = witness_hash;
+                etx->is_coinbase = tx->IsCoinbase();
+                etx->has_witness = tx->HasWitness();
+
                 enterprise_database->update(*etx);
                 etransaction_id = etx->id;
             } else {
                 eTransactions new_etx(block_id,
-                                      wtx.nIndex,
-                                      wtx.IsTrusted(),
-                                      wtx.tx->GetTotalSize(),
-                                      wtx.GetTxTime(),
-                                      wtx.nTimeReceived,
-                                      wtx.GetDebit(ISMINE_ALL),
-                                      wtx.GetCredit(ISMINE_ALL),
-                                      txid,
-                                      wallet_id);
+                                      tx->GetTotalSize(),
+                                      tx->vin.size(),
+                                      tx->vout.size(),
+                                      tx->GetValueOut(),
+                                      tx->nLockTime,
+                                      tx->nVersion,
+                                      hash,
+                                      witness_hash,
+                                      tx->IsCoinBase(),
+                                      tx->HasWitness());
                 etransaction_id = enterprise_database->persist(new_etx);
             }
             t.commit();

@@ -30,8 +30,7 @@ public:
             const std::string hash,
             const std::string witness_hash,
             const bool is_coinbase,
-            const bool has_witness,
-            const boost::uuids::uuid wallet_id
+            const bool has_witness
     )
             :
             block_id(block_id),
