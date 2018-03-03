@@ -267,6 +267,10 @@ namespace enterprise_wallet {
             uint256 output_block_hash;
             bool found_output_transaction = GetTransaction(input.prevout.hash, output_transaction,
                                                            Params().GetConsensus(), output_block_hash, true);
+            if (!found_output_transaction) {
+                LogPrintf("Did not find transaction %s \n", input.prevout.hash.GetHex());
+                return;
+            }
             const CTxOut &output = output_transaction->vout[input.prevout.n];
             unsigned int output_etransaction_id = UpsertTransaction(output_transaction, false);
             CTxDestination output_destination;
@@ -286,7 +290,7 @@ namespace enterprise_wallet {
                     eout->is_output_mine = is_output_mine;
                     eout->n_value = output.nValue;
                     eout->destination = EncodeDestination(output_destination);
-                    eout->script_pub_key = ScriptToAsmStr(scriptPubKey);
+                    eout->script_pub_key = ScriptToAsmStr(output.scriptPubKey);
 
                     eout->input_etransaction_id = input_etransaction_id;
                     eout->input_vector = index;
@@ -302,7 +306,7 @@ namespace enterprise_wallet {
                             is_output_mine,
                             output.nValue,
                             EncodeDestination(output_destination),
-                            ScriptToAsmStr(scriptPubKey),
+                            ScriptToAsmStr(output.scriptPubKey),
 
                             input_etransaction_id,
                             index,
@@ -325,7 +329,6 @@ namespace enterprise_wallet {
         uint256 binary_witness_hash = tx->GetWitnessHash();
         std::string witness_hash = binary_witness_hash.GetHex();
 
-        boost::uuids::uuid wallet_id = GetWalletID();
         unsigned int block_id = GetBlockID(binary_hash);
 
         unsigned int etransaction_id;
@@ -384,11 +387,12 @@ namespace enterprise_wallet {
         unsigned int etransaction_id = UpsertTransaction(wallet_transaction.tx, true);
         boost::uuids::uuid wallet_id = GetWalletID();
 
+        unsigned int ewallet_transaction_id;
+
         std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
         {
             typedef odb::query <eWalletTransactions> query;
             typedef odb::query <eOutputEntries> output_query;
-            unsigned int etransaction_id;
 
             LOCK(cs_main);
 
@@ -398,40 +402,33 @@ namespace enterprise_wallet {
                                                                                             && query::wallet_id == wallet_id));
             if (etx.get() != 0) {
                 etx->is_trusted = wallet_transaction.IsTrusted();
-                etx->size = wallet_transaction.tx->GetTotalSize();
-                etx->time = wallet_transaction.GetTxTime();
-                etx->time_received = wallet_transaction.nTimeReceived;
+                etx->n_time_smart = wallet_transaction.nTimeSmart;
+                etx->n_time_received = wallet_transaction.nTimeReceived;
                 etx->debit = wallet_transaction.GetDebit(ISMINE_ALL);
                 etx->credit = wallet_transaction.GetCredit(ISMINE_ALL);
                 enterprise_database->update(*etx);
-                etransaction_id = etx->id;
+                ewallet_transaction_id = etx->id;
             } else {
-                eTransactions new_etx(etransaction_id,
+                eWalletTransactions new_etx(etransaction_id,
                                       wallet_transaction.IsTrusted(),
-                                      wallet_transaction.tx->GetTotalSize(),
-                                      wallet_transaction.GetTxTime(),
+                                      wallet_transaction.nTimeSmart,
                                       wallet_transaction.nTimeReceived,
                                       wallet_transaction.GetDebit(ISMINE_ALL),
                                       wallet_transaction.GetCredit(ISMINE_ALL),
-                                      txid,
                                       wallet_id);
-                etransaction_id = enterprise_database->persist(new_etx);
+                ewallet_transaction_id = enterprise_database->persist(new_etx);
             }
             t.commit();
         }
     }
 
     void DeleteTx(uint256 &hash) {
-        boost::uuids::uuid wallet_id = GetWalletID();
-
         std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
         {
             typedef odb::query <eTransactions> query;
 
             odb::transaction t(enterprise_database->begin());
-            std::auto_ptr <eTransactions> etx(
-                    enterprise_database->query_one<eTransactions>(query::txid == hash.GetHex() && query::wallet_id == wallet_id));
-
+            std::auto_ptr <eTransactions> etx(enterprise_database->query_one<eTransactions>(query::hash == hash.GetHex()));
             if (etx.get() != 0)
                 enterprise_database->erase(*etx);
             t.commit();

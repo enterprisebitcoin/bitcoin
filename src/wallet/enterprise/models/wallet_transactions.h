@@ -12,6 +12,11 @@
 
 #pragma db object
 
+/**
+ *
+ * Based on the CWalletTx class
+ *
+ **/
 class eWalletTransactions {
 public:
     eWalletTransactions(
