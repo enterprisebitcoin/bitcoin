@@ -5,6 +5,16 @@
 #ifndef OUTPUT_ENTRIES_ODB_HXX
 #define OUTPUT_ENTRIES_ODB_HXX
 
+// Begin prologue.
+//
+#include <odb/boost/version.hxx>
+#if ODB_BOOST_VERSION != 2040000 // 2.4.0
+#  error ODB and C++ compilers see different libodb-boost interface versions
+#endif
+#include <odb/boost/uuid/pgsql/uuid-traits.hxx>
+//
+// End prologue.
+
 #include <odb/version.hxx>
 
 #if (ODB_VERSION != 20400UL)
@@ -91,7 +101,7 @@ namespace odb
   template <typename A>
   struct query_columns< ::eOutputEntries, id_pgsql, A >
   {
-    // etransaction_id
+    // id
     //
     typedef
     pgsql::query_column<
@@ -99,11 +109,11 @@ namespace odb
         unsigned int,
         pgsql::id_integer >::query_type,
       pgsql::id_integer >
-    etransaction_id_type_;
+    id_type_;
 
-    static const etransaction_id_type_ etransaction_id;
+    static const id_type_ id;
 
-    // vector
+    // output_etransaction_id
     //
     typedef
     pgsql::query_column<
@@ -111,11 +121,35 @@ namespace odb
         unsigned int,
         pgsql::id_integer >::query_type,
       pgsql::id_integer >
-    vector_type_;
+    output_etransaction_id_type_;
 
-    static const vector_type_ vector;
+    static const output_etransaction_id_type_ output_etransaction_id;
 
-    // amount
+    // output_vector
+    //
+    typedef
+    pgsql::query_column<
+      pgsql::value_traits<
+        unsigned int,
+        pgsql::id_integer >::query_type,
+      pgsql::id_integer >
+    output_vector_type_;
+
+    static const output_vector_type_ output_vector;
+
+    // is_output_mine
+    //
+    typedef
+    pgsql::query_column<
+      pgsql::value_traits<
+        ::uint8_t,
+        pgsql::id_smallint >::query_type,
+      pgsql::id_smallint >
+    is_output_mine_type_;
+
+    static const is_output_mine_type_ is_output_mine;
+
+    // n_value
     //
     typedef
     pgsql::query_column<
@@ -123,21 +157,9 @@ namespace odb
         ::int64_t,
         pgsql::id_bigint >::query_type,
       pgsql::id_bigint >
-    amount_type_;
+    n_value_type_;
 
-    static const amount_type_ amount;
-
-    // category
-    //
-    typedef
-    pgsql::query_column<
-      pgsql::value_traits<
-        ::std::string,
-        pgsql::id_string >::query_type,
-      pgsql::id_string >
-    category_type_;
-
-    static const category_type_ category;
+    static const n_value_type_ n_value;
 
     // destination
     //
@@ -151,7 +173,19 @@ namespace odb
 
     static const destination_type_ destination;
 
-    // id
+    // script_pub_key
+    //
+    typedef
+    pgsql::query_column<
+      pgsql::value_traits<
+        ::std::string,
+        pgsql::id_string >::query_type,
+      pgsql::id_string >
+    script_pub_key_type_;
+
+    static const script_pub_key_type_ script_pub_key;
+
+    // input_etransaction_id
     //
     typedef
     pgsql::query_column<
@@ -159,30 +193,83 @@ namespace odb
         unsigned int,
         pgsql::id_integer >::query_type,
       pgsql::id_integer >
-    id_type_;
+    input_etransaction_id_type_;
 
-    static const id_type_ id;
+    static const input_etransaction_id_type_ input_etransaction_id;
+
+    // input_vector
+    //
+    typedef
+    pgsql::query_column<
+      pgsql::value_traits<
+        unsigned int,
+        pgsql::id_integer >::query_type,
+      pgsql::id_integer >
+    input_vector_type_;
+
+    static const input_vector_type_ input_vector;
+
+    // script_sig
+    //
+    typedef
+    pgsql::query_column<
+      pgsql::value_traits<
+        ::std::string,
+        pgsql::id_string >::query_type,
+      pgsql::id_string >
+    script_sig_type_;
+
+    static const script_sig_type_ script_sig;
+
+    // script_witness
+    //
+    typedef
+    pgsql::query_column<
+      pgsql::value_traits<
+        ::std::string,
+        pgsql::id_string >::query_type,
+      pgsql::id_string >
+    script_witness_type_;
+
+    static const script_witness_type_ script_witness;
+
+    // n_sequence
+    //
+    typedef
+    pgsql::query_column<
+      pgsql::value_traits<
+        ::uint32_t,
+        pgsql::id_integer >::query_type,
+      pgsql::id_integer >
+    n_sequence_type_;
+
+    static const n_sequence_type_ n_sequence;
   };
 
   template <typename A>
-  const typename query_columns< ::eOutputEntries, id_pgsql, A >::etransaction_id_type_
+  const typename query_columns< ::eOutputEntries, id_pgsql, A >::id_type_
   query_columns< ::eOutputEntries, id_pgsql, A >::
-  etransaction_id (A::table_name, "\"etransaction_id\"", 0);
+  id (A::table_name, "\"id\"", 0);
 
   template <typename A>
-  const typename query_columns< ::eOutputEntries, id_pgsql, A >::vector_type_
+  const typename query_columns< ::eOutputEntries, id_pgsql, A >::output_etransaction_id_type_
   query_columns< ::eOutputEntries, id_pgsql, A >::
-  vector (A::table_name, "\"vector\"", 0);
+  output_etransaction_id (A::table_name, "\"output_etransaction_id\"", 0);
 
   template <typename A>
-  const typename query_columns< ::eOutputEntries, id_pgsql, A >::amount_type_
+  const typename query_columns< ::eOutputEntries, id_pgsql, A >::output_vector_type_
   query_columns< ::eOutputEntries, id_pgsql, A >::
-  amount (A::table_name, "\"amount\"", 0);
+  output_vector (A::table_name, "\"output_vector\"", 0);
 
   template <typename A>
-  const typename query_columns< ::eOutputEntries, id_pgsql, A >::category_type_
+  const typename query_columns< ::eOutputEntries, id_pgsql, A >::is_output_mine_type_
   query_columns< ::eOutputEntries, id_pgsql, A >::
-  category (A::table_name, "\"category\"", 0);
+  is_output_mine (A::table_name, "\"is_output_mine\"", 0);
+
+  template <typename A>
+  const typename query_columns< ::eOutputEntries, id_pgsql, A >::n_value_type_
+  query_columns< ::eOutputEntries, id_pgsql, A >::
+  n_value (A::table_name, "\"n_value\"", 0);
 
   template <typename A>
   const typename query_columns< ::eOutputEntries, id_pgsql, A >::destination_type_
@@ -190,9 +277,34 @@ namespace odb
   destination (A::table_name, "\"destination\"", 0);
 
   template <typename A>
-  const typename query_columns< ::eOutputEntries, id_pgsql, A >::id_type_
+  const typename query_columns< ::eOutputEntries, id_pgsql, A >::script_pub_key_type_
   query_columns< ::eOutputEntries, id_pgsql, A >::
-  id (A::table_name, "\"id\"", 0);
+  script_pub_key (A::table_name, "\"script_pub_key\"", 0);
+
+  template <typename A>
+  const typename query_columns< ::eOutputEntries, id_pgsql, A >::input_etransaction_id_type_
+  query_columns< ::eOutputEntries, id_pgsql, A >::
+  input_etransaction_id (A::table_name, "\"input_etransaction_id\"", 0);
+
+  template <typename A>
+  const typename query_columns< ::eOutputEntries, id_pgsql, A >::input_vector_type_
+  query_columns< ::eOutputEntries, id_pgsql, A >::
+  input_vector (A::table_name, "\"input_vector\"", 0);
+
+  template <typename A>
+  const typename query_columns< ::eOutputEntries, id_pgsql, A >::script_sig_type_
+  query_columns< ::eOutputEntries, id_pgsql, A >::
+  script_sig (A::table_name, "\"script_sig\"", 0);
+
+  template <typename A>
+  const typename query_columns< ::eOutputEntries, id_pgsql, A >::script_witness_type_
+  query_columns< ::eOutputEntries, id_pgsql, A >::
+  script_witness (A::table_name, "\"script_witness\"", 0);
+
+  template <typename A>
+  const typename query_columns< ::eOutputEntries, id_pgsql, A >::n_sequence_type_
+  query_columns< ::eOutputEntries, id_pgsql, A >::
+  n_sequence (A::table_name, "\"n_sequence\"", 0);
 
   template <typename A>
   struct pointer_query_columns< ::eOutputEntries, id_pgsql, A >:
@@ -215,26 +327,30 @@ namespace odb
 
     struct image_type
     {
-      // etransaction_id
+      // id
       //
-      int etransaction_id_value;
-      bool etransaction_id_null;
+      int id_value;
+      bool id_null;
 
-      // vector
+      // output_etransaction_id
       //
-      int vector_value;
-      bool vector_null;
+      int output_etransaction_id_value;
+      bool output_etransaction_id_null;
 
-      // amount
+      // output_vector
       //
-      long long amount_value;
-      bool amount_null;
+      int output_vector_value;
+      bool output_vector_null;
 
-      // category
+      // is_output_mine
       //
-      details::buffer category_value;
-      std::size_t category_size;
-      bool category_null;
+      short is_output_mine_value;
+      bool is_output_mine_null;
+
+      // n_value
+      //
+      long long n_value_value;
+      bool n_value_null;
 
       // destination
       //
@@ -242,10 +358,38 @@ namespace odb
       std::size_t destination_size;
       bool destination_null;
 
-      // id
+      // script_pub_key
       //
-      int id_value;
-      bool id_null;
+      details::buffer script_pub_key_value;
+      std::size_t script_pub_key_size;
+      bool script_pub_key_null;
+
+      // input_etransaction_id
+      //
+      int input_etransaction_id_value;
+      bool input_etransaction_id_null;
+
+      // input_vector
+      //
+      int input_vector_value;
+      bool input_vector_null;
+
+      // script_sig
+      //
+      details::buffer script_sig_value;
+      std::size_t script_sig_size;
+      bool script_sig_null;
+
+      // script_witness
+      //
+      details::buffer script_witness_value;
+      std::size_t script_witness_size;
+      bool script_witness_null;
+
+      // n_sequence
+      //
+      int n_sequence_value;
+      bool n_sequence_null;
 
       std::size_t version;
     };
@@ -289,7 +433,7 @@ namespace odb
 
     typedef pgsql::query_base query_base_type;
 
-    static const std::size_t column_count = 6UL;
+    static const std::size_t column_count = 12UL;
     static const std::size_t id_column_count = 1UL;
     static const std::size_t inverse_column_count = 0UL;
     static const std::size_t readonly_column_count = 0UL;

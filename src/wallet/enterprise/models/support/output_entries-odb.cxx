@@ -49,9 +49,15 @@ namespace odb
   {
     pgsql::int4_oid,
     pgsql::int4_oid,
+    pgsql::int2_oid,
     pgsql::int8_oid,
     pgsql::text_oid,
-    pgsql::text_oid
+    pgsql::text_oid,
+    pgsql::int4_oid,
+    pgsql::int4_oid,
+    pgsql::text_oid,
+    pgsql::text_oid,
+    pgsql::int4_oid
   };
 
   const unsigned int access::object_traits_impl< ::eOutputEntries, id_pgsql >::
@@ -65,9 +71,15 @@ namespace odb
   {
     pgsql::int4_oid,
     pgsql::int4_oid,
+    pgsql::int2_oid,
     pgsql::int8_oid,
     pgsql::text_oid,
     pgsql::text_oid,
+    pgsql::int4_oid,
+    pgsql::int4_oid,
+    pgsql::text_oid,
+    pgsql::text_oid,
+    pgsql::int4_oid,
     pgsql::int4_oid
   };
 
@@ -134,37 +146,69 @@ namespace odb
 
     bool grew (false);
 
-    // etransaction_id
+    // id
     //
     t[0UL] = 0;
 
-    // vector
+    // output_etransaction_id
     //
     t[1UL] = 0;
 
-    // amount
+    // output_vector
     //
     t[2UL] = 0;
 
-    // category
+    // is_output_mine
     //
-    if (t[3UL])
-    {
-      i.category_value.capacity (i.category_size);
-      grew = true;
-    }
+    t[3UL] = 0;
+
+    // n_value
+    //
+    t[4UL] = 0;
 
     // destination
     //
-    if (t[4UL])
+    if (t[5UL])
     {
       i.destination_value.capacity (i.destination_size);
       grew = true;
     }
 
-    // id
+    // script_pub_key
     //
-    t[5UL] = 0;
+    if (t[6UL])
+    {
+      i.script_pub_key_value.capacity (i.script_pub_key_size);
+      grew = true;
+    }
+
+    // input_etransaction_id
+    //
+    t[7UL] = 0;
+
+    // input_vector
+    //
+    t[8UL] = 0;
+
+    // script_sig
+    //
+    if (t[9UL])
+    {
+      i.script_sig_value.capacity (i.script_sig_size);
+      grew = true;
+    }
+
+    // script_witness
+    //
+    if (t[10UL])
+    {
+      i.script_witness_value.capacity (i.script_witness_size);
+      grew = true;
+    }
+
+    // n_sequence
+    //
+    t[11UL] = 0;
 
     return grew;
   }
@@ -180,34 +224,42 @@ namespace odb
 
     std::size_t n (0);
 
-    // etransaction_id
+    // id
+    //
+    if (sk != statement_insert && sk != statement_update)
+    {
+      b[n].type = pgsql::bind::integer;
+      b[n].buffer = &i.id_value;
+      b[n].is_null = &i.id_null;
+      n++;
+    }
+
+    // output_etransaction_id
     //
     b[n].type = pgsql::bind::integer;
-    b[n].buffer = &i.etransaction_id_value;
-    b[n].is_null = &i.etransaction_id_null;
+    b[n].buffer = &i.output_etransaction_id_value;
+    b[n].is_null = &i.output_etransaction_id_null;
     n++;
 
-    // vector
+    // output_vector
     //
     b[n].type = pgsql::bind::integer;
-    b[n].buffer = &i.vector_value;
-    b[n].is_null = &i.vector_null;
+    b[n].buffer = &i.output_vector_value;
+    b[n].is_null = &i.output_vector_null;
     n++;
 
-    // amount
+    // is_output_mine
+    //
+    b[n].type = pgsql::bind::smallint;
+    b[n].buffer = &i.is_output_mine_value;
+    b[n].is_null = &i.is_output_mine_null;
+    n++;
+
+    // n_value
     //
     b[n].type = pgsql::bind::bigint;
-    b[n].buffer = &i.amount_value;
-    b[n].is_null = &i.amount_null;
-    n++;
-
-    // category
-    //
-    b[n].type = pgsql::bind::text;
-    b[n].buffer = i.category_value.data ();
-    b[n].capacity = i.category_value.capacity ();
-    b[n].size = &i.category_size;
-    b[n].is_null = &i.category_null;
+    b[n].buffer = &i.n_value_value;
+    b[n].is_null = &i.n_value_null;
     n++;
 
     // destination
@@ -219,15 +271,53 @@ namespace odb
     b[n].is_null = &i.destination_null;
     n++;
 
-    // id
+    // script_pub_key
     //
-    if (sk != statement_insert && sk != statement_update)
-    {
-      b[n].type = pgsql::bind::integer;
-      b[n].buffer = &i.id_value;
-      b[n].is_null = &i.id_null;
-      n++;
-    }
+    b[n].type = pgsql::bind::text;
+    b[n].buffer = i.script_pub_key_value.data ();
+    b[n].capacity = i.script_pub_key_value.capacity ();
+    b[n].size = &i.script_pub_key_size;
+    b[n].is_null = &i.script_pub_key_null;
+    n++;
+
+    // input_etransaction_id
+    //
+    b[n].type = pgsql::bind::integer;
+    b[n].buffer = &i.input_etransaction_id_value;
+    b[n].is_null = &i.input_etransaction_id_null;
+    n++;
+
+    // input_vector
+    //
+    b[n].type = pgsql::bind::integer;
+    b[n].buffer = &i.input_vector_value;
+    b[n].is_null = &i.input_vector_null;
+    n++;
+
+    // script_sig
+    //
+    b[n].type = pgsql::bind::text;
+    b[n].buffer = i.script_sig_value.data ();
+    b[n].capacity = i.script_sig_value.capacity ();
+    b[n].size = &i.script_sig_size;
+    b[n].is_null = &i.script_sig_null;
+    n++;
+
+    // script_witness
+    //
+    b[n].type = pgsql::bind::text;
+    b[n].buffer = i.script_witness_value.data ();
+    b[n].capacity = i.script_witness_value.capacity ();
+    b[n].size = &i.script_witness_size;
+    b[n].is_null = &i.script_witness_null;
+    n++;
+
+    // n_sequence
+    //
+    b[n].type = pgsql::bind::integer;
+    b[n].buffer = &i.n_sequence_value;
+    b[n].is_null = &i.n_sequence_null;
+    n++;
   }
 
   void access::object_traits_impl< ::eOutputEntries, id_pgsql >::
@@ -252,67 +342,60 @@ namespace odb
 
     bool grew (false);
 
-    // etransaction_id
+    // output_etransaction_id
     //
     {
       unsigned int const& v =
-        o.etransaction_id;
+        o.output_etransaction_id;
 
       bool is_null (false);
       pgsql::value_traits<
           unsigned int,
           pgsql::id_integer >::set_image (
-        i.etransaction_id_value, is_null, v);
-      i.etransaction_id_null = is_null;
+        i.output_etransaction_id_value, is_null, v);
+      i.output_etransaction_id_null = is_null;
     }
 
-    // vector
+    // output_vector
     //
     {
       unsigned int const& v =
-        o.vector;
+        o.output_vector;
 
       bool is_null (false);
       pgsql::value_traits<
           unsigned int,
           pgsql::id_integer >::set_image (
-        i.vector_value, is_null, v);
-      i.vector_null = is_null;
+        i.output_vector_value, is_null, v);
+      i.output_vector_null = is_null;
     }
 
-    // amount
+    // is_output_mine
+    //
+    {
+      ::uint8_t const& v =
+        o.is_output_mine;
+
+      bool is_null (false);
+      pgsql::value_traits<
+          ::uint8_t,
+          pgsql::id_smallint >::set_image (
+        i.is_output_mine_value, is_null, v);
+      i.is_output_mine_null = is_null;
+    }
+
+    // n_value
     //
     {
       ::int64_t const& v =
-        o.amount;
+        o.n_value;
 
       bool is_null (false);
       pgsql::value_traits<
           ::int64_t,
           pgsql::id_bigint >::set_image (
-        i.amount_value, is_null, v);
-      i.amount_null = is_null;
-    }
-
-    // category
-    //
-    {
-      ::std::string const& v =
-        o.category;
-
-      bool is_null (false);
-      std::size_t size (0);
-      std::size_t cap (i.category_value.capacity ());
-      pgsql::value_traits<
-          ::std::string,
-          pgsql::id_string >::set_image (
-        i.category_value,
-        size,
-        is_null,
-        v);
-      i.category_null = is_null;
-      i.category_size = size;
-      grew = grew || (cap != i.category_value.capacity ());
+        i.n_value_value, is_null, v);
+      i.n_value_null = is_null;
     }
 
     // destination
@@ -336,6 +419,111 @@ namespace odb
       grew = grew || (cap != i.destination_value.capacity ());
     }
 
+    // script_pub_key
+    //
+    {
+      ::std::string const& v =
+        o.script_pub_key;
+
+      bool is_null (false);
+      std::size_t size (0);
+      std::size_t cap (i.script_pub_key_value.capacity ());
+      pgsql::value_traits<
+          ::std::string,
+          pgsql::id_string >::set_image (
+        i.script_pub_key_value,
+        size,
+        is_null,
+        v);
+      i.script_pub_key_null = is_null;
+      i.script_pub_key_size = size;
+      grew = grew || (cap != i.script_pub_key_value.capacity ());
+    }
+
+    // input_etransaction_id
+    //
+    {
+      unsigned int const& v =
+        o.input_etransaction_id;
+
+      bool is_null (true);
+      pgsql::value_traits<
+          unsigned int,
+          pgsql::id_integer >::set_image (
+        i.input_etransaction_id_value, is_null, v);
+      i.input_etransaction_id_null = is_null;
+    }
+
+    // input_vector
+    //
+    {
+      unsigned int const& v =
+        o.input_vector;
+
+      bool is_null (true);
+      pgsql::value_traits<
+          unsigned int,
+          pgsql::id_integer >::set_image (
+        i.input_vector_value, is_null, v);
+      i.input_vector_null = is_null;
+    }
+
+    // script_sig
+    //
+    {
+      ::std::string const& v =
+        o.script_sig;
+
+      bool is_null (true);
+      std::size_t size (0);
+      std::size_t cap (i.script_sig_value.capacity ());
+      pgsql::value_traits<
+          ::std::string,
+          pgsql::id_string >::set_image (
+        i.script_sig_value,
+        size,
+        is_null,
+        v);
+      i.script_sig_null = is_null;
+      i.script_sig_size = size;
+      grew = grew || (cap != i.script_sig_value.capacity ());
+    }
+
+    // script_witness
+    //
+    {
+      ::std::string const& v =
+        o.script_witness;
+
+      bool is_null (true);
+      std::size_t size (0);
+      std::size_t cap (i.script_witness_value.capacity ());
+      pgsql::value_traits<
+          ::std::string,
+          pgsql::id_string >::set_image (
+        i.script_witness_value,
+        size,
+        is_null,
+        v);
+      i.script_witness_null = is_null;
+      i.script_witness_size = size;
+      grew = grew || (cap != i.script_witness_value.capacity ());
+    }
+
+    // n_sequence
+    //
+    {
+      ::uint32_t const& v =
+        o.n_sequence;
+
+      bool is_null (true);
+      pgsql::value_traits<
+          ::uint32_t,
+          pgsql::id_integer >::set_image (
+        i.n_sequence_value, is_null, v);
+      i.n_sequence_null = is_null;
+    }
+
     return grew;
   }
 
@@ -348,61 +536,74 @@ namespace odb
     ODB_POTENTIALLY_UNUSED (i);
     ODB_POTENTIALLY_UNUSED (db);
 
-    // etransaction_id
+    // id
     //
     {
       unsigned int& v =
-        o.etransaction_id;
+        o.id;
 
       pgsql::value_traits<
           unsigned int,
           pgsql::id_integer >::set_value (
         v,
-        i.etransaction_id_value,
-        i.etransaction_id_null);
+        i.id_value,
+        i.id_null);
     }
 
-    // vector
+    // output_etransaction_id
     //
     {
       unsigned int& v =
-        o.vector;
+        o.output_etransaction_id;
 
       pgsql::value_traits<
           unsigned int,
           pgsql::id_integer >::set_value (
         v,
-        i.vector_value,
-        i.vector_null);
+        i.output_etransaction_id_value,
+        i.output_etransaction_id_null);
     }
 
-    // amount
+    // output_vector
+    //
+    {
+      unsigned int& v =
+        o.output_vector;
+
+      pgsql::value_traits<
+          unsigned int,
+          pgsql::id_integer >::set_value (
+        v,
+        i.output_vector_value,
+        i.output_vector_null);
+    }
+
+    // is_output_mine
+    //
+    {
+      ::uint8_t& v =
+        o.is_output_mine;
+
+      pgsql::value_traits<
+          ::uint8_t,
+          pgsql::id_smallint >::set_value (
+        v,
+        i.is_output_mine_value,
+        i.is_output_mine_null);
+    }
+
+    // n_value
     //
     {
       ::int64_t& v =
-        o.amount;
+        o.n_value;
 
       pgsql::value_traits<
           ::int64_t,
           pgsql::id_bigint >::set_value (
         v,
-        i.amount_value,
-        i.amount_null);
-    }
-
-    // category
-    //
-    {
-      ::std::string& v =
-        o.category;
-
-      pgsql::value_traits<
-          ::std::string,
-          pgsql::id_string >::set_value (
-        v,
-        i.category_value,
-        i.category_size,
-        i.category_null);
+        i.n_value_value,
+        i.n_value_null);
     }
 
     // destination
@@ -420,18 +621,91 @@ namespace odb
         i.destination_null);
     }
 
-    // id
+    // script_pub_key
+    //
+    {
+      ::std::string& v =
+        o.script_pub_key;
+
+      pgsql::value_traits<
+          ::std::string,
+          pgsql::id_string >::set_value (
+        v,
+        i.script_pub_key_value,
+        i.script_pub_key_size,
+        i.script_pub_key_null);
+    }
+
+    // input_etransaction_id
     //
     {
       unsigned int& v =
-        o.id;
+        o.input_etransaction_id;
 
       pgsql::value_traits<
           unsigned int,
           pgsql::id_integer >::set_value (
         v,
-        i.id_value,
-        i.id_null);
+        i.input_etransaction_id_value,
+        i.input_etransaction_id_null);
+    }
+
+    // input_vector
+    //
+    {
+      unsigned int& v =
+        o.input_vector;
+
+      pgsql::value_traits<
+          unsigned int,
+          pgsql::id_integer >::set_value (
+        v,
+        i.input_vector_value,
+        i.input_vector_null);
+    }
+
+    // script_sig
+    //
+    {
+      ::std::string& v =
+        o.script_sig;
+
+      pgsql::value_traits<
+          ::std::string,
+          pgsql::id_string >::set_value (
+        v,
+        i.script_sig_value,
+        i.script_sig_size,
+        i.script_sig_null);
+    }
+
+    // script_witness
+    //
+    {
+      ::std::string& v =
+        o.script_witness;
+
+      pgsql::value_traits<
+          ::std::string,
+          pgsql::id_string >::set_value (
+        v,
+        i.script_witness_value,
+        i.script_witness_size,
+        i.script_witness_null);
+    }
+
+    // n_sequence
+    //
+    {
+      ::uint32_t& v =
+        o.n_sequence;
+
+      pgsql::value_traits<
+          ::uint32_t,
+          pgsql::id_integer >::set_value (
+        v,
+        i.n_sequence_value,
+        i.n_sequence_null);
     }
   }
 
@@ -450,36 +724,54 @@ namespace odb
 
   const char access::object_traits_impl< ::eOutputEntries, id_pgsql >::persist_statement[] =
   "INSERT INTO \"wallet\".\"eOutputEntries\" "
-  "(\"etransaction_id\", "
-  "\"vector\", "
-  "\"amount\", "
-  "\"category\", "
+  "(\"id\", "
+  "\"output_etransaction_id\", "
+  "\"output_vector\", "
+  "\"is_output_mine\", "
+  "\"n_value\", "
   "\"destination\", "
-  "\"id\") "
+  "\"script_pub_key\", "
+  "\"input_etransaction_id\", "
+  "\"input_vector\", "
+  "\"script_sig\", "
+  "\"script_witness\", "
+  "\"n_sequence\") "
   "VALUES "
-  "($1, $2, $3, $4, $5, DEFAULT) "
+  "(DEFAULT, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) "
   "RETURNING \"id\"";
 
   const char access::object_traits_impl< ::eOutputEntries, id_pgsql >::find_statement[] =
   "SELECT "
-  "\"wallet\".\"eOutputEntries\".\"etransaction_id\", "
-  "\"wallet\".\"eOutputEntries\".\"vector\", "
-  "\"wallet\".\"eOutputEntries\".\"amount\", "
-  "\"wallet\".\"eOutputEntries\".\"category\", "
+  "\"wallet\".\"eOutputEntries\".\"id\", "
+  "\"wallet\".\"eOutputEntries\".\"output_etransaction_id\", "
+  "\"wallet\".\"eOutputEntries\".\"output_vector\", "
+  "\"wallet\".\"eOutputEntries\".\"is_output_mine\", "
+  "\"wallet\".\"eOutputEntries\".\"n_value\", "
   "\"wallet\".\"eOutputEntries\".\"destination\", "
-  "\"wallet\".\"eOutputEntries\".\"id\" "
+  "\"wallet\".\"eOutputEntries\".\"script_pub_key\", "
+  "\"wallet\".\"eOutputEntries\".\"input_etransaction_id\", "
+  "\"wallet\".\"eOutputEntries\".\"input_vector\", "
+  "\"wallet\".\"eOutputEntries\".\"script_sig\", "
+  "\"wallet\".\"eOutputEntries\".\"script_witness\", "
+  "\"wallet\".\"eOutputEntries\".\"n_sequence\" "
   "FROM \"wallet\".\"eOutputEntries\" "
   "WHERE \"wallet\".\"eOutputEntries\".\"id\"=$1";
 
   const char access::object_traits_impl< ::eOutputEntries, id_pgsql >::update_statement[] =
   "UPDATE \"wallet\".\"eOutputEntries\" "
   "SET "
-  "\"etransaction_id\"=$1, "
-  "\"vector\"=$2, "
-  "\"amount\"=$3, "
-  "\"category\"=$4, "
-  "\"destination\"=$5 "
-  "WHERE \"id\"=$6";
+  "\"output_etransaction_id\"=$1, "
+  "\"output_vector\"=$2, "
+  "\"is_output_mine\"=$3, "
+  "\"n_value\"=$4, "
+  "\"destination\"=$5, "
+  "\"script_pub_key\"=$6, "
+  "\"input_etransaction_id\"=$7, "
+  "\"input_vector\"=$8, "
+  "\"script_sig\"=$9, "
+  "\"script_witness\"=$10, "
+  "\"n_sequence\"=$11 "
+  "WHERE \"id\"=$12";
 
   const char access::object_traits_impl< ::eOutputEntries, id_pgsql >::erase_statement[] =
   "DELETE FROM \"wallet\".\"eOutputEntries\" "
@@ -487,12 +779,18 @@ namespace odb
 
   const char access::object_traits_impl< ::eOutputEntries, id_pgsql >::query_statement[] =
   "SELECT "
-  "\"wallet\".\"eOutputEntries\".\"etransaction_id\", "
-  "\"wallet\".\"eOutputEntries\".\"vector\", "
-  "\"wallet\".\"eOutputEntries\".\"amount\", "
-  "\"wallet\".\"eOutputEntries\".\"category\", "
+  "\"wallet\".\"eOutputEntries\".\"id\", "
+  "\"wallet\".\"eOutputEntries\".\"output_etransaction_id\", "
+  "\"wallet\".\"eOutputEntries\".\"output_vector\", "
+  "\"wallet\".\"eOutputEntries\".\"is_output_mine\", "
+  "\"wallet\".\"eOutputEntries\".\"n_value\", "
   "\"wallet\".\"eOutputEntries\".\"destination\", "
-  "\"wallet\".\"eOutputEntries\".\"id\" "
+  "\"wallet\".\"eOutputEntries\".\"script_pub_key\", "
+  "\"wallet\".\"eOutputEntries\".\"input_etransaction_id\", "
+  "\"wallet\".\"eOutputEntries\".\"input_vector\", "
+  "\"wallet\".\"eOutputEntries\".\"script_sig\", "
+  "\"wallet\".\"eOutputEntries\".\"script_witness\", "
+  "\"wallet\".\"eOutputEntries\".\"n_sequence\" "
   "FROM \"wallet\".\"eOutputEntries\"";
 
   const char access::object_traits_impl< ::eOutputEntries, id_pgsql >::erase_query_statement[] =

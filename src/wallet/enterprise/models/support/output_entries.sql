@@ -7,12 +7,18 @@ DROP TABLE IF EXISTS "wallet"."eOutputEntries" CASCADE;
 DROP TABLE IF EXISTS "schema_version";
 
 CREATE TABLE "wallet"."eOutputEntries" (
-  "etransaction_id" INTEGER NOT NULL,
-  "vector" INTEGER NOT NULL,
-  "amount" BIGINT NOT NULL,
-  "category" TEXT NOT NULL,
+  "id" SERIAL NOT NULL PRIMARY KEY,
+  "output_etransaction_id" INTEGER NOT NULL,
+  "output_vector" INTEGER NOT NULL,
+  "is_output_mine" SMALLINT NOT NULL,
+  "n_value" BIGINT NOT NULL,
   "destination" TEXT NOT NULL,
-  "id" SERIAL NOT NULL PRIMARY KEY);
+  "script_pub_key" TEXT NOT NULL,
+  "input_etransaction_id" INTEGER NULL,
+  "input_vector" INTEGER NULL,
+  "script_sig" TEXT NULL,
+  "script_witness" TEXT NULL,
+  "n_sequence" INTEGER NULL);
 
 CREATE TABLE "schema_version" (
   "name" TEXT NOT NULL PRIMARY KEY,

@@ -1,12 +1,18 @@
 <changelog xmlns="http://www.codesynthesis.com/xmlns/odb/changelog" database="pgsql" version="1">
   <model version="1">
     <table name="wallet.eOutputEntries" kind="object">
-      <column name="etransaction_id" type="INTEGER" null="false"/>
-      <column name="vector" type="INTEGER" null="false"/>
-      <column name="amount" type="BIGINT" null="false"/>
-      <column name="category" type="TEXT" null="false"/>
-      <column name="destination" type="TEXT" null="false"/>
       <column name="id" type="INTEGER" null="false"/>
+      <column name="output_etransaction_id" type="INTEGER" null="false"/>
+      <column name="output_vector" type="INTEGER" null="false"/>
+      <column name="is_output_mine" type="SMALLINT" null="false"/>
+      <column name="n_value" type="BIGINT" null="false"/>
+      <column name="destination" type="TEXT" null="false"/>
+      <column name="script_pub_key" type="TEXT" null="false"/>
+      <column name="input_etransaction_id" type="INTEGER" null="true"/>
+      <column name="input_vector" type="INTEGER" null="true"/>
+      <column name="script_sig" type="TEXT" null="true"/>
+      <column name="script_witness" type="TEXT" null="true"/>
+      <column name="n_sequence" type="INTEGER" null="true"/>
       <primary-key auto="true">
         <column name="id"/>
       </primary-key>
