@@ -202,7 +202,7 @@ namespace enterprise_wallet {
         unsigned int block_id = 0;
         CTransactionRef tx;
         uint256 block_hash;
-        bool found_transaction = GetTransaction(hash, tx, Params().GetConsensus(), block_hash, true);
+        bool found_transaction = GetTransaction(tx_hash, tx, Params().GetConsensus(), block_hash, true);
 
         if (found_transaction) {
             block_id = UpsertBlock(block_hash);
@@ -218,43 +218,46 @@ namespace enterprise_wallet {
 
     void UpsertOutputs(const std::vector<CTxOut> vout, const unsigned int output_etransaction_id) {
         for(unsigned int index = 0; index < vout.size(); index++) {
-            const CTxOut& output = vout[index];
+            const CTxOut &output = vout[index];
             isminetype is_output_mine = vpwallets[0]->IsMine(output);
             CTxDestination output_destination;
             ExtractDestination(output.scriptPubKey, output_destination);
+            std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
+            {
+                typedef odb::query <eOutputEntries> output_query;
+                odb::transaction t(enterprise_database->begin());
+                std::auto_ptr <eOutputEntries> eout(
+                        enterprise_database->query_one<eOutputEntries>(
+                                output_query::output_etransaction_id == output_etransaction_id
+                                && output_query::output_vector == index));
+                if (eout.get() != 0) {
+                    eout->output_etransaction_id = output_etransaction_id;
+                    eout->output_vector = index;
+                    eout->is_output_mine = is_output_mine;
+                    eout->n_value = output.nValue;
+                    eout->destination = EncodeDestination(output_destination);
+                    eout->script_pub_key = ScriptToAsmStr(output.scriptPubKey);
 
-            typedef odb::query <eOutputEntries> output_query;
-            odb::transaction t(enterprise_database->begin());
-            std::auto_ptr <eOutputEntries> eout(
-                    enterprise_database->query_one<eOutputEntries>(output_query::output_etransaction_id == output_etransaction_id
-                                                                   && output_query::output_vector == index));
-            if (eout.get() != 0) {
-                eout->output_etransaction_id = output_etransaction_id;
-                eout->output_vector = input.prevout.n;
-                eout->is_output_mine = is_output_mine;
-                eout->n_value = output.nValue;
-                eout->destination = EncodeDestination(sent_output.destination);
-                eout->script_pub_key = ScriptToAsmStr(scriptPubKey);
+                    enterprise_database->update(*eout);
+                } else {
+                    eOutputEntries new_eout(
+                            output_etransaction_id,
+                            index,
+                            is_output_mine,
+                            output.nValue,
+                            EncodeDestination(output_destination),
+                            ScriptToAsmStr(output.scriptPubKey),
 
-                enterprise_database->update(*eout);
-            } else {
-                eOutputEntries new_eout(
-                        output_etransaction_id,
-                        input.prevout.n,
-                        is_output_mine,
-                        output.nValue,
-                        EncodeDestination(sent_output.destination),
-                        ScriptToAsmStr(scriptPubKey),
-
-                        input_etransaction_id,
-                        index,
-                        ScriptToAsmStr(input.scriptSig, true),
-                        input.scriptWitness.ToString(),
-                        input.nSequence
-                );
-                enterprise_database->persist(new_eout);
+                            0,
+                            0,
+                            "",
+                            "",
+                            0
+                    );
+                    enterprise_database->persist(new_eout);
+                }
+                t.commit();
             }
-            t.commit();
         }
     }
 
