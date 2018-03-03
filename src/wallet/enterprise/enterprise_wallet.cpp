@@ -215,19 +215,13 @@ namespace enterprise_wallet {
     }
 
     void UpsertOutputs(const std::vector<CTxOut> vout, const unsigned int output_etransaction_id) {
-
-        isminetype is_output_mine;
-        const CTxOut& output;
-        unsigned int output_etransaction_id;
-        CTxDestination output_destination;
-
-        typedef odb::query <eOutputEntries> output_query;
-
         for(unsigned int index = 0; index < vout.size(); index++) {
-            output = vout[index];
-            is_output_mine = vpwallets[0]->IsMine(output);
+            const CTxOut& output = vout[index];
+            isminetype is_output_mine = vpwallets[0]->IsMine(output);
+            CTxDestination output_destination;
             ExtractDestination(output.scriptPubKey, output_destination);
 
+            typedef odb::query <eOutputEntries> output_query;
             odb::transaction t(enterprise_database->begin());
             std::auto_ptr <eOutputEntries> eout(
                     enterprise_database->query_one<eOutputEntries>(output_query::input_etransaction_id == input_etransaction_id
