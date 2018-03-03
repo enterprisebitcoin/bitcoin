@@ -17,8 +17,8 @@ public:
     eWalletTransactions(
             const unsigned int etransaction_id,
             const bool is_trusted,
-            const int64_t time_smart,
-            const int64_t time_received,
+            const int64_t n_time_smart,
+            const int64_t n_time_received,
             const int64_t debit,
             const int64_t credit,
             const boost::uuids::uuid &wallet_id
@@ -26,8 +26,8 @@ public:
             :
             etransaction_id(etransaction_id),
             is_trusted(is_trusted),
-            time_smart(time_smart),
-            time_received(time_received),
+            n_time_smart(n_time_smart),
+            n_time_received(n_time_received),
             debit(debit),
             credit(credit),
             wallet_id(wallet_id) {
@@ -38,8 +38,8 @@ public:
 
     unsigned int etransaction_id;
     bool is_trusted;
-    int64_t time_smart;
-    int64_t time_received;
+    int64_t n_time_smart;
+    int64_t n_time_received;
     int64_t debit;
     int64_t credit;
 

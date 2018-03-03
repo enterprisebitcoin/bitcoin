@@ -1,6 +1,7 @@
 #include <base58.h>
 #include <util.h>
 #include <script/standard.h>
+#include <utilstrencodings.h>
 #include <wallet/wallet.h>
 #include <wallet/rpcdump.cpp>
 
@@ -213,21 +214,19 @@ namespace enterprise_wallet {
         return block_id;
     }
 
-    void UpsertInputs(const std::vector<CTxIn> vin, const unsigned int input_etransaction_id) {
-        for(unsigned int index = 0; index < vin.size(); index++) {
-            const CTxIn& input = vin[index];
+    void UpsertOutputs(const std::vector<CTxOut> vout, const unsigned int output_etransaction_id) {
 
-            isminetype is_input_mine = vpwallets[0]->IsMine(input);
+        isminetype is_output_mine;
+        const CTxOut& output;
+        unsigned int output_etransaction_id;
+        CTxDestination output_destination;
 
-            CTransactionRef output_transaction;
-            uint256 output_block_hash;
-            bool found_output_transaction = GetTransaction(input.prevout.hash, output_transaction, Params().GetConsensus(), block_hash, true);
-            const CTxOut& output = output_transaction->vout[input.prevout.n];
+        typedef odb::query <eOutputEntries> output_query;
 
-            unsigned int output_etransaction_id = UpsertTx(output_transaction, false);
-
-            CTxDestination address;
-            ExtractDestination(output.scriptPubKey, address);
+        for(unsigned int index = 0; index < vout.size(); index++) {
+            output = vout[index];
+            is_output_mine = vpwallets[0]->IsMine(output);
+            ExtractDestination(output.scriptPubKey, output_destination);
 
             odb::transaction t(enterprise_database->begin());
             std::auto_ptr <eOutputEntries> eout(
@@ -236,16 +235,26 @@ namespace enterprise_wallet {
             if (eout.get() != 0) {
                 eout->output_etransaction_id = output_etransaction_id;
                 eout->output_vector = input.prevout.n;
-                eout->is_output_mine = is_input_mine;
-                eout->amount = output.nValue;
+                eout->is_output_mine = is_output_mine;
+                eout->n_value = output.nValue;
                 eout->destination = EncodeDestination(sent_output.destination);
+                eout->script_pub_key = ScriptToAsmStr(scriptPubKey);
+
                 enterprise_database->update(*eout);
             } else {
                 eOutputEntries new_eout(
-                        etransaction_id,
-                        vout,
-                        -sent_output.amount,
-                        EncodeDestination(address)
+                        output_etransaction_id,
+                        input.prevout.n,
+                        is_output_mine,
+                        output.nValue,
+                        EncodeDestination(sent_output.destination),
+                        ScriptToAsmStr(scriptPubKey),
+
+                        input_etransaction_id,
+                        index,
+                        ScriptToAsmStr(input.scriptSig, true),
+                        input.scriptWitness.ToString(),
+                        input.nSequence
                 );
                 enterprise_database->persist(new_eout);
             }
@@ -253,7 +262,70 @@ namespace enterprise_wallet {
         }
     }
 
-    unsigned int UpsertTransaction(const CTransactionRef tx) {
+    void UpsertInputs(const std::vector<CTxIn> vin, const unsigned int input_etransaction_id) {
+
+        const CTxIn& input;
+        isminetype is_output_mine;
+
+        CTransactionRef output_transaction;
+        uint256 output_block_hash;
+        bool found_output_transaction;
+        const CTxOut& output;
+        unsigned int output_etransaction_id;
+        CTxDestination output_destination;
+
+        typedef odb::query <eOutputEntries> output_query;
+
+        for(unsigned int index = 0; index < vin.size(); index++) {
+            input = vin[index];
+            is_output_mine = vpwallets[0]->IsMine(input);
+
+            found_output_transaction = GetTransaction(input.prevout.hash, output_transaction, Params().GetConsensus(), block_hash, true);
+            output = output_transaction->vout[input.prevout.n];
+            output_etransaction_id = UpsertTx(output_transaction, false);
+            ExtractDestination(output.scriptPubKey, output_destination);
+
+            odb::transaction t(enterprise_database->begin());
+            std::auto_ptr <eOutputEntries> eout(
+                    enterprise_database->query_one<eOutputEntries>(output_query::input_etransaction_id == input_etransaction_id
+                                                                   && output_query::input_vector == vin));
+            if (eout.get() != 0) {
+                eout->output_etransaction_id = output_etransaction_id;
+                eout->output_vector = input.prevout.n;
+                eout->is_output_mine = is_output_mine;
+                eout->n_value = output.nValue;
+                eout->destination = EncodeDestination(sent_output.destination);
+                eout->script_pub_key = ScriptToAsmStr(scriptPubKey);
+
+                eout->input_transaction_id = input_etransaction_id;
+                eout->input_vector = index;
+                eout->script_sig = ScriptToAsmStr(input.scriptSig, true);
+                eout->script_witness = input.scriptWitness.ToString();
+                eout->n_sequence = input.nSequence;
+
+                enterprise_database->update(*eout);
+            } else {
+                eOutputEntries new_eout(
+                        output_etransaction_id,
+                        input.prevout.n,
+                        is_output_mine,
+                        output.nValue,
+                        EncodeDestination(sent_output.destination),
+                        ScriptToAsmStr(scriptPubKey),
+
+                        input_etransaction_id,
+                        index,
+                        ScriptToAsmStr(input.scriptSig, true),
+                        input.scriptWitness.ToString(),
+                        input.nSequence
+                );
+                enterprise_database->persist(new_eout);
+            }
+            t.commit();
+        }
+    }
+
+    unsigned int UpsertTransaction(const CTransactionRef tx, const bool upsert_inputs) {
 
         uint256 hash = tx.GetHash();
         boost::uuids::uuid wallet_id = GetWalletID();
@@ -263,7 +335,6 @@ namespace enterprise_wallet {
         std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
         {
             typedef odb::query <eTransactions> query;
-            typedef odb::query <eOutputEntries> output_query;
             unsigned int etransaction_id;
 
             LOCK(cs_main);
@@ -292,22 +363,24 @@ namespace enterprise_wallet {
                 etransaction_id = enterprise_database->persist(new_etx);
             }
             t.commit();
-            return etransaction_id;
         }
+
+        if (upsert_inputs) {
+            UpsertInputs(tx.vin, etransaction_id);
+        }
+
+        UpsertOutputs(tx.vout, etransaction_id);
+
+        return etransaction_id;
     }
 
-    void UpsertWalletTransaction(const CWalletTx &wtx) {
-        LogPrintf("Upsert transaction %s \n", txid);
-
-        uint256 hash = wtx.GetHash();
-        std::string txid = hash.GetHex();
-
+    void UpsertWalletTransaction(const CWalletTx& wallet_transaction) {
+        unsigned int etransaction_id = UpsertTransaction(wallet_transaction.tx, true);
         boost::uuids::uuid wallet_id = GetWalletID();
-        unsigned int block_id = GetBlockID(hash);
 
         std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
         {
-            typedef odb::query <eTransactions> query;
+            typedef odb::query <eWalletTransactions> query;
             typedef odb::query <eOutputEntries> output_query;
             unsigned int etransaction_id;
 

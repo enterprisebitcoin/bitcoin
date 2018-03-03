@@ -30,7 +30,7 @@ public:
             unsigned int input_vector,
             std::string script_sig,
             std::string script_witness,
-            std::string n_sequence
+            uint32_t n_sequence
     ) : output_etransaction_id(output_etransaction_id),
         output_vector(output_vector),
         is_output_mine(is_output_mine),
@@ -69,7 +69,7 @@ public:
     #pragma db null
     std::string script_witness;
     #pragma db null
-    std::string n_sequence;
+    uint32_t n_sequence;
 
 private:
     friend class odb::access;
