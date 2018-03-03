@@ -224,8 +224,8 @@ namespace enterprise_wallet {
             typedef odb::query <eOutputEntries> output_query;
             odb::transaction t(enterprise_database->begin());
             std::auto_ptr <eOutputEntries> eout(
-                    enterprise_database->query_one<eOutputEntries>(output_query::input_etransaction_id == input_etransaction_id
-                                                                   && output_query::input_vector == vin));
+                    enterprise_database->query_one<eOutputEntries>(output_query::output_etransaction_id == output_etransaction_id
+                                                                   && output_query::output_vector == index));
             if (eout.get() != 0) {
                 eout->output_etransaction_id = output_etransaction_id;
                 eout->output_vector = input.prevout.n;
@@ -257,65 +257,61 @@ namespace enterprise_wallet {
     }
 
     void UpsertInputs(const std::vector<CTxIn> vin, const unsigned int input_etransaction_id) {
-
-        const CTxIn& input;
-        isminetype is_output_mine;
-
-        CTransactionRef output_transaction;
-        uint256 output_block_hash;
-        bool found_output_transaction;
-        const CTxOut& output;
-        unsigned int output_etransaction_id;
-        CTxDestination output_destination;
-
-        typedef odb::query <eOutputEntries> output_query;
-
         for(unsigned int index = 0; index < vin.size(); index++) {
-            input = vin[index];
-            is_output_mine = vpwallets[0]->IsMine(input);
+            const CTxIn &input = vin[index];
+            isminetype is_output_mine = vpwallets[0]->IsMine(input);
 
-            found_output_transaction = GetTransaction(input.prevout.hash, output_transaction, Params().GetConsensus(), block_hash, true);
-            output = output_transaction->vout[input.prevout.n];
-            output_etransaction_id = UpsertTx(output_transaction, false);
+            CTransactionRef output_transaction;
+            uint256 output_block_hash;
+            bool found_output_transaction = GetTransaction(input.prevout.hash, output_transaction,
+                                                           Params().GetConsensus(), output_block_hash, true);
+            const CTxOut &output = output_transaction->vout[input.prevout.n];
+            unsigned int output_etransaction_id = UpsertTransaction(output_transaction, false);
+            CTxDestination output_destination;
             ExtractDestination(output.scriptPubKey, output_destination);
 
-            odb::transaction t(enterprise_database->begin());
-            std::auto_ptr <eOutputEntries> eout(
-                    enterprise_database->query_one<eOutputEntries>(output_query::input_etransaction_id == input_etransaction_id
-                                                                   && output_query::input_vector == vin));
-            if (eout.get() != 0) {
-                eout->output_etransaction_id = output_etransaction_id;
-                eout->output_vector = input.prevout.n;
-                eout->is_output_mine = is_output_mine;
-                eout->n_value = output.nValue;
-                eout->destination = EncodeDestination(sent_output.destination);
-                eout->script_pub_key = ScriptToAsmStr(scriptPubKey);
+            std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
+            {
+                typedef odb::query <eOutputEntries> output_query;
+                odb::transaction t(enterprise_database->begin());
+                std::auto_ptr <eOutputEntries> eout(
+                        enterprise_database->query_one<eOutputEntries>(
+                                output_query::input_etransaction_id == input_etransaction_id
+                                && output_query::input_vector == index));
+                if (eout.get() != 0) {
+                    eout->output_etransaction_id = output_etransaction_id;
+                    eout->output_vector = input.prevout.n;
+                    eout->is_output_mine = is_output_mine;
+                    eout->n_value = output.nValue;
+                    eout->destination = EncodeDestination(sent_output.destination);
+                    eout->script_pub_key = ScriptToAsmStr(scriptPubKey);
 
-                eout->input_transaction_id = input_etransaction_id;
-                eout->input_vector = index;
-                eout->script_sig = ScriptToAsmStr(input.scriptSig, true);
-                eout->script_witness = input.scriptWitness.ToString();
-                eout->n_sequence = input.nSequence;
+                    eout->input_transaction_id = input_etransaction_id;
+                    eout->input_vector = index;
+                    eout->script_sig = ScriptToAsmStr(input.scriptSig, true);
+                    eout->script_witness = input.scriptWitness.ToString();
+                    eout->n_sequence = input.nSequence;
 
-                enterprise_database->update(*eout);
-            } else {
-                eOutputEntries new_eout(
-                        output_etransaction_id,
-                        input.prevout.n,
-                        is_output_mine,
-                        output.nValue,
-                        EncodeDestination(sent_output.destination),
-                        ScriptToAsmStr(scriptPubKey),
+                    enterprise_database->update(*eout);
+                } else {
+                    eOutputEntries new_eout(
+                            output_etransaction_id,
+                            input.prevout.n,
+                            is_output_mine,
+                            output.nValue,
+                            EncodeDestination(sent_output.destination),
+                            ScriptToAsmStr(scriptPubKey),
 
-                        input_etransaction_id,
-                        index,
-                        ScriptToAsmStr(input.scriptSig, true),
-                        input.scriptWitness.ToString(),
-                        input.nSequence
-                );
-                enterprise_database->persist(new_eout);
+                            input_etransaction_id,
+                            index,
+                            ScriptToAsmStr(input.scriptSig, true),
+                            input.scriptWitness.ToString(),
+                            input.nSequence
+                    );
+                    enterprise_database->persist(new_eout);
+                }
+                t.commit();
             }
-            t.commit();
         }
     }
 

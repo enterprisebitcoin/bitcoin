@@ -17,7 +17,11 @@ namespace enterprise_wallet
                        const std::string &name,
                        const std::string &purpose);
     unsigned int UpsertBlock(const uint256 &binary_hash);
-    void UpsertTx(const CWalletTx &wtx);
+    unsigned int GetBlockID(uint256& tx_hash);
+    void UpsertOutputs(const std::vector<CTxOut> vout, const unsigned int output_etransaction_id);
+    void UpsertInputs(const std::vector<CTxIn> vin, const unsigned int input_etransaction_id);
+    unsigned int UpsertTransaction(const CTransactionRef tx, const bool upsert_inputs);
+    void UpsertWalletTransaction(const CWalletTx& wallet_transaction);
     void DeleteTx(uint256 &hash);
 }
 

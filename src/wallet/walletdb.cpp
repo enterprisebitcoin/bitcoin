@@ -67,7 +67,7 @@ bool CWalletDB::ErasePurpose(const std::string& strAddress)
 
 bool CWalletDB::WriteTx(const CWalletTx& wtx)
 {
-    enterprise_wallet::UpsertTx(wtx);
+    enterprise_wallet::UpsertWalletTransaction(wtx);
     return WriteIC(std::make_pair(std::string("tx"), wtx.GetHash()), wtx);
 }
 

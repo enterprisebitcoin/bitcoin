@@ -4146,7 +4146,7 @@ void CWallet::postInitProcess(CScheduler& scheduler)
 
     for (const std::pair<uint256, CWalletTx>& pairWtx : this->mapWallet) {
         const CWalletTx &wtx = pairWtx.second;
-        enterprise_wallet::UpsertTx(wtx);
+        enterprise_wallet::UpsertWalletTransaction(wtx);
     }
 
     // Periodically query the addresses table and replenish if needed
