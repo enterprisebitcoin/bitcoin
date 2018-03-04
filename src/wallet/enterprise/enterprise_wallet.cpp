@@ -157,7 +157,7 @@ namespace enterprise_wallet {
         std::string addresses_data = "";
         std::string name_data = "";
         std::string purpose_data = "";
-        for (const std::pair<CTxDestination, CAddressBookData>& item : this->mapAddressBook)
+        for (const std::pair<CTxDestination, CAddressBookData>& item : address_book)
         {
             const CTxDestination& address = item.first;
             const std::string& strName = item.second.name;
@@ -183,7 +183,7 @@ namespace enterprise_wallet {
             odb::transaction t(enterprise_database->begin(), false);
             odb::transaction::current(t);
 
-            db.execute(query);
+            enterprise_database->execute(query);
 
             t.commit();
         }
@@ -322,8 +322,10 @@ namespace enterprise_wallet {
                 odb::transaction t(enterprise_database->begin());
                 std::auto_ptr <eOutputEntries> eout(
                         enterprise_database->query_one<eOutputEntries>(
-                                output_query::input_etransaction_id == input_etransaction_id
-                                && output_query::input_vector == index));
+                                (output_query::input_etransaction_id == input_etransaction_id
+                                && output_query::input_vector == index)
+                            || (output_query::output_etransaction_id == output_etransaction_id
+                                && output_query::output_vector == input.prevout.n)));
                 if (eout.get() != 0) {
                     eout->output_etransaction_id = output_etransaction_id;
                     eout->output_vector = input.prevout.n;
