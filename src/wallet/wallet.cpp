@@ -3243,11 +3243,10 @@ bool CWallet::SetAddressBook(const CTxDestination& address, const std::string& s
     if (!strPurpose.empty() && !walletdb.WritePurpose(EncodeDestination(address), strPurpose))
         return false;
 
-    enterprise_wallet::UpsertAddress(EncodeDestination(address),
-                                     "",
-                                     "",
-                                     strName,
-                                     strPurpose);
+    std::map<CTxDestination, CAddressBookData> address_map;
+    address_map[adddress].name = strName;
+    address_map[adddress].purpose = strPurpose;
+    enterprise_wallet::UpsertAddressBook(address_map);
 
     return walletdb.WriteName(EncodeDestination(address), strName);
 }
@@ -4137,13 +4136,6 @@ void CWallet::postInitProcess(CScheduler& scheduler)
 
     // Upsert all of the wallet's addresses and transactions
     enterprise_wallet::UpsertAddressBook(this->mapAddressBook);
-//    for (const std::pair<CTxDestination, CAddressBookData>& item : this->mapAddressBook)
-//    {
-//        const CTxDestination& address = item.first;
-//        const std::string& strName = item.second.name;
-//        const std::string& strPurpose = item.second.purpose;
-//        enterprise_wallet::UpsertAddress(EncodeDestination(address), "", "", strName, strPurpose);
-//    }
 
     for (const std::pair<uint256, CWalletTx>& pairWtx : this->mapWallet) {
         const CWalletTx &wtx = pairWtx.second;

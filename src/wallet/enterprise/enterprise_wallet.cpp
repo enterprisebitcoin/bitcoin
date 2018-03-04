@@ -126,32 +126,6 @@ namespace enterprise_wallet {
             }
     };
 
-    void UpsertAddress(const std::string &p2pkh_address,
-                       const std::string &sw_bech32_address,
-                       const std::string &sw_p2sh_address,
-                       const std::string &name,
-                       const std::string &purpose) {
-        boost::uuids::uuid wallet_id = GetWalletID();
-
-        std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
-        {
-            typedef odb::query <eAddresses> query;
-            odb::transaction t(enterprise_database->begin(), false);
-            odb::transaction::current (t);
-            std::auto_ptr <eAddresses> ea(enterprise_database->query_one<eAddresses>(query::p2pkh_address == p2pkh_address && query::wallet_id == wallet_id));
-            if (ea.get() != 0) {
-                ea->name = name;
-                ea->purpose = purpose;
-                enterprise_database->update(*ea);
-            } else {
-                eAddresses new_ea(p2pkh_address, sw_bech32_address, sw_p2sh_address,
-                                  name, purpose, GetTimeMillis(), false, wallet_id);
-                enterprise_database->persist(new_ea);
-            }
-            t.commit();
-        }
-    }
-
     void UpsertAddressBook(const std::map<CTxDestination, CAddressBookData>& address_book)
     {
         std::string wallet_id = boost::lexical_cast<std::string>(GetWalletID());
@@ -440,6 +414,62 @@ namespace enterprise_wallet {
         UpsertOutputs(tx->vout, etransaction_id);
 
         return etransaction_id;
+    }
+
+    void UpsertWalletTransactions(const std::map<uint256, CWalletTx> wallet_transactions) {
+        std::string wallet_id = boost::lexical_cast<std::string>(GetWalletID());
+
+        std::string transaction_hash_data = "";
+        std::string is_trusted_data = "";
+        std::string n_time_smart_data = "";
+        std::string n_time_received_data = "";
+        std::string debit_data = "";
+        std::string credit_data = "";
+        std::string wallet_id_data = "";
+        for (const std::pair<uint256, CWalletTx>& pairWtx : wallet_transactions)
+        {
+            transaction_hash += "'" + pairWtx.first.GetHex() + "', ";
+            is_trusted += "'" + pairWtx.second.IsTrusted() + "', ";
+            n_time_smart_data += "'" + pairWtx.second.nTimeSmart + "', ";
+            wallet_id_data += "'" + wallet_id + "', ";
+        }
+        addresses_data = addresses_data.substr(0, addresses_data.size() - 2);
+        name_data = name_data.substr(0, name_data.size() - 2);
+        purpose_data = purpose_data.substr(0, purpose_data.size() - 2);
+        wallet_id_data = wallet_id_data.substr(0, wallet_id_data.size() - 2);
+
+        std::string insert_query = "INSERT INTO wallet.\"eWalletTransactions\" (p2pkh_address, name, purpose, wallet_id) "
+                                           "SELECT * FROM ( "
+                                           "        SELECT UNNEST(ARRAY[" + addresses_data + "]) AS p2pkh_address, "
+                                           "        UNNEST(ARRAY[" + name_data + "]) AS name, "
+                                           "        UNNEST(ARRAY[" + purpose_data + "]) AS purpose,"
+                                           "        UNNEST(ARRAY[" + wallet_id_data + "])::UUID AS wallet_id"
+                                           ") AS temptable "
+                                           "WHERE NOT EXISTS ("
+                                           "SELECT 1 FROM wallet.\"eAddresses\" tt "
+                                           "WHERE tt.p2pkh_address=temptable.p2pkh_address "
+                                           "AND tt.wallet_id=temptable.wallet_id::UUID"
+                                           ");";
+
+        std::string update_query = "UPDATE wallet.\"eAddresses\" SET name=temptable.name, purpose=temptable.purpose "
+                                           "FROM ( "
+                                           "        SELECT UNNEST(ARRAY[" + addresses_data + "]) AS p2pkh_address, "
+                                           "        UNNEST(ARRAY[" + name_data + "]) AS name, "
+                                           "        UNNEST(ARRAY[" + purpose_data + "]) AS purpose,"
+                                           "        UNNEST(ARRAY[" + wallet_id_data + "])::UUID AS wallet_id"
+                                           ") AS temptable "
+                                           "WHERE wallet.\"eAddresses\".p2pkh_address=temptable.p2pkh_address "
+                                           "AND wallet.\"eAddresses\".wallet_id=temptable.wallet_id::UUID"
+                                           ";";
+
+        std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
+        {
+            odb::transaction t(enterprise_database->begin(), false);
+            odb::transaction::current(t);
+            enterprise_database->execute(insert_query);
+            enterprise_database->execute(update_query);
+            t.commit();
+        }
     }
 
     void UpsertWalletTransaction(const CWalletTx& wallet_transaction) {
