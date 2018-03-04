@@ -338,7 +338,7 @@ namespace odb
       ::std::string const& v =
         o.sw_bech32_address;
 
-      bool is_null (false);
+      bool is_null (true);
       std::size_t size (0);
       std::size_t cap (i.sw_bech32_address_value.capacity ());
       pgsql::value_traits<
@@ -359,7 +359,7 @@ namespace odb
       ::std::string const& v =
         o.sw_p2sh_address;
 
-      bool is_null (false);
+      bool is_null (true);
       std::size_t size (0);
       std::size_t cap (i.sw_p2sh_address_value.capacity ());
       pgsql::value_traits<
@@ -380,7 +380,7 @@ namespace odb
       ::std::string const& v =
         o.name;
 
-      bool is_null (false);
+      bool is_null (true);
       std::size_t size (0);
       std::size_t cap (i.name_value.capacity ());
       pgsql::value_traits<
@@ -401,7 +401,7 @@ namespace odb
       ::std::string const& v =
         o.purpose;
 
-      bool is_null (false);
+      bool is_null (true);
       std::size_t size (0);
       std::size_t cap (i.purpose_value.capacity ());
       pgsql::value_traits<
@@ -422,7 +422,7 @@ namespace odb
       ::int64_t const& v =
         o.time;
 
-      bool is_null (false);
+      bool is_null (true);
       pgsql::value_traits<
           ::int64_t,
           pgsql::id_bigint >::set_image (

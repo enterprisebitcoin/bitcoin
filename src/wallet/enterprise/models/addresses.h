@@ -36,14 +36,19 @@ public:
 //    traditional base58 address
     std::string p2pkh_address;
 
+#pragma db null
     std::string sw_bech32_address;
 
+#pragma db null
     std::string sw_p2sh_address;
 
+#pragma db null
     std::string name;
 
+#pragma db null
     std::string purpose;
 
+#pragma db null
     int64_t time;
 
 #pragma db default(false)

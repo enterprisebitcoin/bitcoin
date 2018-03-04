@@ -8,11 +8,11 @@ DROP TABLE IF EXISTS "schema_version";
 
 CREATE TABLE "wallet"."eAddresses" (
   "p2pkh_address" TEXT NOT NULL,
-  "sw_bech32_address" TEXT NOT NULL,
-  "sw_p2sh_address" TEXT NOT NULL,
-  "name" TEXT NOT NULL,
-  "purpose" TEXT NOT NULL,
-  "time" BIGINT NOT NULL,
+  "sw_bech32_address" TEXT NULL,
+  "sw_p2sh_address" TEXT NULL,
+  "name" TEXT NULL,
+  "purpose" TEXT NULL,
+  "time" BIGINT NULL,
   "is_used" BOOLEAN NOT NULL DEFAULT FALSE,
   "wallet_id" UUID NOT NULL,
   "id" SERIAL NOT NULL PRIMARY KEY);

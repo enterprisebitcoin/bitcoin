@@ -2,11 +2,11 @@
   <model version="1">
     <table name="wallet.eAddresses" kind="object">
       <column name="p2pkh_address" type="TEXT" null="false"/>
-      <column name="sw_bech32_address" type="TEXT" null="false"/>
-      <column name="sw_p2sh_address" type="TEXT" null="false"/>
-      <column name="name" type="TEXT" null="false"/>
-      <column name="purpose" type="TEXT" null="false"/>
-      <column name="time" type="BIGINT" null="false"/>
+      <column name="sw_bech32_address" type="TEXT" null="true"/>
+      <column name="sw_p2sh_address" type="TEXT" null="true"/>
+      <column name="name" type="TEXT" null="true"/>
+      <column name="purpose" type="TEXT" null="true"/>
+      <column name="time" type="BIGINT" null="true"/>
       <column name="is_used" type="BOOLEAN" null="false" default="FALSE"/>
       <column name="wallet_id" type="UUID" null="false"/>
       <column name="id" type="INTEGER" null="false"/>

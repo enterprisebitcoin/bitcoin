@@ -172,26 +172,36 @@ namespace enterprise_wallet {
         purpose_data = purpose_data.substr(0, purpose_data.size() - 2);
         wallet_id_data = wallet_id_data.substr(0, wallet_id_data.size() - 2);
 
-        std::string query = "INSERT INTO wallet.\"eAddresses\" (p2pkh_address, name, purpose, wallet_id) "
-                                "SELECT * FROM ( "
-                                "        SELECT UNNEST(ARRAY[" + addresses_data + "]) AS p2pkh_address, "
-                                "        UNNEST(ARRAY[" + name_data + "]) AS name, "
-                                "        UNNEST(ARRAY[" + purpose_data + "]) AS purpose"
-                                "        UNNEST(ARRAY[" + wallet_id_data + "]) AS wallet_id"
-                                ") AS temptable"
-                                "WHERE NOT EXISTS ("
-                                "SELECT 1 FROM wallet.\"eAddresses\" tt"
-                                "WHERE tt.p2pkh_address=temptable.p2pkh_address"
-                                  "AND tt.wallet_id=temptable.wallet_id"
-                                ");";
+        std::string insert_query = "INSERT INTO wallet.\"eAddresses\" (p2pkh_address, name, purpose, wallet_id) "
+                                    "SELECT * FROM ( "
+                                    "        SELECT UNNEST(ARRAY[" + addresses_data + "]) AS p2pkh_address, "
+                                    "        UNNEST(ARRAY[" + name_data + "]) AS name, "
+                                    "        UNNEST(ARRAY[" + purpose_data + "]) AS purpose,"
+                                    "        UNNEST(ARRAY[" + wallet_id_data + "])::UUID AS wallet_id"
+                                    ") AS temptable "
+                                    "WHERE NOT EXISTS ("
+                                    "SELECT 1 FROM wallet.\"eAddresses\" tt "
+                                    "WHERE tt.p2pkh_address=temptable.p2pkh_address "
+                                      "AND tt.wallet_id=temptable.wallet_id::UUID"
+                                    ");";
+
+        std::string update_query = "UPDATE wallet.\"eAddresses\" SET name=temptable.name, purpose=temptable.purpose "
+                                           "FROM ( "
+                                           "        SELECT UNNEST(ARRAY[" + addresses_data + "]) AS p2pkh_address, "
+                                           "        UNNEST(ARRAY[" + name_data + "]) AS name, "
+                                           "        UNNEST(ARRAY[" + purpose_data + "]) AS purpose,"
+                                           "        UNNEST(ARRAY[" + wallet_id_data + "])::UUID AS wallet_id"
+                                           ") AS temptable "
+                                           "WHERE wallet.\"eAddresses\".p2pkh_address=temptable.p2pkh_address "
+                                           "AND wallet.\"eAddresses\".wallet_id=temptable.wallet_id::UUID"
+                                           ";";
 
         std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
         {
             odb::transaction t(enterprise_database->begin(), false);
             odb::transaction::current(t);
-
-            enterprise_database->execute(query);
-
+            enterprise_database->execute(insert_query);
+            enterprise_database->execute(update_query);
             t.commit();
         }
     }
