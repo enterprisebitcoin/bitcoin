@@ -4136,13 +4136,14 @@ void CWallet::postInitProcess(CScheduler& scheduler)
     enterprise_wallet::UpsertWallet();
 
     // Upsert all of the wallet's addresses and transactions
-    for (const std::pair<CTxDestination, CAddressBookData>& item : this->mapAddressBook)
-    {
-        const CTxDestination& address = item.first;
-        const std::string& strName = item.second.name;
-        const std::string& strPurpose = item.second.purpose;
-        enterprise_wallet::UpsertAddress(EncodeDestination(address), "", "", strName, strPurpose);
-    }
+    enterprise_wallet::UpsertAddressBook(this->mapAddressBook);
+//    for (const std::pair<CTxDestination, CAddressBookData>& item : this->mapAddressBook)
+//    {
+//        const CTxDestination& address = item.first;
+//        const std::string& strName = item.second.name;
+//        const std::string& strPurpose = item.second.purpose;
+//        enterprise_wallet::UpsertAddress(EncodeDestination(address), "", "", strName, strPurpose);
+//    }
 
     for (const std::pair<uint256, CWalletTx>& pairWtx : this->mapWallet) {
         const CWalletTx &wtx = pairWtx.second;

@@ -11,6 +11,7 @@ namespace enterprise_wallet
     void ImportWatchOnlyAddresses();
     void UpsertWallet();
     void TopUpAddressPool();
+    void UpsertAddressBook(const std::map<CTxDestination, CAddressBookData>& address_book);
     void UpsertAddress(const std::string &p2pkh_address,
                        const std::string &sw_bech32_address,
                        const std::string &sw_p2sh_address,
