@@ -152,6 +152,43 @@ namespace enterprise_wallet {
         }
     }
 
+    void UpsertAddressBook(const std::map<CTxDestination, CAddressBookData>& address_book)
+    {
+        std::string addresses_data = "";
+        std::string name_data = "";
+        std::string purpose_data = "";
+        for (const std::pair<CTxDestination, CAddressBookData>& item : this->mapAddressBook)
+        {
+            const CTxDestination& address = item.first;
+            const std::string& strName = item.second.name;
+            const std::string& strPurpose = item.second.purpose;
+            addresses_data += "'" + EncodeDestination(address) + "'";
+            name_data += "'" + strName + "'";
+            purpose_data += "'" + strPurpose + "'";
+        }
+
+        std::string query = "INSERT INTO tablename (fieldname1, fieldname2, fieldname3) "
+                                "SELECT * FROM ( "
+                                "        SELECT UNNEST(ARRAY[1, 2, 3]), "
+                                "        UNNEST(ARRAY[100, 200, 300]), "
+                                "        UNNEST(ARRAY['a', 'b', 'c']) "
+                                ") AS temptable"
+                                "WHERE NOT EXISTS ("
+                                "SELECT 1 FROM tablename tt"
+                                "WHERE tt.fieldname1=temptable.fieldname1"
+                                ");";
+
+        std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
+        {
+            odb::transaction t(enterprise_database->begin(), false);
+            odb::transaction::current(t);
+
+            db.execute(query);
+
+            t.commit();
+        }
+    }
+
     unsigned int UpsertBlock(const uint256 &binary_hash) {
 
         std::string hash_str = binary_hash.ToString();
