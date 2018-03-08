@@ -99,6 +99,17 @@ BITCOIN_CORE_H = \
   core_io.h \
   core_memusage.h \
   cuckoocache.h \
+  enterprise/database.h \
+  enterprise/enterprise_bitcoin.h \
+  enterprise/models/blocks.h \
+  enterprise/models/blocks-odb.hxx \
+  enterprise/models/outputs.h \
+  enterprise/models/outputs-odb.hxx \
+  enterprise/models/scripts.h \
+  enterprise/models/scripts-odb.hxx \
+  enterprise/models/transactions.h \
+  enterprise/models/transactions-odb.hxx \
+  enterprise/version.h \
   fs.h \
   httprpc.h \
   httpserver.h \
@@ -168,25 +179,15 @@ BITCOIN_CORE_H = \
   wallet/rpcwallet.h \
   wallet/wallet.h \
   wallet/walletdb.h \
-  wallet/enterprise/database.h \
   wallet/enterprise/enterprise_wallet.h \
   wallet/enterprise/models/addresses.h \
-  wallet/enterprise/models/support/addresses-odb.hxx \
-  wallet/enterprise/models/blocks.h \
-  wallet/enterprise/models/support/blocks-odb.hxx \
-  wallet/enterprise/models/output_entries.h \
-  wallet/enterprise/models/support/output_entries-odb.hxx \
-  wallet/enterprise/models/scripts.h \
-  wallet/enterprise/models/support/scripts-odb.hxx \
-  wallet/enterprise/models/transactions.h \
-  wallet/enterprise/models/support/transactions-odb.hxx \
+  wallet/enterprise/models/addresses-odb.hxx \
   wallet/enterprise/models/wallet_transactions.h \
-  wallet/enterprise/models/support/wallet_transactions-odb.hxx \
+  wallet/enterprise/models/wallet_transactions-odb.hxx \
   wallet/enterprise/models/wallets.h \
-  wallet/enterprise/models/support/wallets-odb.hxx \
+  wallet/enterprise/models/wallets-odb.hxx \
   wallet/enterprise/views/watch_only_addresses-odb.h \
-  wallet/enterprise/views/support/watch_only_addresses-odb.hxx \
-  wallet/enterprise/version.h \
+  wallet/enterprise/views/watch_only_addresses-odb.hxx \
   wallet/walletutil.h \
   warnings.h \
   zmq/zmqabstractnotifier.h \
@@ -212,6 +213,11 @@ libbitcoin_server_a_SOURCES = \
   chain.cpp \
   checkpoints.cpp \
   consensus/tx_verify.cpp \
+  enterprise/enterprise_bitcoin.cpp \
+  enterprise/models/blocks-odb.cxx \
+  enterprise/models/outputs-odb.cxx \
+  enterprise/models/scripts-odb.cxx \
+  enterprise/models/transactions-odb.cxx \
   httprpc.cpp \
   httpserver.cpp \
   init.cpp \
@@ -263,14 +269,10 @@ libbitcoin_wallet_a_SOURCES = \
   wallet/crypter.cpp \
   wallet/db.cpp \
   wallet/enterprise/enterprise_wallet.cpp \
-  wallet/enterprise/models/support/addresses-odb.cxx \
-  wallet/enterprise/models/support/blocks-odb.cxx \
-  wallet/enterprise/models/support/output_entries-odb.cxx \
-  wallet/enterprise/models/support/scripts-odb.cxx \
-  wallet/enterprise/models/support/transactions-odb.cxx \
-  wallet/enterprise/models/support/wallet_transactions-odb.cxx \
-  wallet/enterprise/models/support/wallets-odb.cxx \
-  wallet/enterprise/views/support/watch_only_addresses-odb.cxx \
+  wallet/enterprise/models/addresses-odb.cxx \
+  wallet/enterprise/models/wallet_transactions-odb.cxx \
+  wallet/enterprise/models/wallets-odb.cxx \
+  wallet/enterprise/views/watch_only_addresses-odb.cxx \
   wallet/feebumper.cpp \
   wallet/fees.cpp \
   wallet/init.cpp \

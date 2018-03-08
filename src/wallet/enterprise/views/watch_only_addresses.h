@@ -8,7 +8,7 @@
 
 #include <boost/uuid/uuid.hpp>
 
-#include "../version.h"
+#include "enterprise/version.h"
 
 #pragma db view
 

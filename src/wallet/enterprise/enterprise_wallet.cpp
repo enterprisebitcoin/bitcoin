@@ -5,22 +5,24 @@
 #include <wallet/wallet.h>
 #include <wallet/rpcdump.cpp>
 
-#include "wallet/enterprise/database.h"
+#include "enterprise/database.h"
+#include "enterprise/models/blocks.h"
+#include "enterprise/models/output_entries.h"
+#include "enterprise/models/transactions.h"
+
+#include "enterprise/models/blocks-odb.hxx"
+#include "enterprise/models/output_entries-odb.hxx"
+#include "enterprise/models/transactions-odb.hxx"
+
 #include "wallet/enterprise/models/addresses.h"
-#include "wallet/enterprise/models/blocks.h"
-#include "wallet/enterprise/models/output_entries.h"
-#include "wallet/enterprise/models/transactions.h"
 #include "wallet/enterprise/models/wallet_transactions.h"
 #include "wallet/enterprise/models/wallets.h"
 #include "wallet/enterprise/views/watch_only_addresses.h"
 
-#include "wallet/enterprise/models/support/addresses-odb.hxx"
-#include "wallet/enterprise/models/support/blocks-odb.hxx"
-#include "wallet/enterprise/models/support/output_entries-odb.hxx"
-#include "wallet/enterprise/models/support/transactions-odb.hxx"
-#include "wallet/enterprise/models/support/wallet_transactions-odb.hxx"
-#include "wallet/enterprise/models/support/wallets-odb.hxx"
-#include "wallet/enterprise/views/support/watch_only_addresses-odb.hxx"
+#include "wallet/enterprise/models/addresses-odb.hxx"
+#include "wallet/enterprise/models/wallet_transactions-odb.hxx"
+#include "wallet/enterprise/models/wallets-odb.hxx"
+#include "wallet/enterprise/views/watch_only_addresses-odb.hxx"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/uuid/uuid_io.hpp>
@@ -35,7 +37,6 @@
 
 
 namespace enterprise_wallet {
-
 
     boost::uuids::uuid GetWalletID() {
         CWalletDBWrapper& dbw = vpwallets[0]->GetDBHandle();
@@ -180,241 +181,241 @@ namespace enterprise_wallet {
         }
     }
 
-    unsigned int UpsertBlock(const uint256 &binary_hash) {
-
-        std::string hash_str = binary_hash.ToString();
-
-        if (mapBlockIndex.count(binary_hash) == 0) {
-            LogPrintf("Block not found %s \n", hash_str);
-            return 0;
-        }
-
-        CBlockIndex* blockindex = mapBlockIndex[binary_hash];
-
-        int64_t time = blockindex->GetBlockTime();
-        int height = blockindex->nHeight;
-
-        LogPrintf("Upsert block %s \n", hash_str);
-
-        std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
-        {
-            typedef odb::query <eBlocks> query;
-            odb::transaction t(enterprise_database->begin(), false);
-            odb::transaction::current (t);
-            std::auto_ptr <eBlocks> eb(enterprise_database->query_one<eBlocks>(query::hash == hash_str));
-            if (eb.get() != 0) {
-                eb->time = time;
-                eb->height = height;
-                enterprise_database->update(*eb);
-            } else {
-                eBlocks new_eb(hash_str, time, height);
-                enterprise_database->persist(new_eb);
-            }
-            t.commit();
-
-            odb::transaction id_t(enterprise_database->begin(), false);
-            odb::transaction::current (id_t);
-            std::auto_ptr <eBlocks> eb_id(enterprise_database->query_one<eBlocks>(query::hash == hash_str));
-            unsigned int block_id = eb_id->id;
-            id_t.commit();
-            return block_id;
-        }
-    }
+//    unsigned int UpsertBlock(const uint256 &binary_hash) {
+//
+//        std::string hash_str = binary_hash.ToString();
+//
+//        if (mapBlockIndex.count(binary_hash) == 0) {
+//            LogPrintf("Block not found %s \n", hash_str);
+//            return 0;
+//        }
+//
+//        CBlockIndex* blockindex = mapBlockIndex[binary_hash];
+//
+//        int64_t time = blockindex->GetBlockTime();
+//        int height = blockindex->nHeight;
+//
+//        LogPrintf("Upsert block %s \n", hash_str);
+//
+//        std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
+//        {
+//            typedef odb::query <eBlocks> query;
+//            odb::transaction t(enterprise_database->begin(), false);
+//            odb::transaction::current (t);
+//            std::auto_ptr <eBlocks> eb(enterprise_database->query_one<eBlocks>(query::hash == hash_str));
+//            if (eb.get() != 0) {
+//                eb->time = time;
+//                eb->height = height;
+//                enterprise_database->update(*eb);
+//            } else {
+//                eBlocks new_eb(hash_str, time, height);
+//                enterprise_database->persist(new_eb);
+//            }
+//            t.commit();
+//
+//            odb::transaction id_t(enterprise_database->begin(), false);
+//            odb::transaction::current (id_t);
+//            std::auto_ptr <eBlocks> eb_id(enterprise_database->query_one<eBlocks>(query::hash == hash_str));
+//            unsigned int block_id = eb_id->id;
+//            id_t.commit();
+//            return block_id;
+//        }
+//    }
 
     /**
      * Utility function for upserting the block that tx_hash belongs to and returning the block ID
      * @param tx_hash
      * @return eBlocks ID
      */
-    unsigned int GetBlockID(uint256& tx_hash) {
-        unsigned int block_id = 0;
-        CTransactionRef tx;
-        uint256 block_hash;
-        bool found_transaction = GetTransaction(tx_hash, tx, Params().GetConsensus(), block_hash, true);
-
-        if (found_transaction) {
-            block_id = UpsertBlock(block_hash);
-        } else {
-            if (fTxIndex) {
-                LogPrintf("No such mempool or blockchain transaction \n");
-            } else {
-                LogPrintf("No such mempool transaction. Use -txindex to enable blockchain transaction queries \n");
-            };
-        }
-        return block_id;
-    }
-
-    void UpsertOutputs(const std::vector<CTxOut> vout, const unsigned int output_etransaction_id) {
-        for(unsigned int index = 0; index < vout.size(); index++) {
-            const CTxOut &output = vout[index];
-            isminetype is_output_mine = vpwallets[0]->IsMine(output);
-            CTxDestination output_destination;
-            ExtractDestination(output.scriptPubKey, output_destination);
-            std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
-            {
-                typedef odb::query <eOutputEntries> output_query;
-                odb::transaction t(enterprise_database->begin());
-                std::auto_ptr <eOutputEntries> eout(
-                        enterprise_database->query_one<eOutputEntries>(
-                                output_query::output_etransaction_id == output_etransaction_id
-                                && output_query::output_vector == index));
-                if (eout.get() != 0) {
-                    eout->output_etransaction_id = output_etransaction_id;
-                    eout->output_vector = index;
-                    eout->is_output_mine = is_output_mine;
-                    eout->n_value = output.nValue;
-                    eout->destination = EncodeDestination(output_destination);
-                    eout->script_pub_key = ScriptToAsmStr(output.scriptPubKey);
-
-                    enterprise_database->update(*eout);
-                } else {
-                    eOutputEntries new_eout(
-                            output_etransaction_id,
-                            index,
-                            is_output_mine,
-                            output.nValue,
-                            EncodeDestination(output_destination),
-                            ScriptToAsmStr(output.scriptPubKey),
-
-                            0,
-                            0,
-                            "",
-                            "",
-                            0
-                    );
-                    enterprise_database->persist(new_eout);
-                }
-                t.commit();
-            }
-        }
-    }
-
-    void UpsertInputs(const std::vector<CTxIn> vin, const unsigned int input_etransaction_id) {
-        for(unsigned int index = 0; index < vin.size(); index++) {
-            const CTxIn &input = vin[index];
-            isminetype is_output_mine = vpwallets[0]->IsMine(input);
-
-            CTransactionRef output_transaction;
-            uint256 output_block_hash;
-            bool found_output_transaction = GetTransaction(input.prevout.hash, output_transaction,
-                                                           Params().GetConsensus(), output_block_hash, true);
-            if (!found_output_transaction) {
-                LogPrintf("Did not find transaction %s \n", input.prevout.hash.GetHex());
-                return;
-            }
-            const CTxOut &output = output_transaction->vout[input.prevout.n];
-            unsigned int output_etransaction_id = UpsertTransaction(output_transaction, false);
-            CTxDestination output_destination;
-            ExtractDestination(output.scriptPubKey, output_destination);
-
-            std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
-            {
-                typedef odb::query <eOutputEntries> output_query;
-                odb::transaction t(enterprise_database->begin());
-                std::auto_ptr <eOutputEntries> eout(
-                        enterprise_database->query_one<eOutputEntries>(
-                                (output_query::input_etransaction_id == input_etransaction_id
-                                && output_query::input_vector == index)
-                            || (output_query::output_etransaction_id == output_etransaction_id
-                                && output_query::output_vector == input.prevout.n)));
-                if (eout.get() != 0) {
-                    eout->output_etransaction_id = output_etransaction_id;
-                    eout->output_vector = input.prevout.n;
-                    eout->is_output_mine = is_output_mine;
-                    eout->n_value = output.nValue;
-                    eout->destination = EncodeDestination(output_destination);
-                    eout->script_pub_key = ScriptToAsmStr(output.scriptPubKey);
-
-                    eout->input_etransaction_id = input_etransaction_id;
-                    eout->input_vector = index;
-                    eout->script_sig = ScriptToAsmStr(input.scriptSig, true);
-                    eout->script_witness = input.scriptWitness.ToString();
-                    eout->n_sequence = input.nSequence;
-
-                    enterprise_database->update(*eout);
-                } else {
-                    eOutputEntries new_eout(
-                            output_etransaction_id,
-                            input.prevout.n,
-                            is_output_mine,
-                            output.nValue,
-                            EncodeDestination(output_destination),
-                            ScriptToAsmStr(output.scriptPubKey),
-
-                            input_etransaction_id,
-                            index,
-                            ScriptToAsmStr(input.scriptSig, true),
-                            input.scriptWitness.ToString(),
-                            input.nSequence
-                    );
-                    enterprise_database->persist(new_eout);
-                }
-                t.commit();
-            }
-        }
-    }
-
-    unsigned int UpsertTransaction(const CTransactionRef tx, const bool upsert_inputs) {
-
-        uint256 binary_hash = tx->GetHash();
-        std::string hash = binary_hash.GetHex();
-
-        uint256 binary_witness_hash = tx->GetWitnessHash();
-        std::string witness_hash = binary_witness_hash.GetHex();
-
-        unsigned int block_id = GetBlockID(binary_hash);
-
-        unsigned int etransaction_id;
-
-        std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
-        {
-            typedef odb::query <eTransactions> query;
-
-            LOCK(cs_main);
-
-            odb::transaction t(enterprise_database->begin());
-            // Select the transaction by its txid, insert if it's not found, update if it is
-            std::auto_ptr <eTransactions> etx(enterprise_database->query_one<eTransactions>(query::hash == hash));
-            if (etx.get() != 0) {
-                etx->block_id = block_id;
-                etx->total_size = tx->GetTotalSize();
-                etx->inputs_count = tx->vin.size();
-                etx->outputs_count = tx->vout.size();
-                etx->value_out = tx->GetValueOut();
-                etx->n_lock_time = tx->nLockTime;
-                etx->n_version = tx->nVersion;
-                etx->hash = hash;
-                etx->witness_hash = witness_hash;
-                etx->is_coinbase = tx->IsCoinBase();
-                etx->has_witness = tx->HasWitness();
-
-                enterprise_database->update(*etx);
-                etransaction_id = etx->id;
-            } else {
-                eTransactions new_etx(block_id,
-                                      tx->GetTotalSize(),
-                                      tx->vin.size(),
-                                      tx->vout.size(),
-                                      tx->GetValueOut(),
-                                      tx->nLockTime,
-                                      tx->nVersion,
-                                      hash,
-                                      witness_hash,
-                                      tx->IsCoinBase(),
-                                      tx->HasWitness());
-                etransaction_id = enterprise_database->persist(new_etx);
-            }
-            t.commit();
-        }
-
-        if (upsert_inputs) {
-            UpsertInputs(tx->vin, etransaction_id);
-        }
-
-        UpsertOutputs(tx->vout, etransaction_id);
-
-        return etransaction_id;
-    }
+//    unsigned int GetBlockID(uint256& tx_hash) {
+//        unsigned int block_id = 0;
+//        CTransactionRef tx;
+//        uint256 block_hash;
+//        bool found_transaction = GetTransaction(tx_hash, tx, Params().GetConsensus(), block_hash, true);
+//
+//        if (found_transaction) {
+//            block_id = UpsertBlock(block_hash);
+//        } else {
+//            if (fTxIndex) {
+//                LogPrintf("No such mempool or blockchain transaction \n");
+//            } else {
+//                LogPrintf("No such mempool transaction. Use -txindex to enable blockchain transaction queries \n");
+//            };
+//        }
+//        return block_id;
+//    }
+//
+//    void UpsertOutputs(const std::vector<CTxOut> vout, const unsigned int output_etransaction_id) {
+//        for(unsigned int index = 0; index < vout.size(); index++) {
+//            const CTxOut &output = vout[index];
+//            isminetype is_output_mine = vpwallets[0]->IsMine(output);
+//            CTxDestination output_destination;
+//            ExtractDestination(output.scriptPubKey, output_destination);
+//            std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
+//            {
+//                typedef odb::query <eOutputEntries> output_query;
+//                odb::transaction t(enterprise_database->begin());
+//                std::auto_ptr <eOutputEntries> eout(
+//                        enterprise_database->query_one<eOutputEntries>(
+//                                output_query::output_etransaction_id == output_etransaction_id
+//                                && output_query::output_vector == index));
+//                if (eout.get() != 0) {
+//                    eout->output_etransaction_id = output_etransaction_id;
+//                    eout->output_vector = index;
+//                    eout->is_output_mine = is_output_mine;
+//                    eout->n_value = output.nValue;
+//                    eout->destination = EncodeDestination(output_destination);
+//                    eout->script_pub_key = ScriptToAsmStr(output.scriptPubKey);
+//
+//                    enterprise_database->update(*eout);
+//                } else {
+//                    eOutputEntries new_eout(
+//                            output_etransaction_id,
+//                            index,
+//                            is_output_mine,
+//                            output.nValue,
+//                            EncodeDestination(output_destination),
+//                            ScriptToAsmStr(output.scriptPubKey),
+//
+//                            0,
+//                            0,
+//                            "",
+//                            "",
+//                            0
+//                    );
+//                    enterprise_database->persist(new_eout);
+//                }
+//                t.commit();
+//            }
+//        }
+//    }
+//
+//    void UpsertInputs(const std::vector<CTxIn> vin, const unsigned int input_etransaction_id) {
+//        for(unsigned int index = 0; index < vin.size(); index++) {
+//            const CTxIn &input = vin[index];
+//            isminetype is_output_mine = vpwallets[0]->IsMine(input);
+//
+//            CTransactionRef output_transaction;
+//            uint256 output_block_hash;
+//            bool found_output_transaction = GetTransaction(input.prevout.hash, output_transaction,
+//                                                           Params().GetConsensus(), output_block_hash, true);
+//            if (!found_output_transaction) {
+//                LogPrintf("Did not find transaction %s \n", input.prevout.hash.GetHex());
+//                return;
+//            }
+//            const CTxOut &output = output_transaction->vout[input.prevout.n];
+//            unsigned int output_etransaction_id = UpsertTransaction(output_transaction, false);
+//            CTxDestination output_destination;
+//            ExtractDestination(output.scriptPubKey, output_destination);
+//
+//            std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
+//            {
+//                typedef odb::query <eOutputEntries> output_query;
+//                odb::transaction t(enterprise_database->begin());
+//                std::auto_ptr <eOutputEntries> eout(
+//                        enterprise_database->query_one<eOutputEntries>(
+//                                (output_query::input_etransaction_id == input_etransaction_id
+//                                && output_query::input_vector == index)
+//                            || (output_query::output_etransaction_id == output_etransaction_id
+//                                && output_query::output_vector == input.prevout.n)));
+//                if (eout.get() != 0) {
+//                    eout->output_etransaction_id = output_etransaction_id;
+//                    eout->output_vector = input.prevout.n;
+//                    eout->is_output_mine = is_output_mine;
+//                    eout->n_value = output.nValue;
+//                    eout->destination = EncodeDestination(output_destination);
+//                    eout->script_pub_key = ScriptToAsmStr(output.scriptPubKey);
+//
+//                    eout->input_etransaction_id = input_etransaction_id;
+//                    eout->input_vector = index;
+//                    eout->script_sig = ScriptToAsmStr(input.scriptSig, true);
+//                    eout->script_witness = input.scriptWitness.ToString();
+//                    eout->n_sequence = input.nSequence;
+//
+//                    enterprise_database->update(*eout);
+//                } else {
+//                    eOutputEntries new_eout(
+//                            output_etransaction_id,
+//                            input.prevout.n,
+//                            is_output_mine,
+//                            output.nValue,
+//                            EncodeDestination(output_destination),
+//                            ScriptToAsmStr(output.scriptPubKey),
+//
+//                            input_etransaction_id,
+//                            index,
+//                            ScriptToAsmStr(input.scriptSig, true),
+//                            input.scriptWitness.ToString(),
+//                            input.nSequence
+//                    );
+//                    enterprise_database->persist(new_eout);
+//                }
+//                t.commit();
+//            }
+//        }
+//    }
+//
+//    unsigned int UpsertTransaction(const CTransactionRef tx, const bool upsert_inputs) {
+//
+//        uint256 binary_hash = tx->GetHash();
+//        std::string hash = binary_hash.GetHex();
+//
+//        uint256 binary_witness_hash = tx->GetWitnessHash();
+//        std::string witness_hash = binary_witness_hash.GetHex();
+//
+//        unsigned int block_id = GetBlockID(binary_hash);
+//
+//        unsigned int etransaction_id;
+//
+//        std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
+//        {
+//            typedef odb::query <eTransactions> query;
+//
+//            LOCK(cs_main);
+//
+//            odb::transaction t(enterprise_database->begin());
+//            // Select the transaction by its txid, insert if it's not found, update if it is
+//            std::auto_ptr <eTransactions> etx(enterprise_database->query_one<eTransactions>(query::hash == hash));
+//            if (etx.get() != 0) {
+//                etx->block_id = block_id;
+//                etx->total_size = tx->GetTotalSize();
+//                etx->inputs_count = tx->vin.size();
+//                etx->outputs_count = tx->vout.size();
+//                etx->value_out = tx->GetValueOut();
+//                etx->n_lock_time = tx->nLockTime;
+//                etx->n_version = tx->nVersion;
+//                etx->hash = hash;
+//                etx->witness_hash = witness_hash;
+//                etx->is_coinbase = tx->IsCoinBase();
+//                etx->has_witness = tx->HasWitness();
+//
+//                enterprise_database->update(*etx);
+//                etransaction_id = etx->id;
+//            } else {
+//                eTransactions new_etx(block_id,
+//                                      tx->GetTotalSize(),
+//                                      tx->vin.size(),
+//                                      tx->vout.size(),
+//                                      tx->GetValueOut(),
+//                                      tx->nLockTime,
+//                                      tx->nVersion,
+//                                      hash,
+//                                      witness_hash,
+//                                      tx->IsCoinBase(),
+//                                      tx->HasWitness());
+//                etransaction_id = enterprise_database->persist(new_etx);
+//            }
+//            t.commit();
+//        }
+//
+//        if (upsert_inputs) {
+//            UpsertInputs(tx->vin, etransaction_id);
+//        }
+//
+//        UpsertOutputs(tx->vout, etransaction_id);
+//
+//        return etransaction_id;
+//    }
 
     void UpsertWalletTransactions(const std::map<uint256, CWalletTx> wallet_transactions) {
         std::string wallet_id = boost::lexical_cast<std::string>(GetWalletID());
@@ -486,7 +487,7 @@ namespace enterprise_wallet {
     }
 
     void UpsertWalletTransaction(const CWalletTx& wallet_transaction) {
-        unsigned int etransaction_id = UpsertTransaction(wallet_transaction.tx, true);
+//        unsigned int etransaction_id = UpsertTransaction(wallet_transaction.tx, true);
         boost::uuids::uuid wallet_id = GetWalletID();
 
         unsigned int ewallet_transaction_id;
@@ -500,7 +501,7 @@ namespace enterprise_wallet {
 
             odb::transaction t(enterprise_database->begin());
             // Select the transaction by its txid, insert if it's not found, update if it is
-            std::auto_ptr <eWalletTransactions> etx(enterprise_database->query_one<eWalletTransactions>(query::etransaction_id == etransaction_id
+            std::auto_ptr <eWalletTransactions> etx(enterprise_database->query_one<eWalletTransactions>(query::etransaction_id == 0
                                                                                             && query::wallet_id == wallet_id));
             if (etx.get() != 0) {
                 etx->is_trusted = wallet_transaction.IsTrusted();
@@ -511,7 +512,7 @@ namespace enterprise_wallet {
                 enterprise_database->update(*etx);
                 ewallet_transaction_id = etx->id;
             } else {
-                eWalletTransactions new_etx(etransaction_id,
+                eWalletTransactions new_etx(0,
                                       wallet_transaction.IsTrusted(),
                                       wallet_transaction.nTimeSmart,
                                       wallet_transaction.nTimeReceived,
@@ -524,16 +525,16 @@ namespace enterprise_wallet {
         }
     }
 
-    void DeleteTx(uint256 &hash) {
-        std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
-        {
-            typedef odb::query <eTransactions> query;
-
-            odb::transaction t(enterprise_database->begin());
-            std::auto_ptr <eTransactions> etx(enterprise_database->query_one<eTransactions>(query::hash == hash.GetHex()));
-            if (etx.get() != 0)
-                enterprise_database->erase(*etx);
-            t.commit();
-        }
-    }
+//    void DeleteTx(uint256 &hash) {
+//        std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
+//        {
+//            typedef odb::query <eTransactions> query;
+//
+//            odb::transaction t(enterprise_database->begin());
+//            std::auto_ptr <eTransactions> etx(enterprise_database->query_one<eTransactions>(query::hash == hash.GetHex()));
+//            if (etx.get() != 0)
+//                enterprise_database->erase(*etx);
+//            t.commit();
+//        }
+//    }
 }
