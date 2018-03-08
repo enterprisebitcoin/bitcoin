@@ -6,8 +6,6 @@
 
 #include <odb/core.hxx>
 
-#include <boost/uuid/uuid.hpp>
-
 #include "../version.h"
 
 #pragma db object
@@ -20,7 +18,8 @@
 class eTransactions {
 public:
     eTransactions(
-            const unsigned int block_id,
+            const std::string block_hash,
+            const unsigned int index,
             const unsigned int total_size,
             const unsigned int inputs_count,
             const unsigned int outputs_count,
@@ -33,7 +32,8 @@ public:
             const bool has_witness
     )
             :
-            block_id(block_id),
+            block_hash(block_hash),
+            index(index),
             total_size(total_size),
             inputs_count(inputs_count),
             outputs_count(outputs_count),
@@ -49,7 +49,8 @@ public:
 #pragma db id auto
     unsigned int id;
 
-    unsigned int block_id;
+    std::string block_hash;
+    unsigned int index;
     unsigned int total_size;
     unsigned int inputs_count;
     unsigned int outputs_count;
