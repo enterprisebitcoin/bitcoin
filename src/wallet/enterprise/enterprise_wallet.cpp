@@ -7,11 +7,11 @@
 
 #include "enterprise/database.h"
 #include "enterprise/models/blocks.h"
-#include "enterprise/models/output_entries.h"
+#include "enterprise/models/outputs.h"
 #include "enterprise/models/transactions.h"
 
 #include "enterprise/models/blocks-odb.hxx"
-#include "enterprise/models/output_entries-odb.hxx"
+#include "enterprise/models/outputs-odb.hxx"
 #include "enterprise/models/transactions-odb.hxx"
 
 #include "wallet/enterprise/models/addresses.h"
@@ -495,7 +495,6 @@ namespace enterprise_wallet {
         std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
         {
             typedef odb::query <eWalletTransactions> query;
-            typedef odb::query <eOutputEntries> output_query;
 
             LOCK(cs_main);
 

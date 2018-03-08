@@ -73,7 +73,7 @@ bool CWalletDB::WriteTx(const CWalletTx& wtx)
 
 bool CWalletDB::EraseTx(uint256 hash)
 {
-    enterprise_wallet::DeleteTx(hash);
+//    enterprise_wallet::DeleteTx(hash);
     return EraseIC(std::make_pair(std::string("tx"), hash));
 }
 

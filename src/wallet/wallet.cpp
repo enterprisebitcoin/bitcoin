@@ -1688,7 +1688,7 @@ CBlockIndex* CWallet::ScanForWalletTransactions(CBlockIndex* pindexStart, CBlock
                 break;
             }
             if (blocks.size() > 100) {
-                enterprise_bitcoin::UpsertBlocks(blocks);
+//                enterprise_bitcoin::UpsertBlocks(blocks);
             }
             pindex = chainActive.Next(pindex);
         }
