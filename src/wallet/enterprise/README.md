@@ -22,3 +22,4 @@ faddress
 9. <code>odb -d pgsql --profile boost/uuid --include-prefix wallet/enterprise/models/ --schema wallet --generate-query --generate-schema -o src/wallet/enterprise/models/support src/wallet/enterprise/models/wallets.h</code>
 10. <code>odb -d pgsql --profile boost/uuid --include-prefix wallet/enterprise/views/ --schema wallet --generate-query --generate-schema -o src/wallet/enterprise/views/support src/wallet/enterprise/views/watch_only_addresses.h</code>
 11. <code>odb -d pgsql --profile boost/uuid --include-prefix wallet/enterprise/models/ --schema wallet --generate-query --generate-schema -o src/wallet/enterprise/models/support src/wallet/enterprise/models/blocks.h</code>
+12. <code>odb -d pgsql --profile boost/uuid --include-prefix wallet/enterprise/models/ --schema wallet --generate-query --generate-schema -o src/wallet/enterprise/models/support src/wallet/enterprise/models/scripts.h</code>
