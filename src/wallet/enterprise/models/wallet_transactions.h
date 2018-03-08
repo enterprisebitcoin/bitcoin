@@ -26,7 +26,7 @@ public:
             const int64_t n_time_received,
             const int64_t debit,
             const int64_t credit,
-            const boost::uuids::uuid &wallet_id
+            const boost::uuids::uuid wallet_id
     )
             :
             etransaction_id(etransaction_id),

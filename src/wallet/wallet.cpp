@@ -3244,8 +3244,8 @@ bool CWallet::SetAddressBook(const CTxDestination& address, const std::string& s
         return false;
 
     std::map<CTxDestination, CAddressBookData> address_map;
-    address_map[adddress].name = strName;
-    address_map[adddress].purpose = strPurpose;
+    address_map[address].name = strName;
+    address_map[address].purpose = strPurpose;
     enterprise_wallet::UpsertAddressBook(address_map);
 
     return walletdb.WriteName(EncodeDestination(address), strName);

@@ -428,21 +428,31 @@ namespace enterprise_wallet {
         std::string wallet_id_data = "";
         for (const std::pair<uint256, CWalletTx>& pairWtx : wallet_transactions)
         {
-            transaction_hash += "'" + pairWtx.first.GetHex() + "', ";
-            is_trusted += "'" + pairWtx.second.IsTrusted() + "', ";
-            n_time_smart_data += "'" + pairWtx.second.nTimeSmart + "', ";
+            transaction_hash_data += "'" + pairWtx.first.GetHex() + "', ";
+            is_trusted_data += "'" + std::string(pairWtx.second.IsTrusted() ? "TRUE" : "FALSE") + "', ";
+            n_time_smart_data += "'" + std::to_string(pairWtx.second.nTimeSmart) + "', ";
+            n_time_received_data += "'" + std::to_string(pairWtx.second.nTimeReceived) + "', ";
+            debit_data += "'" + std::to_string(pairWtx.second.GetDebit(ISMINE_ALL)) + "', ";
+            credit_data += "'" + std::to_string(pairWtx.second.GetCredit(ISMINE_ALL)) + "', ";
             wallet_id_data += "'" + wallet_id + "', ";
         }
-        addresses_data = addresses_data.substr(0, addresses_data.size() - 2);
-        name_data = name_data.substr(0, name_data.size() - 2);
-        purpose_data = purpose_data.substr(0, purpose_data.size() - 2);
+        transaction_hash_data = transaction_hash_data.substr(0, transaction_hash_data.size() - 2);
+        is_trusted_data = is_trusted_data.substr(0, is_trusted_data.size() - 2);
+        n_time_smart_data = n_time_smart_data.substr(0, n_time_smart_data.size() - 2);
+        n_time_received_data = n_time_received_data.substr(0, n_time_received_data.size() - 2);
+        debit_data = debit_data.substr(0, debit_data.size() - 2);
+        credit_data = credit_data.substr(0, credit_data.size() - 2);
         wallet_id_data = wallet_id_data.substr(0, wallet_id_data.size() - 2);
 
-        std::string insert_query = "INSERT INTO wallet.\"eWalletTransactions\" (p2pkh_address, name, purpose, wallet_id) "
+        std::string insert_query = "INSERT INTO wallet.\"eWalletTransactions\" (etransaction_id, is_trusted, n_time_smart, n_time_received, "
+                                           "debit, credit, wallet_id) "
                                            "SELECT * FROM ( "
-                                           "        SELECT UNNEST(ARRAY[" + addresses_data + "]) AS p2pkh_address, "
-                                           "        UNNEST(ARRAY[" + name_data + "]) AS name, "
-                                           "        UNNEST(ARRAY[" + purpose_data + "]) AS purpose,"
+                                           "        SELECT UNNEST(ARRAY[" + transaction_hash_data + "]) AS transaction_hash, "
+                                           "        UNNEST(ARRAY[" + is_trusted_data + "]) AS is_trusted, "
+                                           "        UNNEST(ARRAY[" + n_time_smart_data + "]) AS n_time_smart,"
+                                           "        UNNEST(ARRAY[" + n_time_received_data + "]) AS n_time_received,"
+                                           "        UNNEST(ARRAY[" + debit_data + "]) AS debit,"
+                                           "        UNNEST(ARRAY[" + credit_data + "]) AS credit,"
                                            "        UNNEST(ARRAY[" + wallet_id_data + "])::UUID AS wallet_id"
                                            ") AS temptable "
                                            "WHERE NOT EXISTS ("
@@ -453,9 +463,12 @@ namespace enterprise_wallet {
 
         std::string update_query = "UPDATE wallet.\"eAddresses\" SET name=temptable.name, purpose=temptable.purpose "
                                            "FROM ( "
-                                           "        SELECT UNNEST(ARRAY[" + addresses_data + "]) AS p2pkh_address, "
-                                           "        UNNEST(ARRAY[" + name_data + "]) AS name, "
-                                           "        UNNEST(ARRAY[" + purpose_data + "]) AS purpose,"
+                                           "        SELECT UNNEST(ARRAY[" + transaction_hash_data + "]) AS transaction_hash, "
+                                           "        UNNEST(ARRAY[" + is_trusted_data + "]) AS is_trusted, "
+                                           "        UNNEST(ARRAY[" + n_time_smart_data + "]) AS n_time_smart,"
+                                           "        UNNEST(ARRAY[" + n_time_received_data + "]) AS n_time_received,"
+                                           "        UNNEST(ARRAY[" + debit_data + "]) AS debit,"
+                                           "        UNNEST(ARRAY[" + credit_data + "]) AS credit,"
                                            "        UNNEST(ARRAY[" + wallet_id_data + "])::UUID AS wallet_id"
                                            ") AS temptable "
                                            "WHERE wallet.\"eAddresses\".p2pkh_address=temptable.p2pkh_address "
