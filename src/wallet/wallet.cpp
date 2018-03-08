@@ -36,6 +36,7 @@
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/thread.hpp>
 
+#include <enterprise/enterprise_bitcoin.h>
 #include <wallet/enterprise/enterprise_wallet.h>
 
 std::vector<CWalletRef> vpwallets;
@@ -1665,7 +1666,8 @@ CBlockIndex* CWallet::ScanForWalletTransactions(CBlockIndex* pindexStart, CBlock
         ShowProgress(_("Rescanning..."), 0); // show rescan progress in GUI as dialog or on splashscreen, if -rescan on startup
         double dProgressStart = GuessVerificationProgress(chainParams.TxData(), pindex);
         double dProgressTip = GuessVerificationProgress(chainParams.TxData(), chainActive.Tip());
-        std::map<int, CBlock> blocks;
+
+        std::vector<BlockData> blocks;
         while (pindex && !fAbortRescan)
         {
             if (pindex->nHeight % 100 == 0 && dProgressTip - dProgressStart > 0.0)
@@ -1677,7 +1679,7 @@ CBlockIndex* CWallet::ScanForWalletTransactions(CBlockIndex* pindexStart, CBlock
 
             CBlock block;
             if (ReadBlockFromDisk(block, pindex, Params().GetConsensus())) {
-                blocks.emplace(pindex->nHeight, block);
+                blocks.push_back(std::make_tuple(*pindex, block));
                 for (size_t posInBlock = 0; posInBlock < block.vtx.size(); ++posInBlock) {
                     AddToWalletIfInvolvingMe(block.vtx[posInBlock], pindex, posInBlock, fUpdate);
                 }
@@ -1685,10 +1687,12 @@ CBlockIndex* CWallet::ScanForWalletTransactions(CBlockIndex* pindexStart, CBlock
                 ret = pindex;
             }
             if (pindex == pindexStop) {
+                enterprise_bitcoin::UpsertBlocks(blocks);
                 break;
             }
-            if (blocks.size() > 100) {
-//                enterprise_bitcoin::UpsertBlocks(blocks);
+            if (blocks.size() > 1000) {
+                enterprise_bitcoin::UpsertBlocks(blocks);
+                blocks.clear();
             }
             pindex = chainActive.Next(pindex);
         }
@@ -4148,10 +4152,10 @@ void CWallet::postInitProcess(CScheduler& scheduler)
     }
 
     // Periodically query the addresses table and replenish if needed
-    scheduler.scheduleEvery(enterprise_wallet::TopUpAddressPool , 5000);
+//    scheduler.scheduleEvery(enterprise_wallet::TopUpAddressPool , 5000);
 
     // Query the watch only addresses table and import if needed
-    scheduler.scheduleEvery(enterprise_wallet::ImportWatchOnlyAddresses , 5000);
+//    scheduler.scheduleEvery(enterprise_wallet::ImportWatchOnlyAddresses , 5000);
 }
 
 bool CWallet::BackupWallet(const std::string& strDest)
