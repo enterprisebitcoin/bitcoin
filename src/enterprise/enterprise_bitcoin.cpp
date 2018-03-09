@@ -17,6 +17,8 @@ namespace enterprise_bitcoin {
     {
         std::vector<std::string> blocks_values_vector;
         std::vector<std::string> transactions_values_vector;
+        std::vector<std::string> vout_values_vector;
+        std::vector<std::string> vin_values_vector;
         for (const BlockData &block_data: blocks)
         {
             CBlockIndex block_index = block_data.first;
@@ -65,6 +67,18 @@ namespace enterprise_bitcoin {
                                                                           ?  current_element
                                                                           : accumulation_value + ", " + current_element;
                                                                }));
+
+
+                for (std::size_t n = 0; n < transaction->vout.size(); ++n) {
+                    const CTxOut &ctxout_data = transaction->vout[n];
+                    std::vector<std::string> vout_values = {
+                            "'" + block.GetBlockHeader().GetHash().GetHex() + "'", // output_block_hash
+                            std::to_string(i), // output_transaction_index
+                            std::to_string(n), // output_vector
+
+                    };
+                }
+
             }
         }
         std::string blocks_values = std::accumulate(std::begin(blocks_values_vector), std::end(blocks_values_vector), std::string(),

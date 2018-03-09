@@ -22,7 +22,7 @@ public:
             std::string output_block_hash,
             unsigned int output_transaction_index,
             unsigned int output_vector,
-            int64_t n_value,
+            int64_t value,
             std::string locking_script_id,
 
             std::string input_block_hash,
@@ -30,18 +30,18 @@ public:
             unsigned int input_vector,
             std::string unlocking_script_id,
             std::string input_witness_script_id,
-            uint32_t n_sequence
+            uint32_t sequence
     ) : output_block_hash(output_block_hash),
         output_transaction_index(output_transaction_index),
         output_vector(output_vector),
-        n_value(n_value),
+        value(value),
         locking_script_id(locking_script_id),
 
         input_block_hash(input_block_hash),
         input_transaction_index(input_transaction_index),
         input_vector(input_vector),
         unlocking_script_id(unlocking_script_id),
-        n_sequence(n_sequence) {};
+        sequence(sequence) {};
 
     #pragma db id auto
     unsigned int id;
