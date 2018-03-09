@@ -47,10 +47,10 @@ namespace enterprise_bitcoin {
                                                            ? "(" + current_element + ")"
                                                            : accumulation_value + ", (" + current_element + ")";
                                                 });
-
-        std::string insert_query = "INSERT INTO bitcoin.\"eBlocks\" (hash, merkle_root, time, height, transactions_count, version, status, bits, nonce) "
+        std::string table_columns = "(hash, merkle_root, time, height, transactions_count, version, status, bits, nonce) ";
+        std::string insert_query = "INSERT INTO bitcoin.\"eBlocks\" " + table_columns +
                                            "SELECT * FROM (VALUES " + values +
-                                           ") AS temptable (hash, merkle_root, time, height, transactions_count, version, status, bits, nonce) "
+                                           ") AS temptable " + table_columns +
                                            "WHERE NOT EXISTS ("
                                            "SELECT 1 FROM bitcoin.\"eBlocks\" eb "
                                            "WHERE eb.hash=temptable.hash"
