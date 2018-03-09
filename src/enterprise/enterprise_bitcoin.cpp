@@ -1,3 +1,5 @@
+#include <numeric>
+
 #include <chain.h>
 
 #include <enterprise/database.h>
@@ -13,27 +15,42 @@ namespace enterprise_bitcoin {
 
     void UpsertBlocks(const std::vector<BlockData> &blocks)
     {
-        std::string block_hash_data = "";
-        std::string block_time_data = "";
-        std::string block_height_data = "";
+        std::vector<std::string> values_vector;
         for (auto const& block_data: blocks)
         {
+            std::vector<std::string> data;
             CBlockIndex block_index = block_data.first;
             CBlock block = block_data.second;
-            block_hash_data += "'" + block.GetBlockHeader().GetHash().GetHex() + "', ";
-            block_time_data += "'" + std::to_string(block_index.GetBlockTime()) + "', ";
-            block_height_data += "'" + std::to_string(block_index.nHeight) + "', ";
-        }
-        block_hash_data = block_hash_data.substr(0, block_hash_data.size() - 2);
-        block_time_data = block_time_data.substr(0, block_time_data.size() - 2);
-        block_height_data = block_height_data.substr(0, block_height_data.size() - 2);
 
-        std::string insert_query = "INSERT INTO bitcoin.\"eBlocks\" (hash, time, height) "
-                                           "SELECT * FROM ( "
-                                           "        SELECT UNNEST(ARRAY[" + block_hash_data + "]) AS hash, "
-                                           "        UNNEST(ARRAY[" + block_time_data + "])::BIGINT AS time, "
-                                           "        UNNEST(ARRAY[" + block_height_data + "])::BIGINT AS height"
-                                           ") AS temptable "
+            data.push_back("'" + block.GetBlockHeader().GetHash().GetHex() + "'"); // hash
+            data.push_back("'" + block_index.hashMerkleRoot.GetHex() + "'"); // merkle_root
+            data.push_back(std::to_string(block_index.GetBlockTime())); // time
+            data.push_back(std::to_string(block_index.nHeight)); // height
+            data.push_back(std::to_string(block_index.nTx)); // transactions_count
+            data.push_back(std::to_string(block_index.nVersion)); // version
+            data.push_back(std::to_string(block_index.nStatus)); // status
+            data.push_back(std::to_string(block_index.nBits)); // bits
+            data.push_back(std::to_string(block_index.nNonce)); // nonce
+
+            values_vector.push_back(std::accumulate(std::begin(data), std::end(data), std::string(),
+                            [](std::string &accumulation_value, std::string &current_element)
+                            {
+                                return accumulation_value.empty()
+                                       ?  current_element
+                                       : accumulation_value + ", " + current_element;
+                            }));
+        }
+        std::string values = std::accumulate(std::begin(values_vector), std::end(values_vector), std::string(),
+                                                [](std::string &accumulation_value, std::string &current_element)
+                                                {
+                                                    return accumulation_value.empty()
+                                                           ? "(" + current_element + ")"
+                                                           : accumulation_value + ", (" + current_element + ")";
+                                                });
+
+        std::string insert_query = "INSERT INTO bitcoin.\"eBlocks\" (hash, merkle_root, time, height, transactions_count, version, status, bits, nonce) "
+                                           "SELECT * FROM (VALUES " + values +
+                                           ") AS temptable (hash, merkle_root, time, height, transactions_count, version, status, bits, nonce) "
                                            "WHERE NOT EXISTS ("
                                            "SELECT 1 FROM bitcoin.\"eBlocks\" eb "
                                            "WHERE eb.hash=temptable.hash"

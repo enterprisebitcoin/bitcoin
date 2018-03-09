@@ -10,6 +10,12 @@
 
 #pragma db object
 
+/**
+ *
+ * Represents a CBlockIndex object
+ *
+ **/
+
 class eBlocks {
 public:
     eBlocks(
@@ -21,14 +27,18 @@ public:
             const uint32_t version,
             const uint32_t status,
             const uint32_t bits,
-            const uint32_t nonce,
-
-
+            const uint64_t nonce
     )
             :
             hash(hash),
+            merkle_root(merkle_root),
             time(time),
-            height(height) {
+            height(height),
+            transactions_count(transactions_count),
+            version(version),
+            status(status),
+            bits(bits),
+            nonce(nonce) {
     }
 
 #pragma db id
@@ -37,6 +47,12 @@ public:
     std::string merkle_root;
     int64_t time;
     int64_t height;
+    unsigned int transactions_count;
+    uint32_t version;
+    uint32_t status;
+    uint32_t bits;
+    uint64_t nonce;
+
 
 private:
     friend class odb::access;
