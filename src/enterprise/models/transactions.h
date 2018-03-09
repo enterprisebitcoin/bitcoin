@@ -24,8 +24,8 @@ public:
             const unsigned int inputs_count,
             const unsigned int outputs_count,
             const int64_t value_out,
-            const int32_t n_lock_time,
-            const int32_t n_version,
+            const int32_t lock_time,
+            const int32_t version,
             const std::string hash,
             const std::string witness_hash,
             const bool is_coinbase,
@@ -38,8 +38,8 @@ public:
             inputs_count(inputs_count),
             outputs_count(outputs_count),
             value_out(value_out),
-            n_lock_time(n_lock_time),
-            n_version(n_version),
+            lock_time(lock_time),
+            version(version),
             hash(hash),
             witness_hash(witness_hash),
             is_coinbase(is_coinbase),
@@ -55,8 +55,8 @@ public:
     unsigned int inputs_count;
     unsigned int outputs_count;
     int64_t value_out;
-    int32_t n_lock_time;
-    int32_t n_version;
+    int32_t lock_time;
+    int32_t version;
     std::string hash;
     std::string witness_hash;
     bool is_coinbase;
