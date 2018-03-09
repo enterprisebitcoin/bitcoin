@@ -15,32 +15,36 @@ namespace enterprise_bitcoin {
 
     void UpsertBlocks(const std::vector<BlockData> &blocks)
     {
-        std::vector<std::string> values_vector;
-        for (auto const& block_data: blocks)
+        std::vector<std::string> blocks_values_vector;
+        for (const std::vector<BlockData> &block_data: blocks)
         {
-            std::vector<std::string> data;
+            std::vector<std::string> block_values;
             CBlockIndex block_index = block_data.first;
             CBlock block = block_data.second;
 
-            data.push_back("'" + block.GetBlockHeader().GetHash().GetHex() + "'"); // hash
-            data.push_back("'" + block_index.hashMerkleRoot.GetHex() + "'"); // merkle_root
-            data.push_back(std::to_string(block_index.GetBlockTime())); // time
-            data.push_back(std::to_string(block_index.nHeight)); // height
-            data.push_back(std::to_string(block_index.nTx)); // transactions_count
-            data.push_back(std::to_string(block_index.nVersion)); // version
-            data.push_back(std::to_string(block_index.nStatus)); // status
-            data.push_back(std::to_string(block_index.nBits)); // bits
-            data.push_back(std::to_string(block_index.nNonce)); // nonce
+            block_values.push_back("'" + block.GetBlockHeader().GetHash().GetHex() + "'"); // hash
+            block_values.push_back("'" + block_index.hashMerkleRoot.GetHex() + "'"); // merkle_root
+            block_values.push_back(std::to_string(block_index.GetBlockTime())); // time
+            block_values.push_back(std::to_string(block_index.nHeight)); // height
+            block_values.push_back(std::to_string(block_index.nTx)); // transactions_count
+            block_values.push_back(std::to_string(block_index.nVersion)); // version
+            block_values.push_back(std::to_string(block_index.nStatus)); // status
+            block_values.push_back(std::to_string(block_index.nBits)); // bits
+            block_values.push_back(std::to_string(block_index.nNonce)); // nonce
 
-            values_vector.push_back(std::accumulate(std::begin(data), std::end(data), std::string(),
+            blocks_values_vector.push_back(std::accumulate(std::begin(block_values), std::end(block_values), std::string(),
                             [](std::string &accumulation_value, std::string &current_element)
                             {
                                 return accumulation_value.empty()
                                        ?  current_element
                                        : accumulation_value + ", " + current_element;
                             }));
+
+            for (const CTransactionRef &transaction_data: block.vtx) {
+
+            }
         }
-        std::string values = std::accumulate(std::begin(values_vector), std::end(values_vector), std::string(),
+        std::string values = std::accumulate(std::begin(blocks_values_vector), std::end(blocks_values_vector), std::string(),
                                                 [](std::string &accumulation_value, std::string &current_element)
                                                 {
                                                     return accumulation_value.empty()
