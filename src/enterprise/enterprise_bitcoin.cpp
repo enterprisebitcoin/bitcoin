@@ -1,6 +1,8 @@
 #include <numeric>
 
+#include <core_io.h>
 #include <chain.h>
+#include <script/standard.h>
 
 #include <enterprise/database.h>
 #include <enterprise/enterprise_bitcoin.h>
@@ -16,7 +18,7 @@ namespace enterprise_bitcoin {
         std::vector <std::string> blocks_values_vector;
         std::vector <std::string> transactions_values_vector;
         std::vector <std::string> txout_values_vector;
-        std::vector <std::string> ctxin_values_vector;
+        std::vector <std::string> txin_values_vector;
         std::vector <std::string> locking_scripts_values_vector;
         std::vector <std::string> unlocking_scripts_values_vector;
 
@@ -70,7 +72,7 @@ namespace enterprise_bitcoin {
 
 
                 for (std::size_t n = 0; n < transaction->vout.size(); ++n) {
-                    const txout &txout_data = transaction->vout[n];
+                    const CTxOut &txout_data = transaction->vout[n];
                     std::vector <std::string> vout_values = {
                             "'" + block.GetBlockHeader().GetHash().GetHex() + "'", // output_block_hash
                             std::to_string(i), // output_transaction_index
@@ -89,13 +91,13 @@ namespace enterprise_bitcoin {
 
                     std::vector <std::vector<unsigned char>> vSolutions;
                     txnouttype output_script_type;
-                    if (!Solver(txout_data.scriptPubKey, whichType, vSolutions)) {
+                    if (!Solver(txout_data.scriptPubKey, output_script_type, vSolutions)) {
                         throw;
                     }
 
                     std::vector <std::string> script_values = {
                             "'" + CScriptID(txout_data.scriptPubKey).GetHex() + "'", // id
-                            ScriptToAsmStr(txout_data.scriptPubKey), // script
+                            "'" + ScriptToAsmStr(txout_data.scriptPubKey) + "'", // script
                             std::to_string(output_script_type) // type
                     };
                     locking_scripts_values_vector.push_back(
@@ -110,17 +112,16 @@ namespace enterprise_bitcoin {
                 for (std::size_t n = 0; n < transaction->vin.size(); ++n) {
                     const CTxIn &ctxin_data = transaction->vin[n];
                     std::vector <std::string> vin_values = {
-                            txout_data.prevout.hash.GetHex(), // output_transaction_hash
-                            std::to_string(txout_data.prevout.n),// output_vector
+                            std::string(transaction->IsCoinBase() ? "NULL" : "'" + ctxin_data.prevout.hash.GetHex() + "'"), // output_transaction_hash
+                            std::string(transaction->IsCoinBase() ? "-1" : std::to_string(ctxin_data.prevout.n)), // output_vector
                             "'" + block.GetBlockHeader().GetHash().GetHex() + "'", // input_block_hash
                             std::to_string(i), // input_transaction_index
                             "'" + transaction->GetHash().GetHex() + "'", // input_transaction_hash
                             std::to_string(n), // input_vector
-                            "'" + CScriptID(txout_data.scriptSig).GetHex() + "'", // unlocking_script_id
-                            std::to_string(txout_data.nSequence), // sequence
-
+                            "'" + CScriptID(ctxin_data.scriptSig).GetHex() + "'", // unlocking_script_id
+                            std::string(ctxin_data.nSequence == 0xffffffff ? "-1" : std::to_string(ctxin_data.nSequence)) // sequence
                     };
-                    ctxin_values_vector.push_back(
+                    txin_values_vector.push_back(
                             std::accumulate(std::begin(vin_values), std::end(vin_values), std::string(),
                                             [](std::string &accumulation_value, std::string &current_element) {
                                                 return accumulation_value.empty()
@@ -129,8 +130,8 @@ namespace enterprise_bitcoin {
                                             }));
 
                     std::vector <std::string> script_values = {
-                            "'" + CScriptID(txout_data.scriptSig).GetHex() + "'", // id
-                            ScriptToAsmStr(txout_data.scriptSig) // script
+                            "'" + CScriptID(ctxin_data.scriptSig).GetHex() + "'", // id
+                            ScriptToAsmStr(ctxin_data.scriptSig) // script
                     };
                     unlocking_scripts_values_vector.push_back(
                             std::accumulate(std::begin(script_values), std::end(script_values), std::string(),

@@ -52,8 +52,9 @@ public:
      **/
     std::string output_block_hash;
     unsigned int output_transaction_index;
+    std::string output_transaction_hash;
     unsigned int output_vector;
-    int64_t n_value;
+    int64_t value;
     std::string locking_script_id;
 
     /**
@@ -64,11 +65,13 @@ public:
     #pragma db null
     unsigned int input_transaction_index;
     #pragma db null
+    std::string input_transaction_hash;
+    #pragma db null
     unsigned int input_vector;
     #pragma db null
     std::string unlocking_script_id;
     #pragma db null
-    uint32_t n_sequence;
+    uint32_t sequence;
 
 private:
     friend class odb::access;
