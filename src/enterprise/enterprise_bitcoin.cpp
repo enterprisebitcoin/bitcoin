@@ -92,13 +92,13 @@ namespace enterprise_bitcoin {
                     std::vector <std::vector<unsigned char>> vSolutions;
                     txnouttype output_script_type;
                     if (!Solver(txout_data.scriptPubKey, output_script_type, vSolutions)) {
-                        throw;
+                        output_script_type = TX_NONSTANDARD;
                     }
 
                     std::vector <std::string> script_values = {
                             "'" + CScriptID(txout_data.scriptPubKey).GetHex() + "'", // id
                             "'" + ScriptToAsmStr(txout_data.scriptPubKey) + "'", // script
-                            std::to_string(output_script_type) // type
+                            GetTxnOutputType(output_script_type) // type
                     };
                     locking_scripts_values_vector.push_back(
                             std::accumulate(std::begin(script_values), std::end(script_values), std::string(),

@@ -50,11 +50,16 @@ public:
     /**
      *  CTxOut
      **/
+    #pragma db null
     std::string output_block_hash;
+    #pragma db null
     unsigned int output_transaction_index;
+    #pragma db null
     std::string output_transaction_hash;
     unsigned int output_vector;
+    #pragma db null
     int64_t value;
+    #pragma db null
     std::string locking_script_id;
 
     /**
