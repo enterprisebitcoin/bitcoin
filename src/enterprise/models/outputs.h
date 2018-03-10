@@ -21,15 +21,16 @@ public:
     eOutputs(
             std::string output_block_hash,
             unsigned int output_transaction_index,
+            std::string output_transaction_hash,
             unsigned int output_vector,
             int64_t value,
             std::string locking_script_id,
 
             std::string input_block_hash,
             unsigned int input_transaction_index,
+            std::string input_transaction_hash,
             unsigned int input_vector,
             std::string unlocking_script_id,
-            std::string input_witness_script_id,
             uint32_t sequence
     ) : output_block_hash(output_block_hash),
         output_transaction_index(output_transaction_index),

@@ -15,8 +15,8 @@ namespace enterprise_bitcoin {
     void UpsertBlocks(const std::vector <BlockData> &blocks) {
         std::vector <std::string> blocks_values_vector;
         std::vector <std::string> transactions_values_vector;
-        std::vector <std::string> vout_values_vector;
-        std::vector <std::string> vin_values_vector;
+        std::vector <std::string> ctxout_values_vector;
+        std::vector <std::string> ctxin_values_vector;
         std::vector <std::string> locking_scripts_values_vector;
         std::vector <std::string> unlocking_scripts_values_vector;
 
@@ -74,11 +74,12 @@ namespace enterprise_bitcoin {
                     std::vector <std::string> vout_values = {
                             "'" + block.GetBlockHeader().GetHash().GetHex() + "'", // output_block_hash
                             std::to_string(i), // output_transaction_index
+                            "'" + transaction->GetHash().GetHex() + "'", // output_transaction_hash
                             std::to_string(n), // output_vector
                             std::to_string(ctxout_data.nValue), // value
                             "'" + CScriptID(ctxout_data.scriptPubKey).GetHex() + "'" // locking_script_id
                     };
-                    vout_values_vector.push_back(
+                    ctxout_values_vector.push_back(
                             std::accumulate(std::begin(vout_values), std::end(vout_values), std::string(),
                                             [](std::string &accumulation_value, std::string &current_element) {
                                                 return accumulation_value.empty()
@@ -111,11 +112,13 @@ namespace enterprise_bitcoin {
                     std::vector <std::string> vin_values = {
                             "'" + block.GetBlockHeader().GetHash().GetHex() + "'", // input_block_hash
                             std::to_string(i), // input_transaction_index
+                            "'" + transaction->GetHash().GetHex() + "'", // input_transaction_hash
                             std::to_string(n), // input_vector
                             "'" + CScriptID(ctxout_data.scriptSig).GetHex() + "'", // unlocking_script_id
-                            std::to_string(ctxout_data.nSequence) // sequence
+                            std::to_string(ctxout_data.nSequence), // sequence
+
                     };
-                    vin_values_vector.push_back(
+                    ctxin_values_vector.push_back(
                             std::accumulate(std::begin(vin_values), std::end(vin_values), std::string(),
                                             [](std::string &accumulation_value, std::string &current_element) {
                                                 return accumulation_value.empty()
@@ -170,6 +173,27 @@ namespace enterprise_bitcoin {
                                                         "SELECT 1 FROM bitcoin.\"eTransactions\" eb "
                                                         "WHERE eb.block_hash=temptable.block_hash AND eb.index=temptable.index"
                                                         ");";
+
+        std::string ctxout_values = std::accumulate(std::begin(ctxout_values_vector),
+                                                    std::end(ctxout_values_vector),
+                                                    std::string(),
+                                                    [](std::string &accumulation_value,
+                                                       std::string &current_element) {
+                                                        return accumulation_value.empty()
+                                                               ? "(" + current_element + ")"
+                                                               : accumulation_value + ", (" + current_element +
+                                                                 ")";
+                                                    });
+        std::string transactions_table_columns = "(block_hash, index, total_size, inputs_count, outputs_count, value_out, lock_time, version, hash, witness_hash, is_coinbase, has_witness) ";
+        std::string transactions_insert_query = "INSERT INTO bitcoin.\"eTransactions\" " + transactions_table_columns +
+                                                "SELECT * FROM (VALUES " + transactions_values +
+                                                ") AS temptable " + transactions_table_columns +
+                                                "WHERE NOT EXISTS ("
+                                                        "SELECT 1 FROM bitcoin.\"eTransactions\" eb "
+                                                        "WHERE eb.block_hash=temptable.block_hash AND eb.index=temptable.index"
+                                                        ");";
+
+
 
 //        std::string update_query = "UPDATE wallet.\"eAddresses\" SET name=temptable.name, purpose=temptable.purpose "
 //                                           "FROM ( "
