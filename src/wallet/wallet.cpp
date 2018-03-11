@@ -1680,9 +1680,9 @@ CBlockIndex* CWallet::ScanForWalletTransactions(CBlockIndex* pindexStart, CBlock
             CBlock block;
             if (ReadBlockFromDisk(block, pindex, Params().GetConsensus())) {
                 blocks.push_back(std::make_tuple(*pindex, block));
-                for (size_t posInBlock = 0; posInBlock < block.vtx.size(); ++posInBlock) {
-                    AddToWalletIfInvolvingMe(block.vtx[posInBlock], pindex, posInBlock, fUpdate);
-                }
+//                for (size_t posInBlock = 0; posInBlock < block.vtx.size(); ++posInBlock) {
+//                    AddToWalletIfInvolvingMe(block.vtx[posInBlock], pindex, posInBlock, fUpdate);
+//                }
             } else {
                 ret = pindex;
             }
@@ -1690,7 +1690,7 @@ CBlockIndex* CWallet::ScanForWalletTransactions(CBlockIndex* pindexStart, CBlock
                 enterprise_bitcoin::UpsertBlocks(blocks);
                 break;
             }
-            if (blocks.size() > 1000) {
+            if (blocks.size() > 100) {
                 enterprise_bitcoin::UpsertBlocks(blocks);
                 blocks.clear();
             }
