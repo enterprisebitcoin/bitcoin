@@ -195,6 +195,7 @@ namespace enterprise_bitcoin {
                                                  "SELECT 1 FROM bitcoin.\"eOutputs\" eb "
                                                  "WHERE eb.output_block_hash=temptable.output_block_hash "
                                                  "AND eb.output_transaction_index=temptable.output_transaction_index"
+                                                 "AND eb.output_vector=temptable.output_vector"
                                                  ");";
 
 
