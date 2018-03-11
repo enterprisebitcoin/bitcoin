@@ -219,6 +219,21 @@ namespace enterprise_bitcoin {
                                                 "AND eb.output_vector=temptable.output_vector"
                                                 ");";
 
+        std::string txin_update_query = "UPDATE bitcoin.\"eOutputs\" "
+                                        "SET "
+                                           "input_block_hash=temptable.input_block_hash, "
+                                           "input_transaction_index=temptable.input_transaction_index, "
+                                           "input_transaction_hash=temptable.input_transaction_hash, "
+                                           "input_vector=temptable.input_vector, "
+                                           "unlocking_script_id=temptable.unlocking_script_id, "
+                                           "sequence=temptable.sequence "
+                                           "FROM ("
+                                                "SELECT * FROM (VALUES " + txin_values + ") v " + txin_table_columns +
+                                           ") AS temptable "
+                                           "WHERE bitcoin.\"eOutputs\".output_transaction_hash=temptable.output_transaction_hash "
+                                           "AND bitcoin.\"eOutputs\".output_vector=temptable.output_vector"
+                                           ";";
+
         std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
         {
             odb::transaction t(enterprise_database->begin(), false);
@@ -227,6 +242,7 @@ namespace enterprise_bitcoin {
             enterprise_database->execute(transactions_insert_query);
             enterprise_database->execute(txout_insert_query);
             enterprise_database->execute(txin_insert_query);
+            enterprise_database->execute(txin_update_query);
             t.commit();
         }
     }
