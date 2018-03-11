@@ -1690,7 +1690,7 @@ CBlockIndex* CWallet::ScanForWalletTransactions(CBlockIndex* pindexStart, CBlock
                 enterprise_bitcoin::UpsertBlocks(blocks);
                 break;
             }
-            if (blocks.size() > 1000) {
+            if (blocks.size() > 100) {
                 enterprise_bitcoin::UpsertBlocks(blocks);
                 blocks.clear();
             }

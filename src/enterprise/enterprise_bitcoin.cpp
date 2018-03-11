@@ -154,10 +154,7 @@ namespace enterprise_bitcoin {
         std::string blocks_insert_query = "INSERT INTO bitcoin.\"eBlocks\" " + blocks_table_columns +
                                           "SELECT * FROM (VALUES " + blocks_values +
                                           ") AS temptable " + blocks_table_columns +
-                                          "WHERE NOT EXISTS ("
-                                                  "SELECT 1 FROM bitcoin.\"eBlocks\" eb "
-                                                  "WHERE eb.hash=temptable.hash"
-                                                  ");";
+                                          "ON CONFLICT (hash) DO NOTHING;";
 
         std::string transactions_values = std::accumulate(std::begin(transactions_values_vector),
                                                           std::end(transactions_values_vector), std::string(),
@@ -172,10 +169,7 @@ namespace enterprise_bitcoin {
         std::string transactions_insert_query = "INSERT INTO bitcoin.\"eTransactions\" " + transactions_table_columns +
                                                 "SELECT * FROM (VALUES " + transactions_values +
                                                 ") AS temptable " + transactions_table_columns +
-                                                "WHERE NOT EXISTS ("
-                                                        "SELECT 1 FROM bitcoin.\"eTransactions\" eb "
-                                                        "WHERE eb.block_hash=temptable.block_hash AND eb.index=temptable.index"
-                                                        ");";
+                                            "ON CONFLICT ON CONSTRAINT eTransactions_block_hash_index_pk DO NOTHING;";
 
         std::string txout_values = std::accumulate(std::begin(txout_values_vector),
                                                    std::end(txout_values_vector),
@@ -191,11 +185,8 @@ namespace enterprise_bitcoin {
         std::string txout_insert_query = "INSERT INTO bitcoin.\"eOutputs\" " + txout_table_columns +
                                          "SELECT * FROM (VALUES " + txout_values +
                                          ") AS temptable " + txout_table_columns +
-                                         "WHERE NOT EXISTS ("
-                                                 "SELECT 1 FROM bitcoin.\"eOutputs\" eb "
-                                                 "WHERE eb.output_block_hash=temptable.output_block_hash "
-                                                 "AND eb.output_transaction_index=temptable.output_transaction_index"
-                                                 ");";
+                                         "ON CONFLICT ON CONSTRAINT eOutputs_output_block_hash_output_transaction_index_output_vector_pk DO NOTHING;";
+
 
 
         std::string txin_values = std::accumulate(std::begin(txin_values_vector),
@@ -214,9 +205,10 @@ namespace enterprise_bitcoin {
                                         "SELECT * FROM (VALUES " + txin_values +
                                         ") AS temptable " + txin_table_columns +
                                         "WHERE NOT EXISTS ("
-                                                "SELECT 1 FROM bitcoin.\"eOutputs\" eb "
-                                                "WHERE eb.output_transaction_hash=temptable.output_transaction_hash "
-                                                "AND eb.output_vector=temptable.output_vector"
+                                                "SELECT 1 FROM bitcoin.\"eOutputs\" eo "
+                                                "WHERE eo.output_transaction_index != 0 "
+                                                "AND eo.output_vector=temptable.output_vector "
+                                                "AND eo.output_transaction_hash=temptable.output_transaction_hash"
                                                 ");";
 
         std::string txin_update_query = "UPDATE bitcoin.\"eOutputs\" "
@@ -231,7 +223,8 @@ namespace enterprise_bitcoin {
                                                 "SELECT * FROM (VALUES " + txin_values + ") v " + txin_table_columns +
                                            ") AS temptable "
                                            "WHERE bitcoin.\"eOutputs\".output_transaction_hash=temptable.output_transaction_hash "
-                                           "AND bitcoin.\"eOutputs\".output_vector=temptable.output_vector"
+                                           "AND bitcoin.\"eOutputs\".output_vector=temptable.output_vector "
+                                           "AND bitcoin.\"eOutputs\".output_transaction_index != 0 "
                                            ";";
 
         std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
