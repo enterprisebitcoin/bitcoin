@@ -34,9 +34,44 @@ public:
             uint32_t sequence
     ) : output_block_hash(output_block_hash),
         output_transaction_index(output_transaction_index),
+        output_transaction_hash(output_transaction_hash),
         output_vector(output_vector),
         value(value),
         locking_script_id(locking_script_id),
+
+        input_block_hash(input_block_hash),
+        input_transaction_index(input_transaction_index),
+        input_vector(input_vector),
+        unlocking_script_id(unlocking_script_id),
+        sequence(sequence) {};
+
+//    For CTxOut
+    eOutputs(
+            std::string output_block_hash,
+            unsigned int output_transaction_index,
+            std::string output_transaction_hash,
+            unsigned int output_vector,
+            int64_t value,
+            std::string locking_script_id
+    ) : output_block_hash(output_block_hash),
+        output_transaction_index(output_transaction_index),
+        output_vector(output_vector),
+        value(value),
+        locking_script_id(locking_script_id) {};
+
+//    For CTxIn
+    eOutputs(
+            std::string output_transaction_hash,
+            unsigned int output_vector,
+
+            std::string input_block_hash,
+            unsigned int input_transaction_index,
+            std::string input_transaction_hash,
+            unsigned int input_vector,
+            std::string unlocking_script_id,
+            uint32_t sequence
+    ) : output_transaction_hash(output_transaction_hash),
+        output_vector(output_vector),
 
         input_block_hash(input_block_hash),
         input_transaction_index(input_transaction_index),

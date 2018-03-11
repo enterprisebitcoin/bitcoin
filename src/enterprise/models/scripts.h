@@ -26,6 +26,12 @@ public:
         script(script),
         type(type) {};
 
+    eScripts(
+            std::string id,
+            std::string script
+    ) : id(id),
+        script(script) {};
+
 #pragma db id
     std::string id;
     std::string script;
