@@ -95,7 +95,7 @@ namespace enterprise_bitcoin {
                 for (std::size_t n = 0; n < transaction->vin.size(); ++n) {
                     const CTxIn &txin_data = transaction->vin[n];
                     eOutputs new_input_record(
-                            transaction->IsCoinBase() ? nullptr :  txin_data.prevout.hash.GetHex(), // output_transaction_hash
+                            transaction->IsCoinBase() ? "" :  txin_data.prevout.hash.GetHex(), // output_transaction_hash
                             transaction->IsCoinBase() ? -1 : txin_data.prevout.n, // output_vector
                             block.GetBlockHeader().GetHash().GetHex(), // input_block_hash
                             i, // input_transaction_index
