@@ -19,21 +19,23 @@
 class eScripts {
 public:
     eScripts(
-            std::string id,
+            std::string hash,
             std::string script,
             std::string type
-    ) : id(id),
+    ) : hash(hash),
         script(script),
         type(type) {};
 
     eScripts(
-            std::string id,
+            std::string hash,
             std::string script
-    ) : id(id),
+    ) : hash(hash),
         script(script) {};
 
-#pragma db id
-    std::string id;
+#pragma db id auto
+    unsigned int id;
+
+    std::string hash;
     std::string script;
     std::string type;
 

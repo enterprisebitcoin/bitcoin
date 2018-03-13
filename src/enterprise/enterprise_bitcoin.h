@@ -3,11 +3,23 @@
 
 #include <chain.h>
 
-typedef std::pair<CBlockIndex, CBlock> BlockData;
+#include "enterprise/models/blocks.h"
+#include "enterprise/models/outputs.h"
+#include "enterprise/models/scripts.h"
+#include "enterprise/models/transactions.h"
 
-namespace enterprise_bitcoin
-{
-    void UpsertBlocks(const std::vector<BlockData> &blocks);
+typedef std::pair <CBlockIndex, CBlock> BlockData;
+
+namespace enterprise_bitcoin {
+    void InsertBlocks(const std::vector <eBlocks> &records);
+
+    void InsertTransactions(const std::vector <eTransactions> &records);
+
+    void InsertOutputs(const std::vector <eOutputs> &records);
+
+    void InsertScripts(const std::vector <eScripts> &records);
+
+    void ProcessBlocks(const std::vector <BlockData> &blocks);
 }
 
 #endif //ENTERPRISE_BITCOIN_H

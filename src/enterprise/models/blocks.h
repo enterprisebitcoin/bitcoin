@@ -41,9 +41,10 @@ public:
             nonce(nonce) {
     }
 
-#pragma db id
-    std::string hash;
+    #pragma db id auto
+    unsigned int id;
 
+    std::string hash;
     std::string merkle_root;
     int64_t time;
     int64_t height;

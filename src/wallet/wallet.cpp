@@ -1668,6 +1668,7 @@ CBlockIndex* CWallet::ScanForWalletTransactions(CBlockIndex* pindexStart, CBlock
         double dProgressTip = GuessVerificationProgress(chainParams.TxData(), chainActive.Tip());
 
         std::vector<BlockData> blocks;
+        std::deque<std::thread> vec_thr;
         while (pindex && !fAbortRescan)
         {
             if (pindex->nHeight % 100 == 0 && dProgressTip - dProgressStart > 0.0)
@@ -1687,13 +1688,25 @@ CBlockIndex* CWallet::ScanForWalletTransactions(CBlockIndex* pindexStart, CBlock
                 ret = pindex;
             }
             if (pindex == pindexStop) {
-                enterprise_bitcoin::UpsertBlocks(blocks);
+                enterprise_bitcoin::ProcessBlocks(blocks);
                 break;
             }
-            if (blocks.size() > 100) {
-                enterprise_bitcoin::UpsertBlocks(blocks);
+            if (blocks.size() > 2000) {
+                std::thread t1(enterprise_bitcoin::ProcessBlocks, blocks);
+                vec_thr.push_back(std::move(t1));
                 blocks.clear();
             }
+            if (vec_thr.size() > 2)
+            {
+                for (unsigned int i=0; i<vec_thr.size(); ++i)
+                {
+                    if (vec_thr.at(i).joinable()) {
+                        vec_thr.at(i).join();
+                    }
+                }
+                vec_thr.clear();
+            }
+
             pindex = chainActive.Next(pindex);
         }
         if (pindex && fAbortRescan) {

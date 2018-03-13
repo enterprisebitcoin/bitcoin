@@ -22,18 +22,63 @@
 
 namespace enterprise_bitcoin {
 
-    void UpsertBlocks(const std::vector <BlockData> &blocks) {
-
+    void InsertBlocks(const std::vector <eBlocks> &records) {
         std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
-
         odb::transaction t(enterprise_database->begin(), false);
         odb::transaction::current(t);
+
+        for (eBlocks record: records) {
+            enterprise_database->persist(record);
+        }
+        t.commit();
+    }
+
+    void InsertTransactions(const std::vector <eTransactions> &records) {
+        std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
+        odb::transaction t(enterprise_database->begin(), false);
+        odb::transaction::current(t);
+
+        for (eTransactions record: records) {
+            enterprise_database->persist(record);
+        }
+        t.commit();
+    }
+
+    void InsertOutputs(const std::vector <eOutputs> &records) {
+        std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
+        odb::transaction t(enterprise_database->begin(), false);
+        odb::transaction::current(t);
+
+        for (eOutputs record: records) {
+            enterprise_database->persist(record);
+        }
+        t.commit();
+    }
+
+    void InsertScripts(const std::vector <eScripts> &records) {
+        std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
+        odb::transaction t(enterprise_database->begin(), false);
+        odb::transaction::current(t);
+
+        for (eScripts record: records) {
+            enterprise_database->persist(record);
+        }
+        t.commit();
+    }
+
+    void ProcessBlocks(const std::vector <BlockData> &blocks) {
+
+        std::vector <eBlocks> block_records;
+        std::vector <eTransactions> transaction_records;
+        std::vector <eOutputs> output_records;
+        std::vector <eScripts> script_records;
+
 
         for (const BlockData &block_data: blocks) {
             CBlockIndex block_index = block_data.first;
             CBlock block = block_data.second;
 
-            eBlocks new_block_record(
+            eBlocks block_record(
                     block.GetBlockHeader().GetHash().GetHex(), // hash
                     block_index.hashMerkleRoot.GetHex(), // merkle_root
                     block_index.GetBlockTime(), // time
@@ -44,12 +89,12 @@ namespace enterprise_bitcoin {
                     block_index.nBits, // bits
                     block_index.nNonce // nonce
             );
-            enterprise_database->persist(new_block_record);
+            block_records.push_back(block_record);
 
             for (std::size_t i = 0; i < block.vtx.size(); ++i) {
                 const CTransactionRef &transaction = block.vtx[i];
 
-                eTransactions new_transaction_record(
+                eTransactions transaction_record(
                         block.GetBlockHeader().GetHash().GetHex(), // block_hash
                         i, // index
                         transaction->GetTotalSize(), // total_size
@@ -63,11 +108,11 @@ namespace enterprise_bitcoin {
                         transaction->IsCoinBase(), // is_coinbase
                         transaction->HasWitness() // has_witness
                 );
-                enterprise_database->persist(new_transaction_record);
+                transaction_records.push_back(transaction_record);
 
                 for (std::size_t n = 0; n < transaction->vout.size(); ++n) {
                     const CTxOut &txout_data = transaction->vout[n];
-                    eOutputs new_output_record(
+                    eOutputs output_record(
                             block.GetBlockHeader().GetHash().GetHex(), // output_block_hash
                             i, // output_transaction_index
                             transaction->GetHash().GetHex(), // output_transaction_hash
@@ -75,7 +120,7 @@ namespace enterprise_bitcoin {
                             txout_data.nValue, // value
                             CScriptID(txout_data.scriptPubKey).GetHex() // locking_script_id
                     );
-                    enterprise_database->persist(new_output_record);
+                    output_records.push_back(output_record);
 
                     std::vector <std::vector<unsigned char>> vSolutions;
                     txnouttype output_script_type;
@@ -83,18 +128,18 @@ namespace enterprise_bitcoin {
                         output_script_type = TX_NONSTANDARD;
                     }
 
-                    eScripts new_locking_script_record(
+                    eScripts locking_script_record(
                             CScriptID(txout_data.scriptPubKey).GetHex(), // id
                             ScriptToAsmStr(txout_data.scriptPubKey), // script
                             GetTxnOutputType(output_script_type) // type
                     );
-                    enterprise_database->persist(new_locking_script_record);
+                    script_records.push_back(locking_script_record);
 
                 }
 
                 for (std::size_t n = 0; n < transaction->vin.size(); ++n) {
                     const CTxIn &txin_data = transaction->vin[n];
-                    eOutputs new_input_record(
+                    eOutputs input_record(
                             transaction->IsCoinBase() ? "" :  txin_data.prevout.hash.GetHex(), // output_transaction_hash
                             transaction->IsCoinBase() ? -1 : txin_data.prevout.n, // output_vector
                             block.GetBlockHeader().GetHash().GetHex(), // input_block_hash
@@ -104,17 +149,24 @@ namespace enterprise_bitcoin {
                             CScriptID(txin_data.scriptSig).GetHex(), // unlocking_script_id
                             txin_data.nSequence == 0xffffffff ? -1 : txin_data.nSequence // sequence
                     );
-                    enterprise_database->persist(new_input_record);
+                    output_records.push_back(input_record);
 
-                    eScripts new_unlock_script_record(
+                    eScripts unlock_script_record(
                             CScriptID(txin_data.scriptSig).GetHex(), // id
                             ScriptToAsmStr(txin_data.scriptSig) // script
                     );
-                    enterprise_database->persist(new_unlock_script_record);
+                    script_records.push_back(unlock_script_record);
                 }
             }
         }
 
-        t.commit();
+        std::thread t1(enterprise_bitcoin::InsertBlocks, block_records);
+        std::thread t2(enterprise_bitcoin::InsertTransactions, transaction_records);
+        std::thread t3(enterprise_bitcoin::InsertOutputs, output_records);
+        std::thread t4(enterprise_bitcoin::InsertScripts, script_records);
+        t1.join();
+        t2.join();
+        t3.join();
+        t4.join();
     }
 }
