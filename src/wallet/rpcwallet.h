@@ -7,6 +7,8 @@
 
 #include <string>
 
+#include <script/standard.h>
+
 class CRPCTable;
 class CWallet;
 class JSONRPCRequest;

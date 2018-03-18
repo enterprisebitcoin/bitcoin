@@ -18,11 +18,31 @@
 
 #include <atomic>
 
+#include <boost/lexical_cast.hpp>
+#include <boost/uuid/uuid_io.hpp>
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+
 #include <boost/thread.hpp>
+#include "boost/lexical_cast.hpp"
+
+#include <wallet/enterprise/enterprise_wallet.h>
 
 //
 // CWalletDB
 //
+
+std::string CWalletDB::ReadID()
+{
+    std::string wallet_id;
+    bool id_exists = batch.Read(std::string("wallet_id"), wallet_id);
+    if (!id_exists) {
+        boost::uuids::uuid uuid = boost::uuids::random_generator()();
+        wallet_id = boost::lexical_cast<std::string>(uuid);
+        WriteIC(std::string("wallet_id"), wallet_id);
+    }
+    return wallet_id;
+}
 
 bool CWalletDB::WriteName(const std::string& strAddress, const std::string& strName)
 {
@@ -46,13 +66,16 @@ bool CWalletDB::ErasePurpose(const std::string& strAddress)
     return EraseIC(std::make_pair(std::string("purpose"), strAddress));
 }
 
+
 bool CWalletDB::WriteTx(const CWalletTx& wtx)
 {
+    enterprise_wallet::UpsertTx(wtx);
     return WriteIC(std::make_pair(std::string("tx"), wtx.GetHash()), wtx);
 }
 
 bool CWalletDB::EraseTx(uint256 hash)
 {
+    enterprise_wallet::DeleteTx(hash);
     return EraseIC(std::make_pair(std::string("tx"), hash));
 }
 
@@ -67,7 +90,6 @@ bool CWalletDB::WriteKey(const CPubKey& vchPubKey, const CPrivKey& vchPrivKey, c
     vchKey.reserve(vchPubKey.size() + vchPrivKey.size());
     vchKey.insert(vchKey.end(), vchPubKey.begin(), vchPubKey.end());
     vchKey.insert(vchKey.end(), vchPrivKey.begin(), vchPrivKey.end());
-
     return WriteIC(std::make_pair(std::string("key"), vchPubKey), std::make_pair(vchPrivKey, Hash(vchKey.begin(), vchKey.end())), false);
 }
 

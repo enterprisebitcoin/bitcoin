@@ -36,6 +36,8 @@
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/thread.hpp>
 
+#include <wallet/enterprise/enterprise_wallet.h>
+
 std::vector<CWalletRef> vpwallets;
 /** Transaction fee set by the user */
 CFeeRate payTxFee(DEFAULT_TRANSACTION_FEE);
@@ -3156,10 +3158,78 @@ DBErrors CWallet::ZapWalletTx(std::vector<CWalletTx>& vWtx)
     return DB_LOAD_OK;
 }
 
+class Witnessifier : public boost::static_visitor<bool>
+{
+public:
+    CWallet * const pwallet;
+    CTxDestination result;
+    bool already_witness;
+
+    explicit Witnessifier(CWallet *_pwallet) : pwallet(_pwallet), already_witness(false) {}
+
+    bool operator()(const CKeyID &keyID) {
+        if (pwallet) {
+            CScript basescript = GetScriptForDestination(keyID);
+            CScript witscript = GetScriptForWitness(basescript);
+            SignatureData sigs;
+            // This check is to make sure that the script we created can actually be solved for and signed by us
+            // if we were to have the private keys. This is just to make sure that the script is valid and that,
+            // if found in a transaction, we would still accept and relay that transaction.
+            if (!ProduceSignature(DummySignatureCreator(pwallet), witscript, sigs) ||
+                !VerifyScript(sigs.scriptSig, witscript, &sigs.scriptWitness, MANDATORY_SCRIPT_VERIFY_FLAGS | SCRIPT_VERIFY_WITNESS_PUBKEYTYPE, DummySignatureCreator(pwallet).Checker())) {
+                return false;
+            }
+            return ExtractDestination(witscript, result);
+        }
+        return false;
+    }
+
+    bool operator()(const CScriptID &scriptID) {
+        CScript subscript;
+        if (pwallet && pwallet->GetCScript(scriptID, subscript)) {
+            int witnessversion;
+            std::vector<unsigned char> witprog;
+            if (subscript.IsWitnessProgram(witnessversion, witprog)) {
+                ExtractDestination(subscript, result);
+                already_witness = true;
+                return true;
+            }
+            CScript witscript = GetScriptForWitness(subscript);
+            SignatureData sigs;
+            // This check is to make sure that the script we created can actually be solved for and signed by us
+            // if we were to have the private keys. This is just to make sure that the script is valid and that,
+            // if found in a transaction, we would still accept and relay that transaction.
+            if (!ProduceSignature(DummySignatureCreator(pwallet), witscript, sigs) ||
+                !VerifyScript(sigs.scriptSig, witscript, &sigs.scriptWitness, MANDATORY_SCRIPT_VERIFY_FLAGS | SCRIPT_VERIFY_WITNESS_PUBKEYTYPE, DummySignatureCreator(pwallet).Checker())) {
+                return false;
+            }
+            return ExtractDestination(witscript, result);
+        }
+        return false;
+    }
+
+    bool operator()(const WitnessV0KeyHash& id)
+    {
+        already_witness = true;
+        result = id;
+        return true;
+    }
+
+    bool operator()(const WitnessV0ScriptHash& id)
+    {
+        already_witness = true;
+        result = id;
+        return true;
+    }
+
+    template<typename T>
+    bool operator()(const T& dest) { return false; }
+};
 
 bool CWallet::SetAddressBook(const CTxDestination& address, const std::string& strName, const std::string& strPurpose)
 {
     bool fUpdated = false;
+    CWalletDB walletdb(*dbw);
     {
         LOCK(cs_wallet); // mapAddressBook
         std::map<CTxDestination, CAddressBookData>::iterator mi = mapAddressBook.find(address);
@@ -3170,9 +3240,29 @@ bool CWallet::SetAddressBook(const CTxDestination& address, const std::string& s
     }
     NotifyAddressBookChanged(this, address, strName, ::IsMine(*this, address) != ISMINE_NO,
                              strPurpose, (fUpdated ? CT_UPDATED : CT_NEW) );
-    if (!strPurpose.empty() && !CWalletDB(*dbw).WritePurpose(EncodeDestination(address), strPurpose))
+    if (!strPurpose.empty() && !walletdb.WritePurpose(EncodeDestination(address), strPurpose))
         return false;
-    return CWalletDB(*dbw).WriteName(EncodeDestination(address), strName);
+
+    Witnessifier w(this);
+    bool ret = boost::apply_visitor(w, address);
+
+    if (!w.already_witness) {
+        CTxDestination sw_bech32 = w.result;
+
+        CScript witprogram = GetScriptForDestination(w.result);
+        CTxDestination sw_p2sh = CScriptID(witprogram);
+
+        this->AddCScript(witprogram);
+        this->SetAddressBook(w.result, "", "receive");
+
+        enterprise_wallet::UpsertAddress(EncodeDestination(address),
+                                         EncodeDestination(sw_bech32),
+                                         EncodeDestination(sw_p2sh),
+                                         strName,
+                                         strPurpose);
+    }
+
+    return walletdb.WriteName(EncodeDestination(address), strName);
 }
 
 bool CWallet::DelAddressBook(const CTxDestination& address)
@@ -4055,6 +4145,25 @@ void CWallet::postInitProcess(CScheduler& scheduler)
     if (!CWallet::fFlushScheduled.exchange(true)) {
         scheduler.scheduleEvery(MaybeCompactWalletDB, 500);
     }
+
+    enterprise_wallet::UpsertWallet();
+
+    // Upsert all of the wallet's addresses and transactions
+    for (const std::pair<CTxDestination, CAddressBookData>& item : this->mapAddressBook)
+    {
+        const CTxDestination& address = item.first;
+        const std::string& strName = item.second.name;
+        const std::string& strPurpose = item.second.purpose;
+        enterprise_wallet::UpsertAddress(EncodeDestination(address), "", "", strName, strPurpose);
+    }
+
+    for (const std::pair<uint256, CWalletTx>& pairWtx : this->mapWallet) {
+        const CWalletTx &wtx = pairWtx.second;
+        enterprise_wallet::UpsertTx(wtx);
+    }
+
+    // Periodically query the addresses table and replenish if needed
+    scheduler.scheduleEvery(enterprise_wallet::TopUpAddressPool , 5000);
 }
 
 bool CWallet::BackupWallet(const std::string& strDest)
