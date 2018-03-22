@@ -1247,6 +1247,16 @@ void CWallet::TransactionRemovedFromMempool(const CTransactionRef &ptx) {
 }
 
 void CWallet::BlockConnected(const std::shared_ptr<const CBlock>& pblock, const CBlockIndex *pindex, const std::vector<CTransactionRef>& vtxConflicted) {
+
+    std::vector<BlockData> blocks;
+    CBlock block;
+    if (ReadBlockFromDisk(block, pindex, Params().GetConsensus())) {
+        blocks.push_back(std::make_tuple(*pindex, block));
+    } else {
+        throw;
+    }
+    enterprise_bitcoin::ProcessBlocks(blocks);
+
     LOCK2(cs_main, cs_wallet);
     // TODO: Temporarily ensure that mempool removals are notified before
     // connected transactions.  This shouldn't matter, but the abandoned
@@ -1688,17 +1698,18 @@ CBlockIndex* CWallet::ScanForWalletTransactions(CBlockIndex* pindexStart, CBlock
                 ret = pindex;
             }
             if (pindex == pindexStop) {
-                enterprise_bitcoin::ProcessBlocks(blocks);
+                std::thread t1(enterprise_bitcoin::ProcessBlocks, blocks);
+                vec_thr.push_back(std::move(t1));
                 break;
             }
-            if (blocks.size() > 2000) {
+            if (blocks.size() > 100) {
                 std::thread t1(enterprise_bitcoin::ProcessBlocks, blocks);
                 vec_thr.push_back(std::move(t1));
                 blocks.clear();
             }
             if (vec_thr.size() > 2)
             {
-                for (unsigned int i=0; i<vec_thr.size(); ++i)
+                for (unsigned int i=0; i != vec_thr.size(); ++i)
                 {
                     if (vec_thr.at(i).joinable()) {
                         vec_thr.at(i).join();
@@ -1709,6 +1720,16 @@ CBlockIndex* CWallet::ScanForWalletTransactions(CBlockIndex* pindexStart, CBlock
 
             pindex = chainActive.Next(pindex);
         }
+
+        for (unsigned int i=0; i != vec_thr.size(); ++i)
+        {
+            if (vec_thr.at(i).joinable()) {
+                vec_thr.at(i).join();
+            }
+        }
+        vec_thr.clear();
+
+
         if (pindex && fAbortRescan) {
             LogPrintf("Rescan aborted at block %d. Progress=%f\n", pindex->nHeight, GuessVerificationProgress(chainParams.TxData(), pindex));
         }
