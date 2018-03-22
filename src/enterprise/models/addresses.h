@@ -25,7 +25,7 @@ public:
             std::string hex,
             unsigned int version,
             unsigned int length,
-            unsigned char program[40]
+            std::string program
     ) : script_id(script_id),
         address(address),
         source_type(source_type),
@@ -43,7 +43,7 @@ public:
     std::string hex;
     unsigned int version;
     unsigned int length;
-    unsigned char program[40];
+    std::string program;
 
 private:
     friend class odb::access;
