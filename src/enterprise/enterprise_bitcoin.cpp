@@ -112,21 +112,23 @@ namespace enterprise_bitcoin {
 
                 for (std::size_t n = 0; n < transaction->vout.size(); ++n) {
                     const CTxOut &txout_data = transaction->vout[n];
+
+                    txnouttype output_script_type;
+                    std::vector<CTxDestination> destinations;
+                    int nRequired;
+                    ExtractDestinations(txout_data.scriptPubKey, output_script_type, destinations, nRequired);
+
                     eOutputs output_record(
                             block.GetBlockHeader().GetHash().GetHex(), // output_block_hash
                             i, // output_transaction_index
                             transaction->GetHash().GetHex(), // output_transaction_hash
                             n, // output_vector
                             txout_data.nValue, // value
-                            CScriptID(txout_data.scriptPubKey).GetHex() // locking_script_id
+                            CScriptID(txout_data.scriptPubKey).GetHex(), // locking_script_id
+                            nRequired // required_signatures
                     );
                     output_records.push_back(output_record);
 
-                    std::vector <std::vector<unsigned char>> vSolutions;
-                    txnouttype output_script_type;
-                    if (!Solver(txout_data.scriptPubKey, output_script_type, vSolutions)) {
-                        output_script_type = TX_NONSTANDARD;
-                    }
 
                     eScripts locking_script_record(
                             CScriptID(txout_data.scriptPubKey).GetHex(), // id
@@ -135,6 +137,19 @@ namespace enterprise_bitcoin {
                     );
                     script_records.push_back(locking_script_record);
 
+                    for (CTxDestination &destination: destinations) {
+                        EnterpriseDestination enterprise_destination = EnterpriseDestinationEncoder(destination);
+                        eAddresses address_record(
+                                CScriptID(txout_data.scriptPubKey).GetHex(),
+                                enterprise_destination.address,
+                                enterprise_destination.source_type,
+                                enterprise_destination.hex,
+                                enterprise_destination.version,
+                                enterprise_destination.length,
+                                enterprise_destination.program
+                        );
+
+                    }
                 }
 
                 for (std::size_t n = 0; n < transaction->vin.size(); ++n) {
