@@ -16,10 +16,14 @@ macOS
 
 5. If you want to install the examples configure with these flags <code>./configure  CC=clang CXX=clang++ CXXFLAGS="-std=c++11 -stdlib=libc++" --with-database=pgsql</code>
 
-6. <code>odb -d pgsql --changelog-suffix -odb.xml --sql-suffix -odb.sql --include-prefix enterprise/models/ --schema bitcoin --generate-query --generate-schema -o src/enterprise/models src/enterprise/models/blocks.h</code>
+* <code>odb -d pgsql --changelog-suffix -odb.xml --sql-suffix -odb.sql --include-prefix enterprise/models/ --schema bitcoin --generate-query --generate-schema -o src/enterprise/models src/enterprise/models/addresses.h</code>
 
-7. <code>odb -d pgsql --changelog-suffix -odb.xml --sql-suffix -odb.sql --include-prefix enterprise/models/ --schema bitcoin --generate-query --generate-schema -o src/enterprise/models src/enterprise/models/outputs.h</code>
+* <code>odb -d pgsql --changelog-suffix -odb.xml --sql-suffix -odb.sql --include-prefix enterprise/models/ --schema bitcoin --generate-query --generate-schema -o src/enterprise/models src/enterprise/models/blocks.h</code>
 
-8. <code>odb -d pgsql --changelog-suffix -odb.xml --sql-suffix -odb.sql --include-prefix enterprise/models/ --schema bitcoin --generate-query --generate-schema -o src/enterprise/models src/enterprise/models/scripts.h</code>
+* <code>odb -d pgsql --changelog-suffix -odb.xml --sql-suffix -odb.sql --include-prefix enterprise/models/ --schema bitcoin --generate-query --generate-schema -o src/enterprise/models src/enterprise/models/inputs.h</code>
 
-9. <code>odb -d pgsql --changelog-suffix -odb.xml --sql-suffix -odb.sql --include-prefix enterprise/models/ --schema bitcoin --generate-query --generate-schema -o src/enterprise/models src/enterprise/models/transactions.h</code>
+* <code>odb -d pgsql --changelog-suffix -odb.xml --sql-suffix -odb.sql --include-prefix enterprise/models/ --schema bitcoin --generate-query --generate-schema -o src/enterprise/models src/enterprise/models/outputs.h</code>
+
+* <code>odb -d pgsql --changelog-suffix -odb.xml --sql-suffix -odb.sql --include-prefix enterprise/models/ --schema bitcoin --generate-query --generate-schema -o src/enterprise/models src/enterprise/models/scripts.h</code>
+
+* <code>odb -d pgsql --changelog-suffix -odb.xml --sql-suffix -odb.sql --include-prefix enterprise/models/ --schema bitcoin --generate-query --generate-schema -o src/enterprise/models src/enterprise/models/transactions.h</code>
