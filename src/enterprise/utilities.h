@@ -3,7 +3,7 @@
 
 struct EnterpriseDestination {
     std::string address;
-    std::string destination_type;
+    std::string source_type;
     std::string hex;
     unsigned int version;
     unsigned int length;
@@ -21,7 +21,7 @@ public:
     std::string operator()(const CKeyID& id) const
     {
         EnterpriseDestination destination;
-        destination.destination_type = "CKeyID";
+        destination.source_type = "CKeyID";
         destination.hex = id.ToString();
 
         std::vector<unsigned char> data = m_params.Base58Prefix(CChainParams::PUBKEY_ADDRESS);
@@ -34,7 +34,7 @@ public:
     std::string operator()(const CScriptID& id) const
     {
         EnterpriseDestination destination;
-        destination.destination_type = "CScriptID";
+        destination.source_type = "CScriptID";
         destination.hex = id.ToString();
 
         std::vector<unsigned char> data = m_params.Base58Prefix(CChainParams::SCRIPT_ADDRESS);
@@ -47,7 +47,7 @@ public:
     std::string operator()(const WitnessV0KeyHash& id) const
     {
         EnterpriseDestination destination;
-        destination.destination_type = "WitnessV0KeyHash";
+        destination.source_type = "WitnessV0KeyHash";
         destination.hex = id.ToString();
 
         std::vector<unsigned char> data = {0};
@@ -60,7 +60,7 @@ public:
     std::string operator()(const WitnessV0ScriptHash& id) const
     {
         EnterpriseDestination destination;
-        destination.destination_type = "WitnessV0ScriptHash";
+        destination.source_type = "WitnessV0ScriptHash";
         destination.hex = id.ToString();
 
         std::vector<unsigned char> data = {0};
@@ -73,7 +73,7 @@ public:
     std::string operator()(const WitnessUnknown& id) const
     {
         EnterpriseDestination destination;
-        destination.destination_type = "WitnessUnknown";
+        destination.source_type = "WitnessUnknown";
         destination.version = id.version;
         destination.length = id.length;
 
