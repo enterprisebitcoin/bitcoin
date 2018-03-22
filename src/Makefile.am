@@ -109,6 +109,7 @@ BITCOIN_CORE_H = \
   enterprise/models/scripts-odb.hxx \
   enterprise/models/transactions.h \
   enterprise/models/transactions-odb.hxx \
+  enterprise/utilities.h \
   enterprise/version.h \
   fs.h \
   httprpc.h \
