@@ -37,7 +37,6 @@
 #include <boost/thread.hpp>
 
 #include <enterprise/enterprise_bitcoin.h>
-#include <wallet/enterprise/enterprise_wallet.h>
 
 std::vector<CWalletRef> vpwallets;
 /** Transaction fee set by the user */
@@ -1702,7 +1701,7 @@ CBlockIndex* CWallet::ScanForWalletTransactions(CBlockIndex* pindexStart, CBlock
                 vec_thr.push_back(std::move(t1));
                 break;
             }
-            if (blocks.size() > 100) {
+            if (blocks.size() > 20) {
                 std::thread t1(enterprise_bitcoin::ProcessBlocks, blocks);
                 vec_thr.push_back(std::move(t1));
                 blocks.clear();
@@ -3289,7 +3288,7 @@ bool CWallet::SetAddressBook(const CTxDestination& address, const std::string& s
     std::map<CTxDestination, CAddressBookData> address_map;
     address_map[address].name = strName;
     address_map[address].purpose = strPurpose;
-    enterprise_wallet::UpsertAddressBook(address_map);
+//    enterprise_wallet::UpsertAddressBook(address_map);
 
     return walletdb.WriteName(EncodeDestination(address), strName);
 }
@@ -4175,15 +4174,15 @@ void CWallet::postInitProcess(CScheduler& scheduler)
         scheduler.scheduleEvery(MaybeCompactWalletDB, 500);
     }
 
-    enterprise_wallet::UpsertWallet();
+//    enterprise_wallet::UpsertWallet();
 
     // Upsert all of the wallet's addresses and transactions
-    enterprise_wallet::UpsertAddressBook(this->mapAddressBook);
-
-    for (const std::pair<uint256, CWalletTx>& pairWtx : this->mapWallet) {
-        const CWalletTx &wtx = pairWtx.second;
-        enterprise_wallet::UpsertWalletTransaction(wtx);
-    }
+//    enterprise_wallet::UpsertAddressBook(this->mapAddressBook);
+//
+//    for (const std::pair<uint256, CWalletTx>& pairWtx : this->mapWallet) {
+//        const CWalletTx &wtx = pairWtx.second;
+//        enterprise_wallet::UpsertWalletTransaction(wtx);
+//    }
 
     // Periodically query the addresses table and replenish if needed
 //    scheduler.scheduleEvery(enterprise_wallet::TopUpAddressPool , 5000);

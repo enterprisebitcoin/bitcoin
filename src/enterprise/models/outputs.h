@@ -19,17 +19,17 @@
 class eOutputs {
 public:
     eOutputs(
-            std::string output_block_hash,
-            unsigned int output_transaction_index,
-            std::string output_transaction_hash,
-            unsigned int output_vector,
+            std::string block_hash,
+            unsigned int transaction_block_index,
+            std::string transaction_hash,
+            unsigned int vector,
             int64_t value,
             std::string locking_script_id,
             int required_signatures
-    ) : output_block_hash(output_block_hash),
-        output_transaction_index(output_transaction_index),
-        output_transaction_hash(output_transaction_hash),
-        output_vector(output_vector),
+    ) : block_hash(block_hash),
+        transaction_block_index(transaction_block_index),
+        transaction_hash(transaction_hash),
+        vector(vector),
         value(value),
         locking_script_id(locking_script_id),
         required_signatures(required_signatures) {};
@@ -40,10 +40,10 @@ public:
     /**
      *  CTxOut
      **/
-    std::string output_block_hash;
-    unsigned int output_transaction_index;
-    std::string output_transaction_hash;
-    unsigned int output_vector;
+    std::string block_hash;
+    unsigned int transaction_block_index;
+    std::string transaction_hash;
+    unsigned int vector;
     int64_t value;
     std::string locking_script_id;
     int required_signatures;

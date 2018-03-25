@@ -1,5 +1,6 @@
 #include <core_io.h>
 #include <chain.h>
+#include <consensus/validation.h>
 #include <script/standard.h>
 
 #include <enterprise/database.h>
@@ -126,7 +127,9 @@ namespace enterprise_bitcoin {
                 eTransactions transaction_record(
                         block.GetBlockHeader().GetHash().GetHex(), // block_hash
                         i, // index
-                        transaction->GetTotalSize(), // total_size
+                        transaction->GetTotalSize(), // size
+                        (GetTransactionWeight(*transaction) + WITNESS_SCALE_FACTOR - 1) / WITNESS_SCALE_FACTOR, // vsize
+                        GetTransactionWeight(*transaction), // weight
                         transaction->vin.size(), // inputs_count
                         transaction->vout.size(), // outputs_count
                         transaction->GetValueOut(), // value_out
@@ -205,16 +208,18 @@ namespace enterprise_bitcoin {
         }
 
         std::thread t1(enterprise_bitcoin::InsertAddresses, address_records);
-        std::thread t2(enterprise_bitcoin::InsertBlocks, block_records);
+        std::thread t2(enterprise_bitcoin::InsertScripts, script_records);
         std::thread t3(enterprise_bitcoin::InsertInputs, input_records);
         std::thread t4(enterprise_bitcoin::InsertOutputs, output_records);
-        std::thread t5(enterprise_bitcoin::InsertScripts, script_records);
-        std::thread t6(enterprise_bitcoin::InsertTransactions, transaction_records);
         t1.join();
         t2.join();
         t3.join();
         t4.join();
+
+        std::thread t5(enterprise_bitcoin::InsertTransactions, transaction_records);
         t5.join();
+
+        std::thread t6(enterprise_bitcoin::InsertBlocks, block_records);
         t6.join();
     }
 }

@@ -22,31 +22,32 @@ public:
             std::string output_transaction_hash,
             unsigned int output_vector,
 
-            std::string input_block_hash,
-            unsigned int input_transaction_index,
-            std::string input_transaction_hash,
-            unsigned int input_vector,
+            std::string block_hash,
+            unsigned int transaction_block_index,
+            std::string transaction_hash,
+            unsigned int vector,
             std::string unlocking_script_id,
             uint32_t sequence
     ) : output_transaction_hash(output_transaction_hash),
         output_vector(output_vector),
 
-        input_block_hash(input_block_hash),
-        input_transaction_index(input_transaction_index),
-        input_vector(input_vector),
+        block_hash(block_hash),
+        transaction_block_index(transaction_block_index),
+        vector(vector),
         unlocking_script_id(unlocking_script_id),
         sequence(sequence) {};
 
 #pragma db id auto
     unsigned int id;
 
+//    The output that is being spent
     std::string output_transaction_hash;
     unsigned int output_vector;
 
-    std::string input_block_hash;
-    unsigned int input_transaction_index;
-    std::string input_transaction_hash;
-    unsigned int input_vector;
+    std::string block_hash;
+    unsigned int transaction_block_index;
+    std::string transaction_hash;
+    unsigned int vector;
     std::string unlocking_script_id;
     uint32_t sequence;
 

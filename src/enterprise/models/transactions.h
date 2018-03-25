@@ -20,7 +20,9 @@ public:
     eTransactions(
             const std::string block_hash,
             const unsigned int index,
-            const unsigned int total_size,
+            const unsigned int size,
+            const unsigned int vsize,
+            const unsigned int weight,
             const unsigned int inputs_count,
             const unsigned int outputs_count,
             const int64_t value_out,
@@ -34,7 +36,9 @@ public:
             :
             block_hash(block_hash),
             index(index),
-            total_size(total_size),
+            size(size),
+            vsize(vsize),
+            weight(weight),
             inputs_count(inputs_count),
             outputs_count(outputs_count),
             value_out(value_out),
@@ -51,7 +55,9 @@ public:
 
     std::string block_hash;
     unsigned int index;
-    unsigned int total_size;
+    unsigned int size;
+    unsigned int vsize;
+    unsigned int weight;
     unsigned int inputs_count;
     unsigned int outputs_count;
     int64_t value_out;

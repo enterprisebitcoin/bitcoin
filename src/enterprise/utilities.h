@@ -85,7 +85,7 @@ public:
         destination.source_type = "WitnessUnknown";
         destination.version = id.version;
         destination.length = id.length;
-        std::string str_program(id.program, id.program + sizeof(id.program) / sizeof(id.program[0]));
+        std::string str_program(reinterpret_cast<char*>(const_cast<unsigned char*>(id.program)));
         destination.program = str_program;
 
         if (id.version < 1 || id.version > 16 || id.length < 2 || id.length > 40) {

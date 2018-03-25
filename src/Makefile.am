@@ -185,8 +185,6 @@ BITCOIN_CORE_H = \
   wallet/wallet.h \
   wallet/walletdb.h \
   wallet/enterprise/enterprise_wallet.h \
-  wallet/enterprise/models/addresses.h \
-  wallet/enterprise/models/addresses-odb.hxx \
   wallet/enterprise/models/wallet_transactions.h \
   wallet/enterprise/models/wallet_transactions-odb.hxx \
   wallet/enterprise/models/wallets.h \
@@ -276,7 +274,6 @@ libbitcoin_wallet_a_SOURCES = \
   wallet/crypter.cpp \
   wallet/db.cpp \
   wallet/enterprise/enterprise_wallet.cpp \
-  wallet/enterprise/models/addresses-odb.cxx \
   wallet/enterprise/models/wallet_transactions-odb.cxx \
   wallet/enterprise/models/wallets-odb.cxx \
   wallet/enterprise/views/watch_only_addresses-odb.cxx \
