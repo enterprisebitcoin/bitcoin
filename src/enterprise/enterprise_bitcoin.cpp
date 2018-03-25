@@ -2,6 +2,7 @@
 #include <chain.h>
 #include <consensus/validation.h>
 #include <script/standard.h>
+#include <validation.h>
 
 #include <enterprise/database.h>
 #include <enterprise/enterprise_bitcoin.h>
@@ -203,6 +204,26 @@ namespace enterprise_bitcoin {
                             ScriptToAsmStr(txin_data.scriptSig) // script
                     );
                     script_records.push_back(unlock_script_record);
+
+                    if (!transaction->IsCoinBase()) {
+                        CTransactionRef output_transaction;
+                        uint256 hash_block;
+                        CBlockIndex* blockindex = nullptr;
+                        GetTransaction(txin_data.prevout.hash, output_transaction, Params().GetConsensus(), hash_block, true, blockindex);
+
+                        const CTxOut &output_txout_data = output_transaction->vout[txin_data.prevout.n];
+
+                        eOutputs output_record(
+                                hash_block.GetHex(), // output_block_hash
+                                -1, // output_transaction_index
+                                txin_data.prevout.hash.GetHex(), // output_transaction_hash
+                                txin_data.prevout.n, // output_vector
+                                output_txout_data.nValue, // value
+                                "", // locking_script_id
+                                -1 // required_signatures
+                        );
+                        output_records.push_back(output_record);
+                    }
                 }
             }
         }

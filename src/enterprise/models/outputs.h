@@ -20,7 +20,7 @@ class eOutputs {
 public:
     eOutputs(
             std::string block_hash,
-            unsigned int transaction_block_index,
+            int transaction_block_index, // not unsigned so we can use -1 when we don't have that info
             std::string transaction_hash,
             unsigned int vector,
             int64_t value,
