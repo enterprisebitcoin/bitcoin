@@ -8,19 +8,19 @@ void EnterpriseNotificationInterface::UpdatedBlockTip(const CBlockIndex *pindexN
 }
 
 void EnterpriseNotificationInterface::TransactionAddedToMempool(const CTransactionRef &ptxn) {
-    LogPrintf("TransactionAddedToMempool");
+    LogPrintf("TransactionAddedToMempool %s", ptxn->ToString());
 }
 
 void EnterpriseNotificationInterface::TransactionRemovedFromMempool(const CTransactionRef &ptx) {
-    LogPrintf("TransactionRemovedFromMempool");
+    LogPrintf("TransactionRemovedFromMempool %s", ptx->ToString());
 }
 
 void EnterpriseNotificationInterface::BlockConnected(const std::shared_ptr<const CBlock> &block,
                                                      const CBlockIndex *pindex,
                                                      const std::vector <CTransactionRef> &txnConflicted) {
-    LogPrintf("BlockConnected");
+    LogPrintf("BlockConnected %s", block->ToString());
 }
 
 void EnterpriseNotificationInterface::BlockDisconnected(const std::shared_ptr<const CBlock> &block) {
-    LogPrintf("BlockDisconnected");
+    LogPrintf("BlockDisconnected %s", block->ToString());
 }
