@@ -101,6 +101,7 @@ BITCOIN_CORE_H = \
   cuckoocache.h \
   enterprise/database.h \
   enterprise/enterprise_bitcoin.h \
+  enterprise/enterprise_notification_interface.h \
   enterprise/models/addresses.h \
   enterprise/models/addresses-odb.hxx \
   enterprise/models/blocks.h \
@@ -217,6 +218,7 @@ libbitcoin_server_a_SOURCES = \
   checkpoints.cpp \
   consensus/tx_verify.cpp \
   enterprise/enterprise_bitcoin.cpp \
+  enterprise/enterprise_notification_interface.cpp \
   enterprise/models/addresses-odb.cxx \
   enterprise/models/blocks-odb.cxx \
   enterprise/models/inputs-odb.cxx \

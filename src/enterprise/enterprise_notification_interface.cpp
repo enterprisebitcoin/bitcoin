@@ -1,3 +1,7 @@
+#include <primitives/block.h>
+#include <chain.h>
+#include <util.h>
+
 #include <enterprise/enterprise_notification_interface.h>
 
 void EnterpriseNotificationInterface::UpdatedBlockTip(const CBlockIndex *pindexNew,

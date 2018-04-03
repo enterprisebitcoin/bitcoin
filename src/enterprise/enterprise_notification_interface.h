@@ -14,7 +14,7 @@ private:
      */
     void UpdatedBlockTip(const CBlockIndex *pindexNew,
                          const CBlockIndex *pindexFork,
-                         bool fInitialDownload) {}
+                         bool fInitialDownload) override;
 
 
     /**
@@ -22,7 +22,7 @@ private:
      *
      * Called on a background thread.
      */
-    void TransactionAddedToMempool(const CTransactionRef &ptxn) {}
+    void TransactionAddedToMempool(const CTransactionRef &ptxn) override;
 
 
     /**
@@ -35,7 +35,7 @@ private:
      *
      * Called on a background thread.
      */
-    void TransactionRemovedFromMempool(const CTransactionRef &ptx) {}
+    void TransactionRemovedFromMempool(const CTransactionRef &ptx) override;
 
 
     /**
@@ -46,7 +46,7 @@ private:
      */
     void BlockConnected(const std::shared_ptr<const CBlock> &block,
                         const CBlockIndex *pindex,
-                        const std::vector <CTransactionRef> &txnConflicted) {}
+                        const std::vector <CTransactionRef> &txnConflicted) override;
 
 
     /**
@@ -54,7 +54,7 @@ private:
      *
      * Called on a background thread.
      */
-    void BlockDisconnected(const std::shared_ptr<const CBlock> &block) {}
+    void BlockDisconnected(const std::shared_ptr<const CBlock> &block) override;
 };
 
 #endif // BITCOIN_ENTERPRISE_NOTIFICATION_INTERFACE_H
