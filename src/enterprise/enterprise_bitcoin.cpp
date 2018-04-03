@@ -109,6 +109,19 @@ namespace enterprise_bitcoin {
             CBlockIndex block_index = block_data.first;
             CBlock block = block_data.second;
 
+            bool block_already_processed = false;
+            std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
+            {
+                typedef odb::query <eBlocks> query;
+                odb::transaction t(enterprise_database->begin());
+                std::auto_ptr <eBlocks> r(enterprise_database->query_one<eBlocks>(query::hash == block.GetBlockHeader().GetHash().GetHex()));
+                if (r.get() != 0) {
+                    block_already_processed = true;
+                }
+                t.commit();
+            }
+            if (block_already_processed) continue;
+
             eBlocks block_record(
                     block.GetBlockHeader().GetHash().GetHex(), // hash
                     block_index.hashMerkleRoot.GetHex(), // merkle_root
@@ -228,6 +241,8 @@ namespace enterprise_bitcoin {
             }
         }
 
+        if (!block_records.size()) return;
+
         std::thread t1(enterprise_bitcoin::InsertAddresses, address_records);
         std::thread t2(enterprise_bitcoin::InsertScripts, script_records);
         std::thread t3(enterprise_bitcoin::InsertInputs, input_records);
@@ -259,10 +274,6 @@ namespace enterprise_bitcoin {
             }
         }
         threads.clear();
-
-
-//        std::thread t5(enterprise_bitcoin::InsertTransactions, transaction_records);
-//        t5.join();
 
         std::thread t6(enterprise_bitcoin::InsertBlocks, block_records);
         t6.join();
