@@ -253,21 +253,18 @@ namespace enterprise_bitcoin {
         t4.join();
 
         int thread_count = 4;
-        int work_size = transaction_records.size() / thread_count;
-        int work_remainder = transaction_records.size() % thread_count;
+        std::vector <std::vector <eTransactions>> work(thread_count);
         std::vector <std::thread> threads;
+        for (int i = 0; i < transaction_records.size(); ++i) {
+            int thread_index = i % thread_count;
+            work[thread_index].push_back(transaction_records[i]);
+        }
+
         for (int i = 0; i < thread_count; ++i) {
-            int start = i * work_size;
-            int end = (i + 1) * work_size - 1;
-            if (i - 1 == thread_count) {
-                end += work_remainder;
-            }
-            std::vector<eTransactions>::const_iterator first = transaction_records.begin() + start;
-            std::vector<eTransactions>::const_iterator last = transaction_records.begin() + end;
-            std::vector <eTransactions> work(first, last);
-            std::thread work_thread(enterprise_bitcoin::InsertTransactions, work);
+            std::thread work_thread(enterprise_bitcoin::InsertTransactions, work[i]);
             threads.push_back(std::move(work_thread));
         }
+
         for (std::thread &t : threads) {
             if (t.joinable()) {
                 t.join();
