@@ -274,5 +274,16 @@ namespace enterprise_bitcoin {
 
         std::thread t6(enterprise_bitcoin::InsertBlocks, block_records);
         t6.join();
+
+
+        std::auto_ptr <odb::database> db(create_enterprise_database());
+        odb::transaction t (db->begin ());
+        db->execute ("TRUNCATE bitcoin.\"eInputs\"");
+        db->execute ("TRUNCATE bitcoin.\"eOutputs\"");
+        db->execute ("TRUNCATE bitcoin.\"eScripts\"");
+        db->execute ("TRUNCATE bitcoin.\"eAddresses\"");
+        db->execute ("TRUNCATE bitcoin.\"eTransactions\"");
+        t.commit ();
     }
+
 }
