@@ -1246,16 +1246,6 @@ void CWallet::TransactionRemovedFromMempool(const CTransactionRef &ptx) {
 }
 
 void CWallet::BlockConnected(const std::shared_ptr<const CBlock>& pblock, const CBlockIndex *pindex, const std::vector<CTransactionRef>& vtxConflicted) {
-
-    std::vector<BlockData> blocks;
-    CBlock block;
-    if (ReadBlockFromDisk(block, pindex, Params().GetConsensus())) {
-        blocks.push_back(std::make_tuple(*pindex, block));
-    } else {
-        throw;
-    }
-    enterprise_bitcoin::ProcessBlocks(blocks);
-
     LOCK2(cs_main, cs_wallet);
     // TODO: Temporarily ensure that mempool removals are notified before
     // connected transactions.  This shouldn't matter, but the abandoned
