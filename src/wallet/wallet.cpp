@@ -1675,9 +1675,6 @@ CBlockIndex* CWallet::ScanForWalletTransactions(CBlockIndex* pindexStart, CBlock
         ShowProgress(_("Rescanning..."), 0); // show rescan progress in GUI as dialog or on splashscreen, if -rescan on startup
         double dProgressStart = GuessVerificationProgress(chainParams.TxData(), pindex);
         double dProgressTip = GuessVerificationProgress(chainParams.TxData(), chainActive.Tip());
-
-        std::vector<BlockData> blocks;
-        std::deque<std::thread> vec_thr;
         while (pindex && !fAbortRescan)
         {
             if (pindex->nHeight % 100 == 0 && dProgressTip - dProgressStart > 0.0)
@@ -1689,46 +1686,17 @@ CBlockIndex* CWallet::ScanForWalletTransactions(CBlockIndex* pindexStart, CBlock
 
             CBlock block;
             if (ReadBlockFromDisk(block, pindex, Params().GetConsensus())) {
-                blocks.push_back(std::make_tuple(*pindex, block));
-//                for (size_t posInBlock = 0; posInBlock < block.vtx.size(); ++posInBlock) {
-//                    AddToWalletIfInvolvingMe(block.vtx[posInBlock], pindex, posInBlock, fUpdate);
-//                }
+                for (size_t posInBlock = 0; posInBlock < block.vtx.size(); ++posInBlock) {
+                    AddToWalletIfInvolvingMe(block.vtx[posInBlock], pindex, posInBlock, fUpdate);
+                }
             } else {
                 ret = pindex;
             }
             if (pindex == pindexStop) {
-                std::thread t1(enterprise_bitcoin::ProcessBlocks, blocks);
-                vec_thr.push_back(std::move(t1));
                 break;
             }
-            if (blocks.size() > 20) {
-                std::thread t1(enterprise_bitcoin::ProcessBlocks, blocks);
-                vec_thr.push_back(std::move(t1));
-                blocks.clear();
-            }
-            if (vec_thr.size() > 2)
-            {
-                for (unsigned int i=0; i != vec_thr.size(); ++i)
-                {
-                    if (vec_thr.at(i).joinable()) {
-                        vec_thr.at(i).join();
-                    }
-                }
-                vec_thr.clear();
-            }
-
             pindex = chainActive.Next(pindex);
         }
-
-        for (unsigned int i=0; i != vec_thr.size(); ++i)
-        {
-            if (vec_thr.at(i).joinable()) {
-                vec_thr.at(i).join();
-            }
-        }
-        vec_thr.clear();
-
-
         if (pindex && fAbortRescan) {
             LogPrintf("Rescan aborted at block %d. Progress=%f\n", pindex->nHeight, GuessVerificationProgress(chainParams.TxData(), pindex));
         }
