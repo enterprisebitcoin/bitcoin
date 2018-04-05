@@ -99,6 +99,23 @@ BITCOIN_CORE_H = \
   core_io.h \
   core_memusage.h \
   cuckoocache.h \
+  enterprise/database.h \
+  enterprise/enterprise_bitcoin.h \
+  enterprise/enterprise_notification_interface.h \
+  enterprise/models/addresses.h \
+  enterprise/models/addresses-odb.hxx \
+  enterprise/models/blocks.h \
+  enterprise/models/blocks-odb.hxx \
+  enterprise/models/inputs.h \
+  enterprise/models/inputs-odb.hxx \
+  enterprise/models/outputs.h \
+  enterprise/models/outputs-odb.hxx \
+  enterprise/models/scripts.h \
+  enterprise/models/scripts-odb.hxx \
+  enterprise/models/transactions.h \
+  enterprise/models/transactions-odb.hxx \
+  enterprise/utilities.h \
+  enterprise/version.h \
   fs.h \
   httprpc.h \
   httpserver.h \
@@ -168,6 +185,13 @@ BITCOIN_CORE_H = \
   wallet/rpcwallet.h \
   wallet/wallet.h \
   wallet/walletdb.h \
+  wallet/enterprise/enterprise_wallet.h \
+  wallet/enterprise/models/wallet_transactions.h \
+  wallet/enterprise/models/wallet_transactions-odb.hxx \
+  wallet/enterprise/models/wallets.h \
+  wallet/enterprise/models/wallets-odb.hxx \
+  wallet/enterprise/views/watch_only_addresses-odb.h \
+  wallet/enterprise/views/watch_only_addresses-odb.hxx \
   wallet/walletutil.h \
   warnings.h \
   zmq/zmqabstractnotifier.h \
@@ -193,6 +217,14 @@ libbitcoin_server_a_SOURCES = \
   chain.cpp \
   checkpoints.cpp \
   consensus/tx_verify.cpp \
+  enterprise/enterprise_bitcoin.cpp \
+  enterprise/enterprise_notification_interface.cpp \
+  enterprise/models/addresses-odb.cxx \
+  enterprise/models/blocks-odb.cxx \
+  enterprise/models/inputs-odb.cxx \
+  enterprise/models/outputs-odb.cxx \
+  enterprise/models/scripts-odb.cxx \
+  enterprise/models/transactions-odb.cxx \
   httprpc.cpp \
   httpserver.cpp \
   init.cpp \
@@ -243,6 +275,10 @@ libbitcoin_wallet_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libbitcoin_wallet_a_SOURCES = \
   wallet/crypter.cpp \
   wallet/db.cpp \
+  wallet/enterprise/enterprise_wallet.cpp \
+  wallet/enterprise/models/wallet_transactions-odb.cxx \
+  wallet/enterprise/models/wallets-odb.cxx \
+  wallet/enterprise/views/watch_only_addresses-odb.cxx \
   wallet/feebumper.cpp \
   wallet/fees.cpp \
   wallet/init.cpp \
@@ -399,7 +435,7 @@ bitcoind_LDADD = \
   $(LIBMEMENV) \
   $(LIBSECP256K1)
 
-bitcoind_LDADD += $(BOOST_LIBS) $(BDB_LIBS) $(SSL_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS) $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS) $(ZMQ_LIBS)
+bitcoind_LDADD += $(BOOST_LIBS) $(BDB_LIBS) $(SSL_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS) $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS) $(ZMQ_LIBS) $(ODB_LIBS) $(ODB_PGSQL_LIBS)
 
 # bitcoin-cli binary #
 bitcoin_cli_SOURCES = bitcoin-cli.cpp
@@ -417,7 +453,7 @@ bitcoin_cli_LDADD = \
   $(LIBBITCOIN_UTIL) \
   $(LIBBITCOIN_CRYPTO)
 
-bitcoin_cli_LDADD += $(BOOST_LIBS) $(SSL_LIBS) $(CRYPTO_LIBS) $(EVENT_LIBS)
+bitcoin_cli_LDADD += $(BOOST_LIBS) $(SSL_LIBS) $(CRYPTO_LIBS) $(EVENT_LIBS) $(ODB_LIBS) $(ODB_PGSQL_LIBS)
 #
 
 # bitcoin-tx binary #
