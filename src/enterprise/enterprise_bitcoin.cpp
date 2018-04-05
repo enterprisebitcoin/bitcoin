@@ -136,8 +136,8 @@ namespace enterprise_bitcoin {
             block_records.push_back(block_record);
 
             for (std::size_t i = 0; i < block.vtx.size(); ++i) {
-                unsigned int total_output_value = 0;
-                unsigned int total_input_value = 0;
+                CAmount total_output_value = 0;
+                CAmount total_input_value = 0;
 
                 const CTransactionRef &transaction = block.vtx[i];
 
@@ -228,7 +228,7 @@ namespace enterprise_bitcoin {
                     }
                 }
 
-                unsigned int fees = total_input_value - total_output_value;
+                CAmount fees = transaction->IsCoinBase() ? 0 : total_input_value - total_output_value;
                 unsigned int weight = GetTransactionWeight(*transaction);
                 unsigned int vsize = (weight + WITNESS_SCALE_FACTOR - 1) / WITNESS_SCALE_FACTOR;
                 bool is_segwit_out_spend = transaction->IsCoinBase() ? false : !(transaction->GetHash() == transaction->GetWitnessHash());
@@ -241,7 +241,6 @@ namespace enterprise_bitcoin {
                         weight, // weight
                         transaction->vin.size(), // inputs_count
                         transaction->vout.size(), // outputs_count
-                        transaction->GetValueOut(), // value_out
                         transaction->nLockTime, // lock_time
                         transaction->nVersion, // version
                         transaction->GetHash().GetHex(), // hash

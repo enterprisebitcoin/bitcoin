@@ -25,7 +25,6 @@ public:
             const unsigned int weight,
             const unsigned int inputs_count,
             const unsigned int outputs_count,
-            const int64_t value_out,
             const int32_t lock_time,
             const int32_t version,
             const std::string hash,
@@ -33,9 +32,9 @@ public:
             const bool is_coinbase,
             const bool has_witness,
             const bool is_segwit_out_spend,
-            const unsigned int total_output_value,
-            const unsigned int total_input_value,
-            const unsigned int fees,
+            const int64_t total_output_value,
+            const int64_t total_input_value,
+            const int64_t fees,
             const float fee_per_byte,
             const float fee_per_vbyte,
             const float fee_per_weight_unit
@@ -48,7 +47,6 @@ public:
             weight(weight),
             inputs_count(inputs_count),
             outputs_count(outputs_count),
-            value_out(value_out),
             lock_time(lock_time),
             version(version),
             hash(hash),
@@ -73,7 +71,6 @@ public:
     unsigned int weight;
     unsigned int inputs_count;
     unsigned int outputs_count;
-    int64_t value_out;
     int32_t lock_time;
     int32_t version;
     std::string hash;
@@ -81,9 +78,9 @@ public:
     bool is_coinbase;
     bool has_witness;
     bool is_segwit_out_spend;
-    unsigned int total_output_value;
-    unsigned int total_input_value;
-    unsigned int fees;
+    int64_t total_output_value;
+    int64_t total_input_value;
+    int64_t fees;
     float fee_per_byte;
     float fee_per_vbyte;
     float fee_per_weight_unit;
