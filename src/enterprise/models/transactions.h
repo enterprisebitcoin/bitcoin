@@ -31,7 +31,14 @@ public:
             const std::string hash,
             const std::string witness_hash,
             const bool is_coinbase,
-            const bool has_witness
+            const bool has_witness,
+            const bool is_segwit_out_spend,
+            const unsigned int total_output_value,
+            const unsigned int total_input_value,
+            const unsigned int fees,
+            const float fee_per_byte,
+            const float fee_per_vbyte,
+            const float fee_per_weight_unit
     )
             :
             block_hash(block_hash),
@@ -47,8 +54,14 @@ public:
             hash(hash),
             witness_hash(witness_hash),
             is_coinbase(is_coinbase),
-            has_witness(has_witness) {
-    }
+            has_witness(has_witness),
+            is_segwit_out_spend(is_segwit_out_spend),
+            total_output_value(total_output_value),
+            total_input_value(total_input_value),
+            fees(fees),
+            fee_per_byte(fee_per_byte),
+            fee_per_vbyte(fee_per_vbyte),
+            fee_per_weight_unit(fee_per_weight_unit) {}
 
 #pragma db id auto
     unsigned int id;
@@ -67,6 +80,13 @@ public:
     std::string witness_hash;
     bool is_coinbase;
     bool has_witness;
+    bool is_segwit_out_spend;
+    unsigned int total_output_value;
+    unsigned int total_input_value;
+    unsigned int fees;
+    float fee_per_byte;
+    float fee_per_vbyte;
+    float fee_per_weight_unit;
 
 private:
     friend class odb::access;

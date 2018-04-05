@@ -136,28 +136,15 @@ namespace enterprise_bitcoin {
             block_records.push_back(block_record);
 
             for (std::size_t i = 0; i < block.vtx.size(); ++i) {
+                unsigned int total_output_value = 0;
+                unsigned int total_input_value = 0;
+
                 const CTransactionRef &transaction = block.vtx[i];
 
-                eTransactions transaction_record(
-                        block.GetBlockHeader().GetHash().GetHex(), // block_hash
-                        i, // index
-                        transaction->GetTotalSize(), // size
-                        (GetTransactionWeight(*transaction) + WITNESS_SCALE_FACTOR - 1) / WITNESS_SCALE_FACTOR, // vsize
-                        GetTransactionWeight(*transaction), // weight
-                        transaction->vin.size(), // inputs_count
-                        transaction->vout.size(), // outputs_count
-                        transaction->GetValueOut(), // value_out
-                        transaction->nLockTime, // lock_time
-                        transaction->nVersion, // version
-                        transaction->GetHash().GetHex(), // hash
-                        transaction->GetWitnessHash().GetHex(), // witness_hash
-                        transaction->IsCoinBase(), // is_coinbase
-                        transaction->HasWitness() // has_witness
-                );
-                transaction_records.push_back(transaction_record);
-
+                // Outputs
                 for (std::size_t n = 0; n < transaction->vout.size(); ++n) {
                     const CTxOut &txout_data = transaction->vout[n];
+                    total_output_value += txout_data.nValue;
 
                     txnouttype output_script_type;
                     std::vector<CTxDestination> destinations;
@@ -198,6 +185,7 @@ namespace enterprise_bitcoin {
                     }
                 }
 
+                // Inputs
                 for (std::size_t n = 0; n < transaction->vin.size(); ++n) {
                     const CTxIn &txin_data = transaction->vin[n];
                     eInputs input_record(
@@ -225,6 +213,7 @@ namespace enterprise_bitcoin {
                         GetTransaction(txin_data.prevout.hash, output_transaction, Params().GetConsensus(), hash_block, true, blockindex);
 
                         const CTxOut &output_txout_data = output_transaction->vout[txin_data.prevout.n];
+                        total_input_value += output_txout_data.nValue;
 
                         eOutputs output_record(
                                 hash_block.GetHex(), // output_block_hash
@@ -238,19 +227,49 @@ namespace enterprise_bitcoin {
                         output_records.push_back(output_record);
                     }
                 }
+
+                unsigned int fees = total_input_value - total_output_value;
+                unsigned int weight = GetTransactionWeight(*transaction);
+                unsigned int vsize = (weight + WITNESS_SCALE_FACTOR - 1) / WITNESS_SCALE_FACTOR;
+                bool is_segwit_out_spend = transaction->IsCoinBase() ? false : !(transaction->GetHash() == transaction->GetWitnessHash());
+
+                eTransactions transaction_record(
+                        block.GetBlockHeader().GetHash().GetHex(), // block_hash
+                        i, // index
+                        transaction->GetTotalSize(), // size
+                        vsize, // vsize
+                        weight, // weight
+                        transaction->vin.size(), // inputs_count
+                        transaction->vout.size(), // outputs_count
+                        transaction->GetValueOut(), // value_out
+                        transaction->nLockTime, // lock_time
+                        transaction->nVersion, // version
+                        transaction->GetHash().GetHex(), // hash
+                        transaction->GetWitnessHash().GetHex(), // witness_hash
+                        transaction->IsCoinBase(), // is_coinbase
+                        transaction->HasWitness(), // has_witness
+                        is_segwit_out_spend, // is_segwit_out_spend
+                        total_output_value, // total_output_value
+                        total_input_value, // total_input_value
+                        fees, // fees
+                        static_cast<float>(fees)/transaction->GetTotalSize(), // fee_per_byte
+                        static_cast<float>(fees)/vsize, // fee_per_vbyte
+                        static_cast<float>(fees)/weight // fee_per_weight_unit
+                );
+                transaction_records.push_back(transaction_record);
             }
         }
 
         if (!block_records.size()) return;
 
-        std::thread t1(enterprise_bitcoin::InsertAddresses, address_records);
-        std::thread t2(enterprise_bitcoin::InsertScripts, script_records);
-        std::thread t3(enterprise_bitcoin::InsertInputs, input_records);
-        std::thread t4(enterprise_bitcoin::InsertOutputs, output_records);
-        t1.join();
-        t2.join();
-        t3.join();
-        t4.join();
+//        std::thread t1(enterprise_bitcoin::InsertAddresses, address_records);
+//        std::thread t2(enterprise_bitcoin::InsertScripts, script_records);
+//        std::thread t3(enterprise_bitcoin::InsertInputs, input_records);
+//        std::thread t4(enterprise_bitcoin::InsertOutputs, output_records);
+//        t1.join();
+//        t2.join();
+//        t3.join();
+//        t4.join();
 
         int thread_count = 4;
         std::vector <std::vector <eTransactions>> work(thread_count);
@@ -276,14 +295,14 @@ namespace enterprise_bitcoin {
         t6.join();
 
 
-        std::auto_ptr <odb::database> db(create_enterprise_database());
-        odb::transaction t (db->begin ());
-        db->execute ("TRUNCATE bitcoin.\"eInputs\"");
-        db->execute ("TRUNCATE bitcoin.\"eOutputs\"");
-        db->execute ("TRUNCATE bitcoin.\"eScripts\"");
-        db->execute ("TRUNCATE bitcoin.\"eAddresses\"");
-        db->execute ("TRUNCATE bitcoin.\"eTransactions\"");
-        t.commit ();
+//        std::auto_ptr <odb::database> db(create_enterprise_database());
+//        odb::transaction t (db->begin ());
+//        db->execute ("TRUNCATE bitcoin.\"eInputs\"");
+//        db->execute ("TRUNCATE bitcoin.\"eOutputs\"");
+//        db->execute ("TRUNCATE bitcoin.\"eScripts\"");
+//        db->execute ("TRUNCATE bitcoin.\"eAddresses\"");
+//        db->execute ("TRUNCATE bitcoin.\"eTransactions\"");
+//        t.commit ();
     }
 
 }
