@@ -1,0 +1,30 @@
+<changelog xmlns="http://www.codesynthesis.com/xmlns/odb/changelog" database="pgsql" version="1">
+  <model version="1">
+    <table name="bitcoin.eTransactions" kind="object">
+      <column name="id" type="INTEGER" null="false"/>
+      <column name="block_hash" type="TEXT" null="false"/>
+      <column name="index" type="INTEGER" null="false"/>
+      <column name="size" type="INTEGER" null="false"/>
+      <column name="vsize" type="INTEGER" null="false"/>
+      <column name="weight" type="INTEGER" null="false"/>
+      <column name="inputs_count" type="INTEGER" null="false"/>
+      <column name="outputs_count" type="INTEGER" null="false"/>
+      <column name="lock_time" type="INTEGER" null="false"/>
+      <column name="version" type="INTEGER" null="false"/>
+      <column name="hash" type="TEXT" null="false"/>
+      <column name="witness_hash" type="TEXT" null="false"/>
+      <column name="is_coinbase" type="BOOLEAN" null="false"/>
+      <column name="has_witness" type="BOOLEAN" null="false"/>
+      <column name="is_segwit_out_spend" type="BOOLEAN" null="false"/>
+      <column name="total_output_value" type="BIGINT" null="false"/>
+      <column name="total_input_value" type="BIGINT" null="false"/>
+      <column name="fees" type="BIGINT" null="false"/>
+      <column name="fee_per_byte" type="REAL" null="false"/>
+      <column name="fee_per_vbyte" type="REAL" null="false"/>
+      <column name="fee_per_weight_unit" type="REAL" null="false"/>
+      <primary-key auto="true">
+        <column name="id"/>
+      </primary-key>
+    </table>
+  </model>
+</changelog>
