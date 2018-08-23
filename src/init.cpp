@@ -71,6 +71,8 @@
 #include <zmq/zmqrpc.h>
 #endif
 
+#include <enterprise/enterprise_notification_interface.h>
+
 bool fFeeEstimatesInitialized = false;
 static const bool DEFAULT_PROXYRANDOMIZE = true;
 static const bool DEFAULT_REST_ENABLE = false;
@@ -82,6 +84,8 @@ static constexpr int DUMP_BANS_INTERVAL = 60 * 15;
 std::unique_ptr<CConnman> g_connman;
 std::unique_ptr<PeerLogicValidation> peerLogic;
 std::unique_ptr<BanMan> g_banman;
+
+static EnterpriseNotificationInterface* enterpriseNotificationInterface = nullptr;
 
 #ifdef WIN32
 // Win32 LevelDB doesn't use filedescriptors, and the ones used for
@@ -1427,6 +1431,10 @@ bool AppInitMain(InitInterfaces& interfaces)
         RegisterValidationInterface(g_zmq_notification_interface);
     }
 #endif
+
+    enterpriseNotificationInterface = new EnterpriseNotificationInterface();
+    RegisterValidationInterface(enterpriseNotificationInterface);
+
     uint64_t nMaxOutboundLimit = 0; //unlimited unless -maxuploadtarget is set
     uint64_t nMaxOutboundTimeframe = MAX_UPLOAD_TIMEFRAME;
 
