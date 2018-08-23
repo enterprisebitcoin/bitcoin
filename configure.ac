@@ -1102,6 +1102,9 @@ if test x$use_pkgconfig = xyes; then
       if test x$enable_bip70 != xno; then
         BITCOIN_QT_CHECK([PKG_CHECK_MODULES([PROTOBUF], [protobuf], [have_protobuf=yes], [have_protobuf=no])])
       fi
+      PKG_CHECK_MODULES([ODB], [libodb],, [AC_MSG_ERROR(libodb not found.)])
+      PKG_CHECK_MODULES([ODB_PGSQL], [libodb-pgsql],, [AC_MSG_ERROR(libodb-pgsql not found.)])
+      BITCOIN_QT_CHECK([PKG_CHECK_MODULES([PROTOBUF], [protobuf], [have_protobuf=yes], [BITCOIN_QT_FAIL(libprotobuf not found)])])
       if test x$use_qr != xno; then
         BITCOIN_QT_CHECK([PKG_CHECK_MODULES([QR], [libqrencode], [have_qrencode=yes], [have_qrencode=no])])
       fi
