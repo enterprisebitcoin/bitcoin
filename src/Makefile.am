@@ -128,6 +128,23 @@ BITCOIN_CORE_H = \
   core_io.h \
   core_memusage.h \
   cuckoocache.h \
+  enterprise/database.h \
+  enterprise/block_to_sql.h \
+  enterprise/enterprise_notification_interface.h \
+  enterprise/models/addresses.h \
+  enterprise/models/addresses-odb.hxx \
+  enterprise/models/blocks.h \
+  enterprise/models/blocks-odb.hxx \
+  enterprise/models/inputs.h \
+  enterprise/models/inputs-odb.hxx \
+  enterprise/models/outputs.h \
+  enterprise/models/outputs-odb.hxx \
+  enterprise/models/scripts.h \
+  enterprise/models/scripts-odb.hxx \
+  enterprise/models/transactions.h \
+  enterprise/models/transactions-odb.hxx \
+  enterprise/utilities.h \
+  enterprise/version.h \
   fs.h \
   httprpc.h \
   httpserver.h \
@@ -247,6 +264,14 @@ libbitcoin_server_a_SOURCES = \
   chain.cpp \
   checkpoints.cpp \
   consensus/tx_verify.cpp \
+  enterprise/block_to_sql.cpp \
+  enterprise/enterprise_notification_interface.cpp \
+  enterprise/models/addresses-odb.cxx \
+  enterprise/models/blocks-odb.cxx \
+  enterprise/models/inputs-odb.cxx \
+  enterprise/models/outputs-odb.cxx \
+  enterprise/models/scripts-odb.cxx \
+  enterprise/models/transactions-odb.cxx \
   httprpc.cpp \
   httpserver.cpp \
   index/base.cpp \
