@@ -1,0 +1,17 @@
+<changelog xmlns="http://www.codesynthesis.com/xmlns/odb/changelog" database="pgsql" version="1">
+  <model version="1">
+    <table name="bitcoin.eOutputs" kind="object">
+      <column name="id" type="INTEGER" null="false"/>
+      <column name="block_hash" type="TEXT" null="false"/>
+      <column name="transaction_block_index" type="INTEGER" null="false"/>
+      <column name="transaction_hash" type="TEXT" null="false"/>
+      <column name="vector" type="INTEGER" null="false"/>
+      <column name="value" type="BIGINT" null="false"/>
+      <column name="locking_script_id" type="TEXT" null="false"/>
+      <column name="required_signatures" type="INTEGER" null="false"/>
+      <primary-key auto="true">
+        <column name="id"/>
+      </primary-key>
+    </table>
+  </model>
+</changelog>
