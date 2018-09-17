@@ -27,6 +27,8 @@
 #include <odb/no-op-cache-traits.hxx>
 #include <odb/result.hxx>
 #include <odb/simple-object-result.hxx>
+#include <odb/view-image.hxx>
+#include <odb/view-result.hxx>
 
 #include <odb/details/unused.hxx>
 #include <odb/details/shared-ptr.hxx>
@@ -73,6 +75,25 @@ namespace odb
 
     static void
     callback (database&, const object_type&, callback_event);
+  };
+
+  // block_hash
+  //
+  template <>
+  struct class_traits< ::block_hash >
+  {
+    static const class_kind kind = class_view;
+  };
+
+  template <>
+  class access::view_traits< ::block_hash >
+  {
+    public:
+    typedef ::block_hash view_type;
+    typedef ::block_hash* pointer_type;
+
+    static void
+    callback (database&, view_type&, callback_event);
   };
 }
 
@@ -452,8 +473,72 @@ namespace odb
   {
   };
 
+  // block_hash
+  //
+  template <>
+  class access::view_traits_impl< ::block_hash, id_pgsql >:
+    public access::view_traits< ::block_hash >
+  {
+    public:
+    struct image_type
+    {
+      // hash
+      //
+      details::buffer hash_value;
+      std::size_t hash_size;
+      bool hash_null;
+
+      std::size_t version;
+    };
+
+    typedef pgsql::view_statements<view_type> statements_type;
+
+    typedef pgsql::query_base query_base_type;
+    struct query_columns;
+
+    static const bool versioned = false;
+
+    static bool
+    grow (image_type&,
+          bool*);
+
+    static void
+    bind (pgsql::bind*,
+          image_type&);
+
+    static void
+    init (view_type&,
+          const image_type&,
+          database*);
+
+    static const std::size_t column_count = 1UL;
+
+    static query_base_type
+    query_statement (const query_base_type&);
+
+    static result<view_type>
+    query (database&, const query_base_type&);
+
+    static const char query_statement_name[];
+  };
+
+  template <>
+  class access::view_traits_impl< ::block_hash, id_common >:
+    public access::view_traits_impl< ::block_hash, id_pgsql >
+  {
+  };
+
   // eBlocks
   //
+  // block_hash
+  //
+  struct access::view_traits_impl< ::block_hash, id_pgsql >::query_columns:
+    odb::pointer_query_columns<
+      ::eBlocks,
+      id_pgsql,
+      odb::access::object_traits_impl< ::eBlocks, id_pgsql > >
+  {
+  };
 }
 
 #include "enterprise/models/blocks-odb.ixx"

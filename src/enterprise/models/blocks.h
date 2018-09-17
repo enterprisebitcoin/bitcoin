@@ -8,7 +8,6 @@
 
 #include "../version.h"
 
-#pragma db object
 
 /**
  *
@@ -16,6 +15,7 @@
  *
  **/
 
+#pragma db object
 class eBlocks {
 public:
     eBlocks(
@@ -60,6 +60,12 @@ private:
 
     eBlocks() {}
 
+};
+
+#pragma db view object(eBlocks)
+struct block_hash
+{
+  std::string hash;
 };
 
 #endif //ENTERPRISE_BLOCKS_H

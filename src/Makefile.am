@@ -130,6 +130,7 @@ BITCOIN_CORE_H = \
   enterprise/models/scripts-odb.hxx \
   enterprise/models/transactions.h \
   enterprise/models/transactions-odb.hxx \
+  enterprise/prune_sql.h \
   enterprise/utilities.h \
   enterprise/version.h \
   fs.h \
@@ -249,6 +250,7 @@ libbitcoin_server_a_SOURCES = \
   enterprise/models/outputs-odb.cxx \
   enterprise/models/scripts-odb.cxx \
   enterprise/models/transactions-odb.cxx \
+  enterprise/prune_sql.cpp \
   httprpc.cpp \
   httpserver.cpp \
   index/base.cpp \
