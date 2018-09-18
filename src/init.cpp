@@ -67,6 +67,7 @@
 #endif
 
 #include <enterprise/enterprise_notification_interface.h>
+#include <enterprise/enterprise_rpc.h>
 
 bool fFeeEstimatesInitialized = false;
 static const bool DEFAULT_PROXYRANDOMIZE = true;
@@ -1273,6 +1274,7 @@ bool AppInitMain()
      * available in the GUI RPC console even if external calls are disabled.
      */
     RegisterAllCoreRPCCommands(tableRPC);
+    RegisterEnterpriseRPCCommands(tableRPC);
     g_wallet_init_interface.RegisterRPC(tableRPC);
 #if ENABLE_ZMQ
     RegisterZMQRPCCommands(tableRPC);

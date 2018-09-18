@@ -119,6 +119,7 @@ BITCOIN_CORE_H = \
   enterprise/back_fill_sql.h \
   enterprise/block_to_sql.h \
   enterprise/enterprise_notification_interface.h \
+  enterprise/enterprise_rpc.h \
   enterprise/models/addresses.h \
   enterprise/models/addresses-odb.hxx \
   enterprise/models/blocks.h \
@@ -246,6 +247,7 @@ libbitcoin_server_a_SOURCES = \
   enterprise/back_fill_sql.cpp \
   enterprise/block_to_sql.cpp \
   enterprise/enterprise_notification_interface.cpp \
+  enterprise/enterprise_rpc.cpp \
   enterprise/models/addresses-odb.cxx \
   enterprise/models/blocks-odb.cxx \
   enterprise/models/inputs-odb.cxx \
