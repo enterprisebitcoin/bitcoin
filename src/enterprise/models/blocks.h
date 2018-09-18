@@ -68,4 +68,12 @@ struct block_hash
   std::string hash;
 };
 
+#pragma db view query("SELECT generate_series((SELECT MIN(height) from bitcoin.\"eBlocks\"), (SELECT MAX(height) from bitcoin.\"eBlocks\")) AS height EXCEPT SELECT eb.height AS height FROM bitcoin.\"eBlocks\" eb;")
+struct missing_blocks
+{
+  #pragma db type("INTEGER")
+  int height;
+
+};
+
 #endif //ENTERPRISE_BLOCKS_H

@@ -5,6 +5,7 @@
 #include <enterprise/enterprise_notification_interface.h>
 #include <enterprise/block_to_sql.h>
 #include <enterprise/prune_sql.h>
+#include <enterprise/back_fill_sql.h>
 
 void EnterpriseNotificationInterface::UpdatedBlockTip(const CBlockIndex *pindexNew,
                                                       const CBlockIndex *pindexFork,
@@ -32,9 +33,15 @@ void EnterpriseNotificationInterface::BlockConnected(const std::shared_ptr<const
 
     BlockToSql block_to_sql(*pindex, *block);
     block_to_sql.InsertBlock();
+
     int prune_depth = gArgs.GetArg("-enterprise_pruning", 4032);
     if (prune_depth) {
         PruneSql(pindex->nHeight, prune_depth);
+    }
+
+    int back_fill_depth = gArgs.GetArg("-enterprise_back_fill_depth", 4032);
+    if (back_fill_depth) {
+        BackFillSql(pindex->nHeight, back_fill_depth);
     }
 
 }

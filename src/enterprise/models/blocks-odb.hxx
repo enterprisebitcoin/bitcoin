@@ -95,6 +95,25 @@ namespace odb
     static void
     callback (database&, view_type&, callback_event);
   };
+
+  // missing_blocks
+  //
+  template <>
+  struct class_traits< ::missing_blocks >
+  {
+    static const class_kind kind = class_view;
+  };
+
+  template <>
+  class access::view_traits< ::missing_blocks >
+  {
+    public:
+    typedef ::missing_blocks view_type;
+    typedef ::missing_blocks* pointer_type;
+
+    static void
+    callback (database&, view_type&, callback_event);
+  };
 }
 
 #include <odb/details/buffer.hxx>
@@ -525,6 +544,62 @@ namespace odb
   template <>
   class access::view_traits_impl< ::block_hash, id_common >:
     public access::view_traits_impl< ::block_hash, id_pgsql >
+  {
+  };
+
+  // missing_blocks
+  //
+  template <>
+  class access::view_traits_impl< ::missing_blocks, id_pgsql >:
+    public access::view_traits< ::missing_blocks >
+  {
+    public:
+    struct image_type
+    {
+      // height
+      //
+      int height_value;
+      bool height_null;
+
+      std::size_t version;
+    };
+
+    typedef pgsql::view_statements<view_type> statements_type;
+
+    typedef pgsql::query_base query_base_type;
+    struct query_columns
+    {
+    };
+
+    static const bool versioned = false;
+
+    static bool
+    grow (image_type&,
+          bool*);
+
+    static void
+    bind (pgsql::bind*,
+          image_type&);
+
+    static void
+    init (view_type&,
+          const image_type&,
+          database*);
+
+    static const std::size_t column_count = 1UL;
+
+    static query_base_type
+    query_statement (const query_base_type&);
+
+    static result<view_type>
+    query (database&, const query_base_type&);
+
+    static const char query_statement_name[];
+  };
+
+  template <>
+  class access::view_traits_impl< ::missing_blocks, id_common >:
+    public access::view_traits_impl< ::missing_blocks, id_pgsql >
   {
   };
 
