@@ -8,6 +8,8 @@
 
 #include "../version.h"
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunknown-pragmas"
 
 /**
  *
@@ -18,6 +20,7 @@
 #pragma db object
 class eBlocks {
 public:
+    eBlocks() {}
     eBlocks(
             const std::string hash,
             const std::string merkle_root,
@@ -54,11 +57,18 @@ public:
     uint32_t bits;
     uint64_t nonce;
 
+    int64_t segwit_spend_count = 0;
+    int64_t outputs_count = 0;
+    int64_t inputs_count = 0;
+    int64_t total_output_value = 0;
+    int64_t total_fees = 0;
+    int64_t total_size = 0;
+    int64_t total_vsize = 0;
+    int64_t total_weight = 0;
+    std::string fee_data;
 
 private:
     friend class odb::access;
-
-    eBlocks() {}
 
 };
 
@@ -68,12 +78,10 @@ struct block_hash
   std::string hash;
 };
 
-#pragma db view query("SELECT generate_series((SELECT MIN(height) from bitcoin.\"eBlocks\"), (SELECT MAX(height) from bitcoin.\"eBlocks\")) AS height EXCEPT SELECT eb.height AS height FROM bitcoin.\"eBlocks\" eb;")
+#pragma db view
 struct missing_blocks
 {
-  #pragma db type("INTEGER")
   int height;
-
 };
 
 #endif //ENTERPRISE_BLOCKS_H

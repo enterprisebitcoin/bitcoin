@@ -16,7 +16,16 @@ CREATE TABLE "bitcoin"."eBlocks" (
   "version" INTEGER NOT NULL,
   "status" INTEGER NOT NULL,
   "bits" INTEGER NOT NULL,
-  "nonce" BIGINT NOT NULL);
+  "nonce" BIGINT NOT NULL,
+  "segwit_spend_count" BIGINT NOT NULL,
+  "outputs_count" BIGINT NOT NULL,
+  "inputs_count" BIGINT NOT NULL,
+  "total_output_value" BIGINT NOT NULL,
+  "total_fees" BIGINT NOT NULL,
+  "total_size" BIGINT NOT NULL,
+  "total_vsize" BIGINT NOT NULL,
+  "total_weight" BIGINT NOT NULL,
+  "fee_data" TEXT NOT NULL);
 
 CREATE TABLE "schema_version" (
   "name" TEXT NOT NULL PRIMARY KEY,

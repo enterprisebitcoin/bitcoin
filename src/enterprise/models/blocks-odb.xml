@@ -11,6 +11,15 @@
       <column name="status" type="INTEGER" null="false"/>
       <column name="bits" type="INTEGER" null="false"/>
       <column name="nonce" type="BIGINT" null="false"/>
+      <column name="segwit_spend_count" type="BIGINT" null="false"/>
+      <column name="outputs_count" type="BIGINT" null="false"/>
+      <column name="inputs_count" type="BIGINT" null="false"/>
+      <column name="total_output_value" type="BIGINT" null="false"/>
+      <column name="total_fees" type="BIGINT" null="false"/>
+      <column name="total_size" type="BIGINT" null="false"/>
+      <column name="total_vsize" type="BIGINT" null="false"/>
+      <column name="total_weight" type="BIGINT" null="false"/>
+      <column name="fee_data" type="TEXT" null="false"/>
       <primary-key auto="true">
         <column name="id"/>
       </primary-key>

@@ -15,7 +15,7 @@ PruneSql::PruneSql(const int current_height, const int prune_depth) :
     m_current_height(current_height),
     m_prune_depth(prune_depth) {
 
-    int target_height = current_height - prune_depth;
+    int target_height = m_current_height - m_prune_depth;
     std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
     typedef odb::query<block_hash> block_hash_query;
     typedef odb::result<block_hash> block_hash_result;

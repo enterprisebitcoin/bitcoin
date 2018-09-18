@@ -1,3 +1,5 @@
+#include <sstream>
+
 #include <core_io.h>
 #include <chain.h>
 #include <chainparams.h>
@@ -46,39 +48,44 @@ BlockToSql::BlockToSql(const CBlockIndex block_index, const CBlock block) :
         m_block(block),
         m_block_header_hash(block.GetBlockHeader().GetHash().GetHex()) {
 
-    GetBlockRecord();
-    for (std::size_t transaction_index = 0; transaction_index < m_block.vtx.size(); ++transaction_index) {
-        const CTransactionRef &transaction = m_block.vtx[transaction_index];
-        GetTransactionRecord(transaction_index, transaction);
+    bool block_already_processed = GetBlockRecord();
+    if(!block_already_processed) {
+        for (std::size_t transaction_index = 0; transaction_index < m_block.vtx.size(); ++transaction_index) {
+            const CTransactionRef &transaction = m_block.vtx[transaction_index];
+            GetTransactionRecord(transaction_index, transaction);
+        }
     }
 }
 
 void BlockToSql::InsertBlock(const bool insert_transactions) {
-    int thread_count = 4;
-    std::vector <std::vector<eTransactions>> work(thread_count);
-    std::vector <std::thread> threads;
-    for (int i = 0; i < m_transaction_records.size(); ++i) {
-        int thread_index = i % thread_count;
-        work[thread_index].push_back(m_transaction_records[i]);
-    }
-
-    for (int i = 0; i < thread_count; ++i) {
-        std::thread work_thread(Insert<eTransactions>, work[i]);
-        threads.push_back(std::move(work_thread));
-    }
-
-    for (std::thread &t : threads) {
-        if (t.joinable()) {
-            t.join();
+    if (insert_transactions) {
+        int thread_count = 4;
+        std::vector <std::vector<eTransactions>> work(thread_count);
+        std::vector <std::thread> threads;
+        for (size_t i = 0; i < m_transaction_records.size(); ++i) {
+            int thread_index = i % thread_count;
+            work[thread_index].push_back(m_transaction_records[i]);
         }
-    }
-    threads.clear();
 
+        for (int i = 0; i < thread_count; ++i) {
+            std::thread work_thread(Insert<eTransactions>, work[i]);
+            threads.push_back(std::move(work_thread));
+        }
+
+        for (std::thread &t : threads) {
+            if (t.joinable()) {
+                t.join();
+            }
+        }
+        threads.clear();
+    }
+
+    m_block_records.push_back(m_block_record);
     std::thread t6(Insert<eBlocks>, m_block_records);
     t6.join();
 }
 
-void BlockToSql::GetBlockRecord() {
+bool BlockToSql::GetBlockRecord() {
     bool block_already_processed = false;
     std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
     {
@@ -90,7 +97,7 @@ void BlockToSql::GetBlockRecord() {
         }
         t.commit();
     }
-    if (block_already_processed) return;
+    if (block_already_processed) return block_already_processed;
 
     eBlocks block_record(
             m_block_header_hash, // hash
@@ -103,7 +110,8 @@ void BlockToSql::GetBlockRecord() {
             m_block_index.nBits, // bits
             m_block_index.nNonce // nonce
     );
-    m_block_records.push_back(block_record);
+    m_block_record = block_record;
+    return false;
 }
 
 void BlockToSql::GetTransactionRecord(const int &transaction_index, const CTransactionRef &transaction) {
@@ -130,7 +138,20 @@ void BlockToSql::GetTransactionRecord(const int &transaction_index, const CTrans
     CAmount fees = is_coinbase ? 0 : total_input_value - total_output_value;
     unsigned int weight = GetTransactionWeight(*transaction);
     unsigned int vsize = (weight + WITNESS_SCALE_FACTOR - 1) / WITNESS_SCALE_FACTOR;
+
     bool is_segwit_out_spend = is_coinbase ? false : !(transaction->GetHash() == transaction->GetWitnessHash());
+    m_block_record.segwit_spend_count += is_segwit_out_spend;
+    m_block_record.outputs_count += transaction->vout.size();
+    m_block_record.inputs_count += transaction->vin.size();
+    m_block_record.total_output_value += total_output_value;
+    m_block_record.total_fees += fees;
+    m_block_record.total_size += transaction->GetTotalSize();
+    m_block_record.total_vsize += vsize;
+    m_block_record.total_weight += weight;
+
+    std::ostringstream oss;
+    oss << transaction->GetTotalSize() << "," << vsize << "," << weight << "," << fees << ";";
+    m_block_record.fee_data += oss.str();
 
     eTransactions transaction_record(
             m_block_header_hash, // block_hash
@@ -226,9 +247,10 @@ void BlockToSql::GetInputRecord(const int &input_transaction_index, const std::s
     m_script_records.push_back(unlock_script_record);
 
     if (!is_coinbase) {
+        bool in_current_block = false;
+
         CTransactionRef output_transaction;
         uint256 hash_block;
-        bool in_current_block = false;
         bool was_found = GetTransaction(txin_data.prevout.hash, output_transaction, Params().GetConsensus(), hash_block,
                                         false);
 
@@ -244,8 +266,8 @@ void BlockToSql::GetInputRecord(const int &input_transaction_index, const std::s
         }
 
         if (!was_found && !in_current_block) {
-            LogPrintf("%s-%i not found while processing block \n", txin_data.prevout.hash.GetHex(),
-                      txin_data.prevout.n);
+            LogPrintf("%s-%i not found while processing block %s\n", txin_data.prevout.hash.GetHex(),
+                      txin_data.prevout.n, m_block_header_hash);
         }
 
         const CTxOut &output_txout_data = output_transaction->vout[txin_data.prevout.n];

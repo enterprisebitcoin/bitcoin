@@ -8,14 +8,16 @@
 
 #include "../version.h"
 
-#pragma db object
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunknown-pragmas"
+
 
 /**
  *
  * A CTxIn
  *
  **/
-
+#pragma db object
 class eInputs {
 public:
     eInputs(

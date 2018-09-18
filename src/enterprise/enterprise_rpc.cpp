@@ -11,18 +11,17 @@
 
 static UniValue backfill(const JSONRPCRequest& request)
 {
-    if (request.fHelp || request.params.size() != 1)
-        throw std::runtime_error(
-            "backfill \"back_fill_depth\"\n"
-        );
+    int back_fill_depth = 4032;
+    if (!request.params[0].isNull())
+        back_fill_depth = request.params[0].get_int();
 
-    int back_fill_depth = request.params[0].get_int();
     const CBlockIndex* pindex;
     pindex = chainActive.Tip();
 
     UniValue ret(UniValue::VOBJ);
     BackFillSql(pindex->nHeight, back_fill_depth);
     ret.pushKV("success", true);
+    ret.pushKV("height", pindex->nHeight);
     return ret;
 
 }

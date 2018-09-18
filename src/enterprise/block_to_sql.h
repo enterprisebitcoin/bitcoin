@@ -15,6 +15,13 @@ static constexpr size_t PER_UTXO_OVERHEAD = sizeof(COutPoint) + sizeof(uint32_t)
 template<typename T>
 void Insert(const std::vector <T> &records);
 
+struct FeeData {
+    unsigned int fee;
+    unsigned int size;
+    unsigned int vsize;
+    unsigned int weight;
+};
+
 class BlockToSql {
 
     const CBlockIndex m_block_index;
@@ -22,14 +29,16 @@ class BlockToSql {
 
     const std::string m_block_header_hash;
 
+    eBlocks m_block_record;
     std::vector <eBlocks> m_block_records;
     std::vector <eAddresses> m_address_records;
     std::vector <eInputs> m_input_records;
     std::vector <eOutputs> m_output_records;
     std::vector <eScripts> m_script_records;
     std::vector <eTransactions> m_transaction_records;
+    std::vector <FeeData> m_fee_data;
 
-    void GetBlockRecord();
+    bool GetBlockRecord();
 
     void GetTransactionRecord(const int &transaction_index, const CTransactionRef &transaction);
 
@@ -51,7 +60,7 @@ class BlockToSql {
 public:
     BlockToSql(const CBlockIndex block_index, const CBlock block);
 
-    void InsertBlock(const bool insert_transactions = true);
+    void InsertBlock(const bool insert_transactions = false);
 };
 
 #endif //BLOCK_TO_SQL_H

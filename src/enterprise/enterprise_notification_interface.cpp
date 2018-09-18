@@ -38,12 +38,6 @@ void EnterpriseNotificationInterface::BlockConnected(const std::shared_ptr<const
     if (prune_depth) {
         PruneSql(pindex->nHeight, prune_depth);
     }
-
-    int back_fill_depth = gArgs.GetArg("-enterprise_back_fill_depth", 4032);
-    if (back_fill_depth) {
-        BackFillSql(pindex->nHeight, back_fill_depth);
-    }
-
 }
 
 void EnterpriseNotificationInterface::BlockDisconnected(const std::shared_ptr<const CBlock> &block) {

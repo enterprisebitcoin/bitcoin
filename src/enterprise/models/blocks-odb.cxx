@@ -57,7 +57,16 @@ namespace odb
     pgsql::int4_oid,
     pgsql::int4_oid,
     pgsql::int4_oid,
-    pgsql::int8_oid
+    pgsql::int8_oid,
+    pgsql::int8_oid,
+    pgsql::int8_oid,
+    pgsql::int8_oid,
+    pgsql::int8_oid,
+    pgsql::int8_oid,
+    pgsql::int8_oid,
+    pgsql::int8_oid,
+    pgsql::int8_oid,
+    pgsql::text_oid
   };
 
   const unsigned int access::object_traits_impl< ::eBlocks, id_pgsql >::
@@ -78,6 +87,15 @@ namespace odb
     pgsql::int4_oid,
     pgsql::int4_oid,
     pgsql::int8_oid,
+    pgsql::int8_oid,
+    pgsql::int8_oid,
+    pgsql::int8_oid,
+    pgsql::int8_oid,
+    pgsql::int8_oid,
+    pgsql::int8_oid,
+    pgsql::int8_oid,
+    pgsql::int8_oid,
+    pgsql::text_oid,
     pgsql::int4_oid
   };
 
@@ -192,6 +210,46 @@ namespace odb
     //
     t[9UL] = 0;
 
+    // segwit_spend_count
+    //
+    t[10UL] = 0;
+
+    // outputs_count
+    //
+    t[11UL] = 0;
+
+    // inputs_count
+    //
+    t[12UL] = 0;
+
+    // total_output_value
+    //
+    t[13UL] = 0;
+
+    // total_fees
+    //
+    t[14UL] = 0;
+
+    // total_size
+    //
+    t[15UL] = 0;
+
+    // total_vsize
+    //
+    t[16UL] = 0;
+
+    // total_weight
+    //
+    t[17UL] = 0;
+
+    // fee_data
+    //
+    if (t[18UL])
+    {
+      i.fee_data_value.capacity (i.fee_data_size);
+      grew = true;
+    }
+
     return grew;
   }
 
@@ -281,6 +339,71 @@ namespace odb
     b[n].type = pgsql::bind::bigint;
     b[n].buffer = &i.nonce_value;
     b[n].is_null = &i.nonce_null;
+    n++;
+
+    // segwit_spend_count
+    //
+    b[n].type = pgsql::bind::bigint;
+    b[n].buffer = &i.segwit_spend_count_value;
+    b[n].is_null = &i.segwit_spend_count_null;
+    n++;
+
+    // outputs_count
+    //
+    b[n].type = pgsql::bind::bigint;
+    b[n].buffer = &i.outputs_count_value;
+    b[n].is_null = &i.outputs_count_null;
+    n++;
+
+    // inputs_count
+    //
+    b[n].type = pgsql::bind::bigint;
+    b[n].buffer = &i.inputs_count_value;
+    b[n].is_null = &i.inputs_count_null;
+    n++;
+
+    // total_output_value
+    //
+    b[n].type = pgsql::bind::bigint;
+    b[n].buffer = &i.total_output_value_value;
+    b[n].is_null = &i.total_output_value_null;
+    n++;
+
+    // total_fees
+    //
+    b[n].type = pgsql::bind::bigint;
+    b[n].buffer = &i.total_fees_value;
+    b[n].is_null = &i.total_fees_null;
+    n++;
+
+    // total_size
+    //
+    b[n].type = pgsql::bind::bigint;
+    b[n].buffer = &i.total_size_value;
+    b[n].is_null = &i.total_size_null;
+    n++;
+
+    // total_vsize
+    //
+    b[n].type = pgsql::bind::bigint;
+    b[n].buffer = &i.total_vsize_value;
+    b[n].is_null = &i.total_vsize_null;
+    n++;
+
+    // total_weight
+    //
+    b[n].type = pgsql::bind::bigint;
+    b[n].buffer = &i.total_weight_value;
+    b[n].is_null = &i.total_weight_null;
+    n++;
+
+    // fee_data
+    //
+    b[n].type = pgsql::bind::text;
+    b[n].buffer = i.fee_data_value.data ();
+    b[n].capacity = i.fee_data_value.capacity ();
+    b[n].size = &i.fee_data_size;
+    b[n].is_null = &i.fee_data_null;
     n++;
   }
 
@@ -446,6 +569,139 @@ namespace odb
       i.nonce_null = is_null;
     }
 
+    // segwit_spend_count
+    //
+    {
+      ::int64_t const& v =
+        o.segwit_spend_count;
+
+      bool is_null (false);
+      pgsql::value_traits<
+          ::int64_t,
+          pgsql::id_bigint >::set_image (
+        i.segwit_spend_count_value, is_null, v);
+      i.segwit_spend_count_null = is_null;
+    }
+
+    // outputs_count
+    //
+    {
+      ::int64_t const& v =
+        o.outputs_count;
+
+      bool is_null (false);
+      pgsql::value_traits<
+          ::int64_t,
+          pgsql::id_bigint >::set_image (
+        i.outputs_count_value, is_null, v);
+      i.outputs_count_null = is_null;
+    }
+
+    // inputs_count
+    //
+    {
+      ::int64_t const& v =
+        o.inputs_count;
+
+      bool is_null (false);
+      pgsql::value_traits<
+          ::int64_t,
+          pgsql::id_bigint >::set_image (
+        i.inputs_count_value, is_null, v);
+      i.inputs_count_null = is_null;
+    }
+
+    // total_output_value
+    //
+    {
+      ::int64_t const& v =
+        o.total_output_value;
+
+      bool is_null (false);
+      pgsql::value_traits<
+          ::int64_t,
+          pgsql::id_bigint >::set_image (
+        i.total_output_value_value, is_null, v);
+      i.total_output_value_null = is_null;
+    }
+
+    // total_fees
+    //
+    {
+      ::int64_t const& v =
+        o.total_fees;
+
+      bool is_null (false);
+      pgsql::value_traits<
+          ::int64_t,
+          pgsql::id_bigint >::set_image (
+        i.total_fees_value, is_null, v);
+      i.total_fees_null = is_null;
+    }
+
+    // total_size
+    //
+    {
+      ::int64_t const& v =
+        o.total_size;
+
+      bool is_null (false);
+      pgsql::value_traits<
+          ::int64_t,
+          pgsql::id_bigint >::set_image (
+        i.total_size_value, is_null, v);
+      i.total_size_null = is_null;
+    }
+
+    // total_vsize
+    //
+    {
+      ::int64_t const& v =
+        o.total_vsize;
+
+      bool is_null (false);
+      pgsql::value_traits<
+          ::int64_t,
+          pgsql::id_bigint >::set_image (
+        i.total_vsize_value, is_null, v);
+      i.total_vsize_null = is_null;
+    }
+
+    // total_weight
+    //
+    {
+      ::int64_t const& v =
+        o.total_weight;
+
+      bool is_null (false);
+      pgsql::value_traits<
+          ::int64_t,
+          pgsql::id_bigint >::set_image (
+        i.total_weight_value, is_null, v);
+      i.total_weight_null = is_null;
+    }
+
+    // fee_data
+    //
+    {
+      ::std::string const& v =
+        o.fee_data;
+
+      bool is_null (false);
+      std::size_t size (0);
+      std::size_t cap (i.fee_data_value.capacity ());
+      pgsql::value_traits<
+          ::std::string,
+          pgsql::id_string >::set_image (
+        i.fee_data_value,
+        size,
+        is_null,
+        v);
+      i.fee_data_null = is_null;
+      i.fee_data_size = size;
+      grew = grew || (cap != i.fee_data_value.capacity ());
+    }
+
     return grew;
   }
 
@@ -599,6 +855,133 @@ namespace odb
         i.nonce_value,
         i.nonce_null);
     }
+
+    // segwit_spend_count
+    //
+    {
+      ::int64_t& v =
+        o.segwit_spend_count;
+
+      pgsql::value_traits<
+          ::int64_t,
+          pgsql::id_bigint >::set_value (
+        v,
+        i.segwit_spend_count_value,
+        i.segwit_spend_count_null);
+    }
+
+    // outputs_count
+    //
+    {
+      ::int64_t& v =
+        o.outputs_count;
+
+      pgsql::value_traits<
+          ::int64_t,
+          pgsql::id_bigint >::set_value (
+        v,
+        i.outputs_count_value,
+        i.outputs_count_null);
+    }
+
+    // inputs_count
+    //
+    {
+      ::int64_t& v =
+        o.inputs_count;
+
+      pgsql::value_traits<
+          ::int64_t,
+          pgsql::id_bigint >::set_value (
+        v,
+        i.inputs_count_value,
+        i.inputs_count_null);
+    }
+
+    // total_output_value
+    //
+    {
+      ::int64_t& v =
+        o.total_output_value;
+
+      pgsql::value_traits<
+          ::int64_t,
+          pgsql::id_bigint >::set_value (
+        v,
+        i.total_output_value_value,
+        i.total_output_value_null);
+    }
+
+    // total_fees
+    //
+    {
+      ::int64_t& v =
+        o.total_fees;
+
+      pgsql::value_traits<
+          ::int64_t,
+          pgsql::id_bigint >::set_value (
+        v,
+        i.total_fees_value,
+        i.total_fees_null);
+    }
+
+    // total_size
+    //
+    {
+      ::int64_t& v =
+        o.total_size;
+
+      pgsql::value_traits<
+          ::int64_t,
+          pgsql::id_bigint >::set_value (
+        v,
+        i.total_size_value,
+        i.total_size_null);
+    }
+
+    // total_vsize
+    //
+    {
+      ::int64_t& v =
+        o.total_vsize;
+
+      pgsql::value_traits<
+          ::int64_t,
+          pgsql::id_bigint >::set_value (
+        v,
+        i.total_vsize_value,
+        i.total_vsize_null);
+    }
+
+    // total_weight
+    //
+    {
+      ::int64_t& v =
+        o.total_weight;
+
+      pgsql::value_traits<
+          ::int64_t,
+          pgsql::id_bigint >::set_value (
+        v,
+        i.total_weight_value,
+        i.total_weight_null);
+    }
+
+    // fee_data
+    //
+    {
+      ::std::string& v =
+        o.fee_data;
+
+      pgsql::value_traits<
+          ::std::string,
+          pgsql::id_string >::set_value (
+        v,
+        i.fee_data_value,
+        i.fee_data_size,
+        i.fee_data_null);
+    }
   }
 
   void access::object_traits_impl< ::eBlocks, id_pgsql >::
@@ -625,9 +1008,18 @@ namespace odb
   "\"version\", "
   "\"status\", "
   "\"bits\", "
-  "\"nonce\") "
+  "\"nonce\", "
+  "\"segwit_spend_count\", "
+  "\"outputs_count\", "
+  "\"inputs_count\", "
+  "\"total_output_value\", "
+  "\"total_fees\", "
+  "\"total_size\", "
+  "\"total_vsize\", "
+  "\"total_weight\", "
+  "\"fee_data\") "
   "VALUES "
-  "(DEFAULT, $1, $2, $3, $4, $5, $6, $7, $8, $9) "
+  "(DEFAULT, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18) "
   "RETURNING \"id\"";
 
   const char access::object_traits_impl< ::eBlocks, id_pgsql >::find_statement[] =
@@ -641,7 +1033,16 @@ namespace odb
   "\"bitcoin\".\"eBlocks\".\"version\", "
   "\"bitcoin\".\"eBlocks\".\"status\", "
   "\"bitcoin\".\"eBlocks\".\"bits\", "
-  "\"bitcoin\".\"eBlocks\".\"nonce\" "
+  "\"bitcoin\".\"eBlocks\".\"nonce\", "
+  "\"bitcoin\".\"eBlocks\".\"segwit_spend_count\", "
+  "\"bitcoin\".\"eBlocks\".\"outputs_count\", "
+  "\"bitcoin\".\"eBlocks\".\"inputs_count\", "
+  "\"bitcoin\".\"eBlocks\".\"total_output_value\", "
+  "\"bitcoin\".\"eBlocks\".\"total_fees\", "
+  "\"bitcoin\".\"eBlocks\".\"total_size\", "
+  "\"bitcoin\".\"eBlocks\".\"total_vsize\", "
+  "\"bitcoin\".\"eBlocks\".\"total_weight\", "
+  "\"bitcoin\".\"eBlocks\".\"fee_data\" "
   "FROM \"bitcoin\".\"eBlocks\" "
   "WHERE \"bitcoin\".\"eBlocks\".\"id\"=$1";
 
@@ -656,8 +1057,17 @@ namespace odb
   "\"version\"=$6, "
   "\"status\"=$7, "
   "\"bits\"=$8, "
-  "\"nonce\"=$9 "
-  "WHERE \"id\"=$10";
+  "\"nonce\"=$9, "
+  "\"segwit_spend_count\"=$10, "
+  "\"outputs_count\"=$11, "
+  "\"inputs_count\"=$12, "
+  "\"total_output_value\"=$13, "
+  "\"total_fees\"=$14, "
+  "\"total_size\"=$15, "
+  "\"total_vsize\"=$16, "
+  "\"total_weight\"=$17, "
+  "\"fee_data\"=$18 "
+  "WHERE \"id\"=$19";
 
   const char access::object_traits_impl< ::eBlocks, id_pgsql >::erase_statement[] =
   "DELETE FROM \"bitcoin\".\"eBlocks\" "
@@ -674,7 +1084,16 @@ namespace odb
   "\"bitcoin\".\"eBlocks\".\"version\", "
   "\"bitcoin\".\"eBlocks\".\"status\", "
   "\"bitcoin\".\"eBlocks\".\"bits\", "
-  "\"bitcoin\".\"eBlocks\".\"nonce\" "
+  "\"bitcoin\".\"eBlocks\".\"nonce\", "
+  "\"bitcoin\".\"eBlocks\".\"segwit_spend_count\", "
+  "\"bitcoin\".\"eBlocks\".\"outputs_count\", "
+  "\"bitcoin\".\"eBlocks\".\"inputs_count\", "
+  "\"bitcoin\".\"eBlocks\".\"total_output_value\", "
+  "\"bitcoin\".\"eBlocks\".\"total_fees\", "
+  "\"bitcoin\".\"eBlocks\".\"total_size\", "
+  "\"bitcoin\".\"eBlocks\".\"total_vsize\", "
+  "\"bitcoin\".\"eBlocks\".\"total_weight\", "
+  "\"bitcoin\".\"eBlocks\".\"fee_data\" "
   "FROM \"bitcoin\".\"eBlocks\"";
 
   const char access::object_traits_impl< ::eBlocks, id_pgsql >::erase_query_statement[] =
@@ -1281,23 +1700,6 @@ namespace odb
     }
   }
 
-  access::view_traits_impl< ::missing_blocks, id_pgsql >::query_base_type
-  access::view_traits_impl< ::missing_blocks, id_pgsql >::
-  query_statement (const query_base_type& q)
-  {
-    query_base_type r (
-      "SELECT generate_series((SELECT MIN(height) from bitcoin.\"eBlocks\"), (SELECT MAX(height) from bitcoin.\"eBlocks\")) AS height EXCEPT SELECT eb.height AS height FROM bitcoin.\"eBlocks\" eb;");
-
-    if (!q.empty ())
-    {
-      r += " ";
-      r += q.clause_prefix ();
-      r += q;
-    }
-
-    return r;
-  }
-
   result< access::view_traits_impl< ::missing_blocks, id_pgsql >::view_type >
   access::view_traits_impl< ::missing_blocks, id_pgsql >::
   query (database&, const query_base_type& q)
@@ -1321,7 +1723,7 @@ namespace odb
       imb.version++;
     }
 
-    const query_base_type& qs (query_statement (q));
+    const query_base_type& qs (q);
     qs.init_parameters ();
     shared_ptr<select_statement> st (
       new (shared) select_statement (

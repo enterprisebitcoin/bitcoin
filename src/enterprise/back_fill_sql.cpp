@@ -14,13 +14,16 @@
 #include <odb/transaction.hxx>
 
 #include <validation.h>
+#include <validationinterface.h>
 
 
 BackFillSql::BackFillSql(const int current_height, const int back_fill_depth) :
     m_current_height(current_height),
     m_back_fill_depth(back_fill_depth) {
 
-    int target_height = current_height - back_fill_depth;
+    LOCK(cs_main);
+
+    int target_height = m_current_height - m_back_fill_depth;
     std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
 
     typedef odb::result<missing_blocks> missing_blocks_result;
@@ -28,21 +31,26 @@ BackFillSql::BackFillSql(const int current_height, const int back_fill_depth) :
     odb::transaction t (enterprise_database->begin(), false);
     odb::transaction::current(t);
 
-    missing_blocks_result r (enterprise_database->query<missing_blocks> ());
+    missing_blocks_result r (enterprise_database->query<missing_blocks> (("SELECT generate_series(" + std::to_string(target_height) + ", " + std::to_string(m_current_height) +  ") AS height EXCEPT SELECT eb.height AS height FROM bitcoin.\"eBlocks\" eb;")));
 
-    for (missing_blocks_result::iterator i (r.begin ()); i != r.end (); ++i)
-    {
-      const missing_blocks& mb (*i);
-      if (mb.height < target_height) {
-          CBlockIndex* pindex = chainActive[mb.height];
-          LogPrintf("Back filling %s\n", pindex->ToString());
+    std::vector<int> block_heights;
+
+    for (missing_blocks_result::iterator i (r.begin ()); i != r.end (); ++i) {
+        const missing_blocks& mb (*i);
+        block_heights.push_back(mb.height);
+    }
+
+    t.commit ();
+
+    for (auto height: block_heights) {
+      if (height > target_height) {
+          CBlockIndex* pindex = chainActive[height];
+          LogPrintf("Back filling %d %s\n", height, pindex->ToString());
           CBlock block;
           ReadBlockFromDisk(block, pindex, Params().GetConsensus());
           BlockToSql block_to_sql(*pindex, block);
           block_to_sql.InsertBlock();
       }
     }
-
-    t.commit ();
 
 }
