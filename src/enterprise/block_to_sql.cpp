@@ -33,6 +33,8 @@
 
 #include <rpc/blockchain.h>
 
+CCriticalSection cs_tx_map;
+std::map<uint256, CTransactionRef> g_tx_map GUARDED_BY(cs_tx_map);
 
 template<typename T>
 void Insert(const std::vector <T> &records) {
@@ -254,27 +256,46 @@ void BlockToSql::GetInputRecord(const int &input_transaction_index, const std::s
     m_script_records.push_back(unlock_script_record);
 
     if (!is_coinbase) {
+        bool in_tx_map = false;
+        bool in_tx_index = false;
         bool in_current_block = false;
 
         CTransactionRef output_transaction;
-        uint256 hash_block;
-        bool was_found = GetTransaction(txin_data.prevout.hash, output_transaction, Params().GetConsensus(), hash_block,
-                                        false);
 
-        if (!was_found) {
-            for (std::size_t transaction_index = 0; transaction_index < m_block.vtx.size(); ++transaction_index) {
-                const CTransactionRef &transaction = m_block.vtx[transaction_index];
-                if (txin_data.prevout.hash == transaction->GetHash() ||
-                    txin_data.prevout.hash == transaction->GetWitnessHash()) {
-                    output_transaction = transaction;
-                    in_current_block = true;
+        ENTER_CRITICAL_SECTION(cs_tx_map);
+        auto search = g_tx_map.find(txin_data.prevout.hash);
+        in_tx_map = search != g_tx_map.end();
+        LEAVE_CRITICAL_SECTION(cs_tx_map);
+
+        if (in_tx_map) {
+            in_tx_map = true;
+            output_transaction = search->second;
+        } else {
+            uint256 hash_block;
+            in_tx_index = GetTransaction(txin_data.prevout.hash, output_transaction, Params().GetConsensus(), hash_block,
+                                            false);
+
+            if (!in_tx_index) {
+                for (std::size_t transaction_index = 0; transaction_index < m_block.vtx.size(); ++transaction_index) {
+                    const CTransactionRef &transaction = m_block.vtx[transaction_index];
+                    if (txin_data.prevout.hash == transaction->GetHash() ||
+                        txin_data.prevout.hash == transaction->GetWitnessHash()) {
+                        output_transaction = transaction;
+                        in_current_block = true;
+                    }
                 }
             }
         }
 
-        if (!was_found && !in_current_block) {
+        if (!in_tx_map && !in_tx_index && !in_current_block) {
             LogPrintf("%s-%i not found while processing block %s\n", txin_data.prevout.hash.GetHex(),
                       txin_data.prevout.n, m_block_header_hash);
+        }
+
+        if (!in_tx_map) {
+            ENTER_CRITICAL_SECTION(cs_tx_map);
+            g_tx_map.emplace(txin_data.prevout.hash, output_transaction);
+            LEAVE_CRITICAL_SECTION(cs_tx_map);
         }
 
         const CTxOut &output_txout_data = output_transaction->vout[txin_data.prevout.n];
