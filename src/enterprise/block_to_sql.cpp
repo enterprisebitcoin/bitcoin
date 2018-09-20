@@ -31,6 +31,9 @@
 #include <odb/result.hxx>
 #include <odb/transaction.hxx>
 
+#include <rpc/blockchain.h>
+
+
 template<typename T>
 void Insert(const std::vector <T> &records) {
     std::auto_ptr <odb::database> enterprise_database(create_enterprise_database());
@@ -103,12 +106,16 @@ bool BlockToSql::GetBlockRecord() {
             m_block_header_hash, // hash
             m_block_index.hashMerkleRoot.GetHex(), // merkle_root
             m_block_index.GetBlockTime(), // time
+            m_block_index.GetMedianTimePast(), // median_time
             m_block_index.nHeight, // height
+            GetBlockSubsidy(m_block_index.nHeight, Params().GetConsensus()), // subsidy
             m_block_index.nTx, // transactions_count
             m_block_index.nVersion, // version
             m_block_index.nStatus, // status
             m_block_index.nBits, // bits
-            m_block_index.nNonce // nonce
+            m_block_index.nNonce, // nonce
+            GetDifficulty(&m_block_index),
+            m_block_index.nChainWork.GetHex() // chain_work
     );
     m_block_record = block_record;
     return false;

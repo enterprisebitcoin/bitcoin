@@ -16,6 +16,9 @@
 #include <validation.h>
 #include <validationinterface.h>
 
+namespace {
+    bool sortDesc(int i, int j) { return i > j; }
+}
 
 BackFillSql::BackFillSql(const int current_height, const int back_fill_depth) :
     m_current_height(current_height),
@@ -41,6 +44,8 @@ BackFillSql::BackFillSql(const int current_height, const int back_fill_depth) :
     }
 
     t.commit ();
+
+    std::sort(block_heights.begin(), block_heights.end(), sortDesc);
 
     for (auto height: block_heights) {
       if (height > target_height) {

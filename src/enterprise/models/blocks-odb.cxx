@@ -53,11 +53,15 @@ namespace odb
     pgsql::text_oid,
     pgsql::int8_oid,
     pgsql::int8_oid,
+    pgsql::int8_oid,
+    pgsql::int8_oid,
     pgsql::int4_oid,
     pgsql::int4_oid,
     pgsql::int4_oid,
     pgsql::int4_oid,
     pgsql::int8_oid,
+    pgsql::float8_oid,
+    pgsql::text_oid,
     pgsql::int8_oid,
     pgsql::int8_oid,
     pgsql::int8_oid,
@@ -82,11 +86,15 @@ namespace odb
     pgsql::text_oid,
     pgsql::int8_oid,
     pgsql::int8_oid,
+    pgsql::int8_oid,
+    pgsql::int8_oid,
     pgsql::int4_oid,
     pgsql::int4_oid,
     pgsql::int4_oid,
     pgsql::int4_oid,
     pgsql::int8_oid,
+    pgsql::float8_oid,
+    pgsql::text_oid,
     pgsql::int8_oid,
     pgsql::int8_oid,
     pgsql::int8_oid,
@@ -186,65 +194,85 @@ namespace odb
     //
     t[3UL] = 0;
 
-    // height
+    // median_time
     //
     t[4UL] = 0;
 
-    // transactions_count
+    // height
     //
     t[5UL] = 0;
 
-    // version
+    // subsidy
     //
     t[6UL] = 0;
 
-    // status
+    // transactions_count
     //
     t[7UL] = 0;
 
-    // bits
+    // version
     //
     t[8UL] = 0;
 
-    // nonce
+    // status
     //
     t[9UL] = 0;
 
-    // segwit_spend_count
+    // bits
     //
     t[10UL] = 0;
 
-    // outputs_count
+    // nonce
     //
     t[11UL] = 0;
 
-    // inputs_count
+    // difficulty
     //
     t[12UL] = 0;
 
-    // total_output_value
+    // chain_work
     //
-    t[13UL] = 0;
+    if (t[13UL])
+    {
+      i.chain_work_value.capacity (i.chain_work_size);
+      grew = true;
+    }
 
-    // total_fees
+    // segwit_spend_count
     //
     t[14UL] = 0;
 
-    // total_size
+    // outputs_count
     //
     t[15UL] = 0;
 
-    // total_vsize
+    // inputs_count
     //
     t[16UL] = 0;
 
-    // total_weight
+    // total_output_value
     //
     t[17UL] = 0;
 
+    // total_fees
+    //
+    t[18UL] = 0;
+
+    // total_size
+    //
+    t[19UL] = 0;
+
+    // total_vsize
+    //
+    t[20UL] = 0;
+
+    // total_weight
+    //
+    t[21UL] = 0;
+
     // fee_data
     //
-    if (t[18UL])
+    if (t[22UL])
     {
       i.fee_data_value.capacity (i.fee_data_size);
       grew = true;
@@ -299,11 +327,25 @@ namespace odb
     b[n].is_null = &i.time_null;
     n++;
 
+    // median_time
+    //
+    b[n].type = pgsql::bind::bigint;
+    b[n].buffer = &i.median_time_value;
+    b[n].is_null = &i.median_time_null;
+    n++;
+
     // height
     //
     b[n].type = pgsql::bind::bigint;
     b[n].buffer = &i.height_value;
     b[n].is_null = &i.height_null;
+    n++;
+
+    // subsidy
+    //
+    b[n].type = pgsql::bind::bigint;
+    b[n].buffer = &i.subsidy_value;
+    b[n].is_null = &i.subsidy_null;
     n++;
 
     // transactions_count
@@ -339,6 +381,22 @@ namespace odb
     b[n].type = pgsql::bind::bigint;
     b[n].buffer = &i.nonce_value;
     b[n].is_null = &i.nonce_null;
+    n++;
+
+    // difficulty
+    //
+    b[n].type = pgsql::bind::double_;
+    b[n].buffer = &i.difficulty_value;
+    b[n].is_null = &i.difficulty_null;
+    n++;
+
+    // chain_work
+    //
+    b[n].type = pgsql::bind::text;
+    b[n].buffer = i.chain_work_value.data ();
+    b[n].capacity = i.chain_work_value.capacity ();
+    b[n].size = &i.chain_work_size;
+    b[n].is_null = &i.chain_work_null;
     n++;
 
     // segwit_spend_count
@@ -485,6 +543,20 @@ namespace odb
       i.time_null = is_null;
     }
 
+    // median_time
+    //
+    {
+      ::int64_t const& v =
+        o.median_time;
+
+      bool is_null (false);
+      pgsql::value_traits<
+          ::int64_t,
+          pgsql::id_bigint >::set_image (
+        i.median_time_value, is_null, v);
+      i.median_time_null = is_null;
+    }
+
     // height
     //
     {
@@ -497,6 +569,20 @@ namespace odb
           pgsql::id_bigint >::set_image (
         i.height_value, is_null, v);
       i.height_null = is_null;
+    }
+
+    // subsidy
+    //
+    {
+      ::int64_t const& v =
+        o.subsidy;
+
+      bool is_null (false);
+      pgsql::value_traits<
+          ::int64_t,
+          pgsql::id_bigint >::set_image (
+        i.subsidy_value, is_null, v);
+      i.subsidy_null = is_null;
     }
 
     // transactions_count
@@ -567,6 +653,41 @@ namespace odb
           pgsql::id_bigint >::set_image (
         i.nonce_value, is_null, v);
       i.nonce_null = is_null;
+    }
+
+    // difficulty
+    //
+    {
+      double const& v =
+        o.difficulty;
+
+      bool is_null (false);
+      pgsql::value_traits<
+          double,
+          pgsql::id_double >::set_image (
+        i.difficulty_value, is_null, v);
+      i.difficulty_null = is_null;
+    }
+
+    // chain_work
+    //
+    {
+      ::std::string const& v =
+        o.chain_work;
+
+      bool is_null (false);
+      std::size_t size (0);
+      std::size_t cap (i.chain_work_value.capacity ());
+      pgsql::value_traits<
+          ::std::string,
+          pgsql::id_string >::set_image (
+        i.chain_work_value,
+        size,
+        is_null,
+        v);
+      i.chain_work_null = is_null;
+      i.chain_work_size = size;
+      grew = grew || (cap != i.chain_work_value.capacity ());
     }
 
     // segwit_spend_count
@@ -772,6 +893,20 @@ namespace odb
         i.time_null);
     }
 
+    // median_time
+    //
+    {
+      ::int64_t& v =
+        o.median_time;
+
+      pgsql::value_traits<
+          ::int64_t,
+          pgsql::id_bigint >::set_value (
+        v,
+        i.median_time_value,
+        i.median_time_null);
+    }
+
     // height
     //
     {
@@ -784,6 +919,20 @@ namespace odb
         v,
         i.height_value,
         i.height_null);
+    }
+
+    // subsidy
+    //
+    {
+      ::int64_t& v =
+        o.subsidy;
+
+      pgsql::value_traits<
+          ::int64_t,
+          pgsql::id_bigint >::set_value (
+        v,
+        i.subsidy_value,
+        i.subsidy_null);
     }
 
     // transactions_count
@@ -854,6 +1003,35 @@ namespace odb
         v,
         i.nonce_value,
         i.nonce_null);
+    }
+
+    // difficulty
+    //
+    {
+      double& v =
+        o.difficulty;
+
+      pgsql::value_traits<
+          double,
+          pgsql::id_double >::set_value (
+        v,
+        i.difficulty_value,
+        i.difficulty_null);
+    }
+
+    // chain_work
+    //
+    {
+      ::std::string& v =
+        o.chain_work;
+
+      pgsql::value_traits<
+          ::std::string,
+          pgsql::id_string >::set_value (
+        v,
+        i.chain_work_value,
+        i.chain_work_size,
+        i.chain_work_null);
     }
 
     // segwit_spend_count
@@ -1003,12 +1181,16 @@ namespace odb
   "\"hash\", "
   "\"merkle_root\", "
   "\"time\", "
+  "\"median_time\", "
   "\"height\", "
+  "\"subsidy\", "
   "\"transactions_count\", "
   "\"version\", "
   "\"status\", "
   "\"bits\", "
   "\"nonce\", "
+  "\"difficulty\", "
+  "\"chain_work\", "
   "\"segwit_spend_count\", "
   "\"outputs_count\", "
   "\"inputs_count\", "
@@ -1019,7 +1201,7 @@ namespace odb
   "\"total_weight\", "
   "\"fee_data\") "
   "VALUES "
-  "(DEFAULT, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18) "
+  "(DEFAULT, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22) "
   "RETURNING \"id\"";
 
   const char access::object_traits_impl< ::eBlocks, id_pgsql >::find_statement[] =
@@ -1028,12 +1210,16 @@ namespace odb
   "\"bitcoin\".\"eBlocks\".\"hash\", "
   "\"bitcoin\".\"eBlocks\".\"merkle_root\", "
   "\"bitcoin\".\"eBlocks\".\"time\", "
+  "\"bitcoin\".\"eBlocks\".\"median_time\", "
   "\"bitcoin\".\"eBlocks\".\"height\", "
+  "\"bitcoin\".\"eBlocks\".\"subsidy\", "
   "\"bitcoin\".\"eBlocks\".\"transactions_count\", "
   "\"bitcoin\".\"eBlocks\".\"version\", "
   "\"bitcoin\".\"eBlocks\".\"status\", "
   "\"bitcoin\".\"eBlocks\".\"bits\", "
   "\"bitcoin\".\"eBlocks\".\"nonce\", "
+  "\"bitcoin\".\"eBlocks\".\"difficulty\", "
+  "\"bitcoin\".\"eBlocks\".\"chain_work\", "
   "\"bitcoin\".\"eBlocks\".\"segwit_spend_count\", "
   "\"bitcoin\".\"eBlocks\".\"outputs_count\", "
   "\"bitcoin\".\"eBlocks\".\"inputs_count\", "
@@ -1052,22 +1238,26 @@ namespace odb
   "\"hash\"=$1, "
   "\"merkle_root\"=$2, "
   "\"time\"=$3, "
-  "\"height\"=$4, "
-  "\"transactions_count\"=$5, "
-  "\"version\"=$6, "
-  "\"status\"=$7, "
-  "\"bits\"=$8, "
-  "\"nonce\"=$9, "
-  "\"segwit_spend_count\"=$10, "
-  "\"outputs_count\"=$11, "
-  "\"inputs_count\"=$12, "
-  "\"total_output_value\"=$13, "
-  "\"total_fees\"=$14, "
-  "\"total_size\"=$15, "
-  "\"total_vsize\"=$16, "
-  "\"total_weight\"=$17, "
-  "\"fee_data\"=$18 "
-  "WHERE \"id\"=$19";
+  "\"median_time\"=$4, "
+  "\"height\"=$5, "
+  "\"subsidy\"=$6, "
+  "\"transactions_count\"=$7, "
+  "\"version\"=$8, "
+  "\"status\"=$9, "
+  "\"bits\"=$10, "
+  "\"nonce\"=$11, "
+  "\"difficulty\"=$12, "
+  "\"chain_work\"=$13, "
+  "\"segwit_spend_count\"=$14, "
+  "\"outputs_count\"=$15, "
+  "\"inputs_count\"=$16, "
+  "\"total_output_value\"=$17, "
+  "\"total_fees\"=$18, "
+  "\"total_size\"=$19, "
+  "\"total_vsize\"=$20, "
+  "\"total_weight\"=$21, "
+  "\"fee_data\"=$22 "
+  "WHERE \"id\"=$23";
 
   const char access::object_traits_impl< ::eBlocks, id_pgsql >::erase_statement[] =
   "DELETE FROM \"bitcoin\".\"eBlocks\" "
@@ -1079,12 +1269,16 @@ namespace odb
   "\"bitcoin\".\"eBlocks\".\"hash\", "
   "\"bitcoin\".\"eBlocks\".\"merkle_root\", "
   "\"bitcoin\".\"eBlocks\".\"time\", "
+  "\"bitcoin\".\"eBlocks\".\"median_time\", "
   "\"bitcoin\".\"eBlocks\".\"height\", "
+  "\"bitcoin\".\"eBlocks\".\"subsidy\", "
   "\"bitcoin\".\"eBlocks\".\"transactions_count\", "
   "\"bitcoin\".\"eBlocks\".\"version\", "
   "\"bitcoin\".\"eBlocks\".\"status\", "
   "\"bitcoin\".\"eBlocks\".\"bits\", "
   "\"bitcoin\".\"eBlocks\".\"nonce\", "
+  "\"bitcoin\".\"eBlocks\".\"difficulty\", "
+  "\"bitcoin\".\"eBlocks\".\"chain_work\", "
   "\"bitcoin\".\"eBlocks\".\"segwit_spend_count\", "
   "\"bitcoin\".\"eBlocks\".\"outputs_count\", "
   "\"bitcoin\".\"eBlocks\".\"inputs_count\", "

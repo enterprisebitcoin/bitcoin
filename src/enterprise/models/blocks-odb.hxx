@@ -179,6 +179,18 @@ namespace odb
 
     static const time_type_ time;
 
+    // median_time
+    //
+    typedef
+    pgsql::query_column<
+      pgsql::value_traits<
+        ::int64_t,
+        pgsql::id_bigint >::query_type,
+      pgsql::id_bigint >
+    median_time_type_;
+
+    static const median_time_type_ median_time;
+
     // height
     //
     typedef
@@ -190,6 +202,18 @@ namespace odb
     height_type_;
 
     static const height_type_ height;
+
+    // subsidy
+    //
+    typedef
+    pgsql::query_column<
+      pgsql::value_traits<
+        ::int64_t,
+        pgsql::id_bigint >::query_type,
+      pgsql::id_bigint >
+    subsidy_type_;
+
+    static const subsidy_type_ subsidy;
 
     // transactions_count
     //
@@ -250,6 +274,30 @@ namespace odb
     nonce_type_;
 
     static const nonce_type_ nonce;
+
+    // difficulty
+    //
+    typedef
+    pgsql::query_column<
+      pgsql::value_traits<
+        double,
+        pgsql::id_double >::query_type,
+      pgsql::id_double >
+    difficulty_type_;
+
+    static const difficulty_type_ difficulty;
+
+    // chain_work
+    //
+    typedef
+    pgsql::query_column<
+      pgsql::value_traits<
+        ::std::string,
+        pgsql::id_string >::query_type,
+      pgsql::id_string >
+    chain_work_type_;
+
+    static const chain_work_type_ chain_work;
 
     // segwit_spend_count
     //
@@ -381,9 +429,19 @@ namespace odb
   time (A::table_name, "\"time\"", 0);
 
   template <typename A>
+  const typename query_columns< ::eBlocks, id_pgsql, A >::median_time_type_
+  query_columns< ::eBlocks, id_pgsql, A >::
+  median_time (A::table_name, "\"median_time\"", 0);
+
+  template <typename A>
   const typename query_columns< ::eBlocks, id_pgsql, A >::height_type_
   query_columns< ::eBlocks, id_pgsql, A >::
   height (A::table_name, "\"height\"", 0);
+
+  template <typename A>
+  const typename query_columns< ::eBlocks, id_pgsql, A >::subsidy_type_
+  query_columns< ::eBlocks, id_pgsql, A >::
+  subsidy (A::table_name, "\"subsidy\"", 0);
 
   template <typename A>
   const typename query_columns< ::eBlocks, id_pgsql, A >::transactions_count_type_
@@ -409,6 +467,16 @@ namespace odb
   const typename query_columns< ::eBlocks, id_pgsql, A >::nonce_type_
   query_columns< ::eBlocks, id_pgsql, A >::
   nonce (A::table_name, "\"nonce\"", 0);
+
+  template <typename A>
+  const typename query_columns< ::eBlocks, id_pgsql, A >::difficulty_type_
+  query_columns< ::eBlocks, id_pgsql, A >::
+  difficulty (A::table_name, "\"difficulty\"", 0);
+
+  template <typename A>
+  const typename query_columns< ::eBlocks, id_pgsql, A >::chain_work_type_
+  query_columns< ::eBlocks, id_pgsql, A >::
+  chain_work (A::table_name, "\"chain_work\"", 0);
 
   template <typename A>
   const typename query_columns< ::eBlocks, id_pgsql, A >::segwit_spend_count_type_
@@ -498,10 +566,20 @@ namespace odb
       long long time_value;
       bool time_null;
 
+      // median_time
+      //
+      long long median_time_value;
+      bool median_time_null;
+
       // height
       //
       long long height_value;
       bool height_null;
+
+      // subsidy
+      //
+      long long subsidy_value;
+      bool subsidy_null;
 
       // transactions_count
       //
@@ -527,6 +605,17 @@ namespace odb
       //
       long long nonce_value;
       bool nonce_null;
+
+      // difficulty
+      //
+      double difficulty_value;
+      bool difficulty_null;
+
+      // chain_work
+      //
+      details::buffer chain_work_value;
+      std::size_t chain_work_size;
+      bool chain_work_null;
 
       // segwit_spend_count
       //
@@ -616,7 +705,7 @@ namespace odb
 
     typedef pgsql::query_base query_base_type;
 
-    static const std::size_t column_count = 19UL;
+    static const std::size_t column_count = 23UL;
     static const std::size_t id_column_count = 1UL;
     static const std::size_t inverse_column_count = 0UL;
     static const std::size_t readonly_column_count = 0UL;
