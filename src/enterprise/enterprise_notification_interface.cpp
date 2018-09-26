@@ -3,7 +3,7 @@
 #include <util.h>
 
 #include <enterprise/enterprise_notification_interface.h>
-#include <enterprise/block_to_sql.h>
+#include <enterprise/block_database.h>
 #include <enterprise/prune_sql.h>
 #include <enterprise/back_fill_sql.h>
 
@@ -31,8 +31,8 @@ void EnterpriseNotificationInterface::BlockConnected(const std::shared_ptr<const
                                                      const std::vector <CTransactionRef> &txnConflicted) {
     LogPrintf("BlockConnected %s\n", pindex->ToString());
 
-    BlockToSql block_to_sql(*pindex, *block);
-    block_to_sql.InsertBlock();
+    BlockDatabase block_database;
+    block_database.InsertBlock(*pindex, *block);
 
     int prune_depth = gArgs.GetArg("-enterprise_pruning", 4032);
     if (prune_depth) {

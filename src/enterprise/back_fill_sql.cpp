@@ -2,7 +2,7 @@
 
 #include "enterprise/database.h"
 #include "enterprise/back_fill_sql.h"
-#include "enterprise/block_to_sql.h"
+#include "enterprise/block_database.h"
 
 #include "enterprise/models/blocks.h"
 #include "enterprise/models/blocks-odb.hxx"
@@ -53,8 +53,8 @@ BackFillSql::BackFillSql(const int current_height, const int back_fill_depth) :
           LogPrintf("Back filling %d %s\n", height, pindex->ToString());
           CBlock block;
           ReadBlockFromDisk(block, pindex, Params().GetConsensus());
-          BlockToSql block_to_sql(*pindex, block);
-          block_to_sql.InsertBlock();
+          BlockDatabase block_database;
+          block_database.InsertBlock(*pindex, block);
       }
     }
 
