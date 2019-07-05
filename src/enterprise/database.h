@@ -1,6 +1,8 @@
 #ifndef ENTERPRISE_DATABASE_H
 #define ENTERPRISE_DATABASE_H
 
+#include <util/system.h>
+
 #include <odb/database.hxx>
 #include <odb/pgsql/database.hxx>
 
