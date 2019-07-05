@@ -5,6 +5,8 @@
 #include <pubkey.h>
 #include <script/standard.h>
 #include <validation.h>
+#include <serialize.h>
+#include <logging.h>
 
 #include <enterprise/block_to_sql.h>
 #include <enterprise/database.h>
@@ -161,7 +163,7 @@ void BlockToSql::GetOutputRecord(const int &output_transaction_index, const std:
                                  const int &output_vector, const CTxOut &txout_data, CAmount &total_output_value,
                                  int64_t &utxo_size_inc) {
     total_output_value += txout_data.nValue;
-    utxo_size_inc += GetSerializeSize(txout_data, SER_NETWORK, PROTOCOL_VERSION) + PER_UTXO_OVERHEAD;
+    utxo_size_inc += GetSerializeSize(txout_data, PROTOCOL_VERSION) + PER_UTXO_OVERHEAD;
 
     txnouttype output_script_type;
     std::vector <CTxDestination> destinations;
@@ -228,9 +230,7 @@ void BlockToSql::GetInputRecord(const int &input_transaction_index, const std::s
         CTransactionRef output_transaction;
         uint256 hash_block;
         bool in_current_block = false;
-        bool was_found = GetTransaction(txin_data.prevout.hash, output_transaction, Params().GetConsensus(), hash_block,
-                                        false);
-
+        bool was_found = GetTransaction(txin_data.prevout.hash, output_transaction, Params().GetConsensus(), hash_block);
         if (!was_found) {
             for (std::size_t transaction_index = 0; transaction_index < m_block.vtx.size(); ++transaction_index) {
                 const CTransactionRef &transaction = m_block.vtx[transaction_index];
@@ -249,7 +249,7 @@ void BlockToSql::GetInputRecord(const int &input_transaction_index, const std::s
 
         const CTxOut &output_txout_data = output_transaction->vout[txin_data.prevout.n];
         total_input_value += output_txout_data.nValue;
-        utxo_size_inc -= (GetSerializeSize(output_txout_data, SER_NETWORK, PROTOCOL_VERSION) + PER_UTXO_OVERHEAD);
+        utxo_size_inc -= (GetSerializeSize(output_txout_data, PROTOCOL_VERSION) + PER_UTXO_OVERHEAD);
 
     }
 }
