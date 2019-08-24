@@ -129,6 +129,7 @@ BITCOIN_CORE_H = \
   core_memusage.h \
   cuckoocache.h \
   enterprise/database.h \
+  enterprise/dotenv.h \
   enterprise/block_to_sql.h \
   enterprise/enterprise_notification_interface.h \
   enterprise/models/addresses.h \
