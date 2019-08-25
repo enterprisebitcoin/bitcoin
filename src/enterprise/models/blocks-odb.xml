@@ -5,12 +5,25 @@
       <column name="hash" type="TEXT" null="false"/>
       <column name="merkle_root" type="TEXT" null="false"/>
       <column name="time" type="BIGINT" null="false"/>
+      <column name="median_time" type="BIGINT" null="false"/>
       <column name="height" type="BIGINT" null="false"/>
+      <column name="subsidy" type="BIGINT" null="false"/>
       <column name="transactions_count" type="INTEGER" null="false"/>
       <column name="version" type="INTEGER" null="false"/>
       <column name="status" type="INTEGER" null="false"/>
       <column name="bits" type="INTEGER" null="false"/>
       <column name="nonce" type="BIGINT" null="false"/>
+      <column name="difficulty" type="DOUBLE PRECISION" null="false"/>
+      <column name="chain_work" type="TEXT" null="false"/>
+      <column name="fee_data" type="TEXT" null="false"/>
+      <column name="segwit_spend_count" type="BIGINT" null="false"/>
+      <column name="outputs_count" type="BIGINT" null="false"/>
+      <column name="inputs_count" type="BIGINT" null="false"/>
+      <column name="total_output_value" type="BIGINT" null="false"/>
+      <column name="total_fees" type="BIGINT" null="false"/>
+      <column name="total_size" type="BIGINT" null="false"/>
+      <column name="total_vsize" type="BIGINT" null="false"/>
+      <column name="total_weight" type="BIGINT" null="false"/>
       <primary-key auto="true">
         <column name="id"/>
       </primary-key>

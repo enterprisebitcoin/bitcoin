@@ -12,46 +12,51 @@
 
 static constexpr size_t PER_UTXO_OVERHEAD = sizeof(COutPoint) + sizeof(uint32_t) + sizeof(bool);
 
-template<typename T>
-void Insert(const std::vector <T> &records);
+struct FeeData {
+    unsigned int fee;
+    unsigned int size;
+    unsigned int vsize;
+    unsigned int weight;
+};
 
-class BlockToSql {
+struct TransactionData
+{
+    const int &m_transaction_index;
+    const CTransactionRef &m_transaction;
 
+    CAmount total_output_value = 0;
+    CAmount total_input_value = 0;
+    CAmount fees = 0;
+    int64_t utxo_size_inc = 0;
+    unsigned int weight;
+    unsigned int vsize;
+    bool is_segwit_out_spend;
+
+    std::string transaction_hash;
+    bool is_coinbase;
+
+    TransactionData(const int &transaction_index, const CTransactionRef &transaction);
+
+    CAmount GetFee()
+    {
+        return is_coinbase ? 0 : total_input_value - total_output_value;
+    };
+};
+
+class BlockToSql
+{
     const CBlockIndex m_block_index;
     const CBlock m_block;
 
     const std::string m_block_header_hash;
 
-    std::vector <eBlocks> m_block_records;
-    std::vector <eAddresses> m_address_records;
-    std::vector <eInputs> m_input_records;
-    std::vector <eOutputs> m_output_records;
-    std::vector <eScripts> m_script_records;
-    std::vector <eTransactions> m_transaction_records;
-
-    void GetBlockRecord();
-
-    void GetTransactionRecord(const int &transaction_index, const CTransactionRef &transaction);
-
-    void GetOutputRecord(const int &output_transaction_index,
-                         const std::string &output_transaction_hash,
-                         const int &output_vector,
-                         const CTxOut &txout_data,
-                         CAmount &total_output_value,
-                         int64_t &utxo_size_inc);
-
-    void GetInputRecord(const int &input_transaction_index,
-                        const std::string &input_transaction_hash,
-                        const int &input_vector,
-                        const CTxIn &txin_data,
-                        const bool is_coinbase,
-                        CAmount &total_input_value,
-                        int64_t &utxo_size_inc);
+    eBlocks m_block_record;
+    std::vector<eBlocks> m_block_records;
+    std::vector<FeeData> m_fee_data;
 
 public:
     BlockToSql(const CBlockIndex block_index, const CBlock block);
-
-    void InsertBlock(const bool insert_transactions = true);
 };
+
 
 #endif //BLOCK_TO_SQL_H

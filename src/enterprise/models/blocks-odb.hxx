@@ -139,6 +139,18 @@ namespace odb
 
     static const time_type_ time;
 
+    // median_time
+    //
+    typedef
+    pgsql::query_column<
+      pgsql::value_traits<
+        ::int64_t,
+        pgsql::id_bigint >::query_type,
+      pgsql::id_bigint >
+    median_time_type_;
+
+    static const median_time_type_ median_time;
+
     // height
     //
     typedef
@@ -150,6 +162,18 @@ namespace odb
     height_type_;
 
     static const height_type_ height;
+
+    // subsidy
+    //
+    typedef
+    pgsql::query_column<
+      pgsql::value_traits<
+        ::int64_t,
+        pgsql::id_bigint >::query_type,
+      pgsql::id_bigint >
+    subsidy_type_;
+
+    static const subsidy_type_ subsidy;
 
     // transactions_count
     //
@@ -210,6 +234,138 @@ namespace odb
     nonce_type_;
 
     static const nonce_type_ nonce;
+
+    // difficulty
+    //
+    typedef
+    pgsql::query_column<
+      pgsql::value_traits<
+        double,
+        pgsql::id_double >::query_type,
+      pgsql::id_double >
+    difficulty_type_;
+
+    static const difficulty_type_ difficulty;
+
+    // chain_work
+    //
+    typedef
+    pgsql::query_column<
+      pgsql::value_traits<
+        ::std::string,
+        pgsql::id_string >::query_type,
+      pgsql::id_string >
+    chain_work_type_;
+
+    static const chain_work_type_ chain_work;
+
+    // fee_data
+    //
+    typedef
+    pgsql::query_column<
+      pgsql::value_traits<
+        ::std::string,
+        pgsql::id_string >::query_type,
+      pgsql::id_string >
+    fee_data_type_;
+
+    static const fee_data_type_ fee_data;
+
+    // segwit_spend_count
+    //
+    typedef
+    pgsql::query_column<
+      pgsql::value_traits<
+        ::int64_t,
+        pgsql::id_bigint >::query_type,
+      pgsql::id_bigint >
+    segwit_spend_count_type_;
+
+    static const segwit_spend_count_type_ segwit_spend_count;
+
+    // outputs_count
+    //
+    typedef
+    pgsql::query_column<
+      pgsql::value_traits<
+        ::int64_t,
+        pgsql::id_bigint >::query_type,
+      pgsql::id_bigint >
+    outputs_count_type_;
+
+    static const outputs_count_type_ outputs_count;
+
+    // inputs_count
+    //
+    typedef
+    pgsql::query_column<
+      pgsql::value_traits<
+        ::int64_t,
+        pgsql::id_bigint >::query_type,
+      pgsql::id_bigint >
+    inputs_count_type_;
+
+    static const inputs_count_type_ inputs_count;
+
+    // total_output_value
+    //
+    typedef
+    pgsql::query_column<
+      pgsql::value_traits<
+        ::int64_t,
+        pgsql::id_bigint >::query_type,
+      pgsql::id_bigint >
+    total_output_value_type_;
+
+    static const total_output_value_type_ total_output_value;
+
+    // total_fees
+    //
+    typedef
+    pgsql::query_column<
+      pgsql::value_traits<
+        ::int64_t,
+        pgsql::id_bigint >::query_type,
+      pgsql::id_bigint >
+    total_fees_type_;
+
+    static const total_fees_type_ total_fees;
+
+    // total_size
+    //
+    typedef
+    pgsql::query_column<
+      pgsql::value_traits<
+        ::int64_t,
+        pgsql::id_bigint >::query_type,
+      pgsql::id_bigint >
+    total_size_type_;
+
+    static const total_size_type_ total_size;
+
+    // total_vsize
+    //
+    typedef
+    pgsql::query_column<
+      pgsql::value_traits<
+        ::int64_t,
+        pgsql::id_bigint >::query_type,
+      pgsql::id_bigint >
+    total_vsize_type_;
+
+    static const total_vsize_type_ total_vsize;
+
+    // total_weight
+    //
+    typedef
+    pgsql::query_column<
+      pgsql::value_traits<
+        ::int64_t,
+        pgsql::id_bigint >::query_type,
+      pgsql::id_bigint >
+    total_weight_type_;
+
+    static const total_weight_type_ total_weight;
   };
 
   template <typename A>
@@ -233,9 +389,19 @@ namespace odb
   time (A::table_name, "\"time\"", 0);
 
   template <typename A>
+  const typename query_columns< ::eBlocks, id_pgsql, A >::median_time_type_
+  query_columns< ::eBlocks, id_pgsql, A >::
+  median_time (A::table_name, "\"median_time\"", 0);
+
+  template <typename A>
   const typename query_columns< ::eBlocks, id_pgsql, A >::height_type_
   query_columns< ::eBlocks, id_pgsql, A >::
   height (A::table_name, "\"height\"", 0);
+
+  template <typename A>
+  const typename query_columns< ::eBlocks, id_pgsql, A >::subsidy_type_
+  query_columns< ::eBlocks, id_pgsql, A >::
+  subsidy (A::table_name, "\"subsidy\"", 0);
 
   template <typename A>
   const typename query_columns< ::eBlocks, id_pgsql, A >::transactions_count_type_
@@ -261,6 +427,61 @@ namespace odb
   const typename query_columns< ::eBlocks, id_pgsql, A >::nonce_type_
   query_columns< ::eBlocks, id_pgsql, A >::
   nonce (A::table_name, "\"nonce\"", 0);
+
+  template <typename A>
+  const typename query_columns< ::eBlocks, id_pgsql, A >::difficulty_type_
+  query_columns< ::eBlocks, id_pgsql, A >::
+  difficulty (A::table_name, "\"difficulty\"", 0);
+
+  template <typename A>
+  const typename query_columns< ::eBlocks, id_pgsql, A >::chain_work_type_
+  query_columns< ::eBlocks, id_pgsql, A >::
+  chain_work (A::table_name, "\"chain_work\"", 0);
+
+  template <typename A>
+  const typename query_columns< ::eBlocks, id_pgsql, A >::fee_data_type_
+  query_columns< ::eBlocks, id_pgsql, A >::
+  fee_data (A::table_name, "\"fee_data\"", 0);
+
+  template <typename A>
+  const typename query_columns< ::eBlocks, id_pgsql, A >::segwit_spend_count_type_
+  query_columns< ::eBlocks, id_pgsql, A >::
+  segwit_spend_count (A::table_name, "\"segwit_spend_count\"", 0);
+
+  template <typename A>
+  const typename query_columns< ::eBlocks, id_pgsql, A >::outputs_count_type_
+  query_columns< ::eBlocks, id_pgsql, A >::
+  outputs_count (A::table_name, "\"outputs_count\"", 0);
+
+  template <typename A>
+  const typename query_columns< ::eBlocks, id_pgsql, A >::inputs_count_type_
+  query_columns< ::eBlocks, id_pgsql, A >::
+  inputs_count (A::table_name, "\"inputs_count\"", 0);
+
+  template <typename A>
+  const typename query_columns< ::eBlocks, id_pgsql, A >::total_output_value_type_
+  query_columns< ::eBlocks, id_pgsql, A >::
+  total_output_value (A::table_name, "\"total_output_value\"", 0);
+
+  template <typename A>
+  const typename query_columns< ::eBlocks, id_pgsql, A >::total_fees_type_
+  query_columns< ::eBlocks, id_pgsql, A >::
+  total_fees (A::table_name, "\"total_fees\"", 0);
+
+  template <typename A>
+  const typename query_columns< ::eBlocks, id_pgsql, A >::total_size_type_
+  query_columns< ::eBlocks, id_pgsql, A >::
+  total_size (A::table_name, "\"total_size\"", 0);
+
+  template <typename A>
+  const typename query_columns< ::eBlocks, id_pgsql, A >::total_vsize_type_
+  query_columns< ::eBlocks, id_pgsql, A >::
+  total_vsize (A::table_name, "\"total_vsize\"", 0);
+
+  template <typename A>
+  const typename query_columns< ::eBlocks, id_pgsql, A >::total_weight_type_
+  query_columns< ::eBlocks, id_pgsql, A >::
+  total_weight (A::table_name, "\"total_weight\"", 0);
 
   template <typename A>
   struct pointer_query_columns< ::eBlocks, id_pgsql, A >:
@@ -305,10 +526,20 @@ namespace odb
       long long time_value;
       bool time_null;
 
+      // median_time
+      //
+      long long median_time_value;
+      bool median_time_null;
+
       // height
       //
       long long height_value;
       bool height_null;
+
+      // subsidy
+      //
+      long long subsidy_value;
+      bool subsidy_null;
 
       // transactions_count
       //
@@ -334,6 +565,63 @@ namespace odb
       //
       long long nonce_value;
       bool nonce_null;
+
+      // difficulty
+      //
+      double difficulty_value;
+      bool difficulty_null;
+
+      // chain_work
+      //
+      details::buffer chain_work_value;
+      std::size_t chain_work_size;
+      bool chain_work_null;
+
+      // fee_data
+      //
+      details::buffer fee_data_value;
+      std::size_t fee_data_size;
+      bool fee_data_null;
+
+      // segwit_spend_count
+      //
+      long long segwit_spend_count_value;
+      bool segwit_spend_count_null;
+
+      // outputs_count
+      //
+      long long outputs_count_value;
+      bool outputs_count_null;
+
+      // inputs_count
+      //
+      long long inputs_count_value;
+      bool inputs_count_null;
+
+      // total_output_value
+      //
+      long long total_output_value_value;
+      bool total_output_value_null;
+
+      // total_fees
+      //
+      long long total_fees_value;
+      bool total_fees_null;
+
+      // total_size
+      //
+      long long total_size_value;
+      bool total_size_null;
+
+      // total_vsize
+      //
+      long long total_vsize_value;
+      bool total_vsize_null;
+
+      // total_weight
+      //
+      long long total_weight_value;
+      bool total_weight_null;
 
       std::size_t version;
     };
@@ -377,7 +665,7 @@ namespace odb
 
     typedef pgsql::query_base query_base_type;
 
-    static const std::size_t column_count = 10UL;
+    static const std::size_t column_count = 23UL;
     static const std::size_t id_column_count = 1UL;
     static const std::size_t inverse_column_count = 0UL;
     static const std::size_t readonly_column_count = 0UL;

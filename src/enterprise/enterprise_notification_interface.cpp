@@ -29,9 +29,7 @@ void EnterpriseNotificationInterface::BlockConnected(const std::shared_ptr<const
                                                      const CBlockIndex *pindex,
                                                      const std::vector <CTransactionRef> &txnConflicted) {
     LogPrintf("BlockConnected %s\n", pindex->ToString());
-
     BlockToSql block_to_sql(*pindex, *block);
-    block_to_sql.InsertBlock();
 }
 
 void EnterpriseNotificationInterface::BlockDisconnected(const std::shared_ptr<const CBlock> &block) {

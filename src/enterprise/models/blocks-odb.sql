@@ -11,12 +11,25 @@ CREATE TABLE "bitcoin"."eBlocks" (
   "hash" TEXT NOT NULL,
   "merkle_root" TEXT NOT NULL,
   "time" BIGINT NOT NULL,
+  "median_time" BIGINT NOT NULL,
   "height" BIGINT NOT NULL,
+  "subsidy" BIGINT NOT NULL,
   "transactions_count" INTEGER NOT NULL,
   "version" INTEGER NOT NULL,
   "status" INTEGER NOT NULL,
   "bits" INTEGER NOT NULL,
-  "nonce" BIGINT NOT NULL);
+  "nonce" BIGINT NOT NULL,
+  "difficulty" DOUBLE PRECISION NOT NULL,
+  "chain_work" TEXT NOT NULL,
+  "fee_data" TEXT NOT NULL,
+  "segwit_spend_count" BIGINT NOT NULL,
+  "outputs_count" BIGINT NOT NULL,
+  "inputs_count" BIGINT NOT NULL,
+  "total_output_value" BIGINT NOT NULL,
+  "total_fees" BIGINT NOT NULL,
+  "total_size" BIGINT NOT NULL,
+  "total_vsize" BIGINT NOT NULL,
+  "total_weight" BIGINT NOT NULL);
 
 CREATE TABLE "schema_version" (
   "name" TEXT NOT NULL PRIMARY KEY,
