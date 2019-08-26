@@ -1,6 +1,5 @@
 #include <primitives/block.h>
 #include <chain.h>
-#include <util.h>
 #include <logging.h>
 
 #include <enterprise/enterprise_notification_interface.h>
