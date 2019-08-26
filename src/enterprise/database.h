@@ -8,8 +8,6 @@
 #include <odb/database.hxx>
 #include <odb/pgsql/database.hxx>
 
-#include "util.h"
-
 using namespace dotenv;
 
 inline std::auto_ptr<odb::database>
