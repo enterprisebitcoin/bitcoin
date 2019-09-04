@@ -7,6 +7,11 @@ macOS
  + the database runtime libodb-pgsql-2.4.0 (we will add other databases after prototyping)
  + libodb-boost-2.4.0 profile library
  + optionally the examples odb-examples-2.4.0 
+ 
+ Linux
+ ==
+ 
+1. `sudo apt-get install libodb-2.4 libodb-dev libodb-pgsql-2.4 libodb-pgsql-dev libpq5 libodb-boost-2.4 libodb-boost-dev`
 
 2. Decompress and move the resulting folders to a more permanent folder than Downloads.
 
