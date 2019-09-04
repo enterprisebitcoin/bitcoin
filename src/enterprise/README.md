@@ -32,3 +32,9 @@ macOS
 * <code>odb -d pgsql --changelog-suffix -odb.xml --sql-suffix -odb.sql --include-prefix enterprise/models/ --schema bitcoin --generate-query --generate-schema -o src/enterprise/models src/enterprise/models/scripts.h</code>
 
 * <code>odb -d pgsql --changelog-suffix -odb.xml --sql-suffix -odb.sql --include-prefix enterprise/models/ --schema bitcoin --generate-query --generate-schema -o src/enterprise/models src/enterprise/models/transactions.h</code>
+
+Build
+==
+1. `./autogen.sh`
+2. `./configure --disable-wallet --without-gui --enable-debug`
+3. `make -j 8`
