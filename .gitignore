@@ -127,3 +127,4 @@ db4/
 
 
 /src/enterprise/.env
+/.env
