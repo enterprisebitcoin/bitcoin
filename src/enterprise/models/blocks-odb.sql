@@ -22,6 +22,8 @@ CREATE TABLE "bitcoin"."eBlocks" (
   "difficulty" DOUBLE PRECISION NOT NULL,
   "chain_work" TEXT NOT NULL,
   "fee_data" TEXT NOT NULL,
+  "output_data" TEXT NOT NULL,
+  "input_data" TEXT NOT NULL,
   "segwit_spend_count" BIGINT NOT NULL,
   "outputs_count" BIGINT NOT NULL,
   "inputs_count" BIGINT NOT NULL,

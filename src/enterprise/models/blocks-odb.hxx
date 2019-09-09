@@ -271,6 +271,30 @@ namespace odb
 
     static const fee_data_type_ fee_data;
 
+    // output_data
+    //
+    typedef
+    pgsql::query_column<
+      pgsql::value_traits<
+        ::std::string,
+        pgsql::id_string >::query_type,
+      pgsql::id_string >
+    output_data_type_;
+
+    static const output_data_type_ output_data;
+
+    // input_data
+    //
+    typedef
+    pgsql::query_column<
+      pgsql::value_traits<
+        ::std::string,
+        pgsql::id_string >::query_type,
+      pgsql::id_string >
+    input_data_type_;
+
+    static const input_data_type_ input_data;
+
     // segwit_spend_count
     //
     typedef
@@ -444,6 +468,16 @@ namespace odb
   fee_data (A::table_name, "\"fee_data\"", 0);
 
   template <typename A>
+  const typename query_columns< ::eBlocks, id_pgsql, A >::output_data_type_
+  query_columns< ::eBlocks, id_pgsql, A >::
+  output_data (A::table_name, "\"output_data\"", 0);
+
+  template <typename A>
+  const typename query_columns< ::eBlocks, id_pgsql, A >::input_data_type_
+  query_columns< ::eBlocks, id_pgsql, A >::
+  input_data (A::table_name, "\"input_data\"", 0);
+
+  template <typename A>
   const typename query_columns< ::eBlocks, id_pgsql, A >::segwit_spend_count_type_
   query_columns< ::eBlocks, id_pgsql, A >::
   segwit_spend_count (A::table_name, "\"segwit_spend_count\"", 0);
@@ -583,6 +617,18 @@ namespace odb
       std::size_t fee_data_size;
       bool fee_data_null;
 
+      // output_data
+      //
+      details::buffer output_data_value;
+      std::size_t output_data_size;
+      bool output_data_null;
+
+      // input_data
+      //
+      details::buffer input_data_value;
+      std::size_t input_data_size;
+      bool input_data_null;
+
       // segwit_spend_count
       //
       long long segwit_spend_count_value;
@@ -665,7 +711,7 @@ namespace odb
 
     typedef pgsql::query_base query_base_type;
 
-    static const std::size_t column_count = 23UL;
+    static const std::size_t column_count = 25UL;
     static const std::size_t id_column_count = 1UL;
     static const std::size_t inverse_column_count = 0UL;
     static const std::size_t readonly_column_count = 0UL;

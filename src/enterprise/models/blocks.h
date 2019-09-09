@@ -67,6 +67,8 @@ public:
     double difficulty;
     std::string chain_work;
     std::string fee_data;
+    std::string output_data = "";
+    std::string input_data = "";
 
     int64_t segwit_spend_count = 0;
     int64_t outputs_count = 0;

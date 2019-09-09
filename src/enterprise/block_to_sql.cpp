@@ -73,8 +73,22 @@ BlockToSql::BlockToSql(const CBlockIndex block_index, const CBlock block) : m_bl
         // Outputs
         for (std::size_t output_vector = 0; output_vector < transaction->vout.size(); ++output_vector) {
             const CTxOut& txout_data = transaction->vout[output_vector];
+            unsigned int nSize = GetSerializeSize(txout_data, PROTOCOL_VERSION) + PER_UTXO_OVERHEAD;
             transaction_data.total_output_value += txout_data.nValue;
-            transaction_data.utxo_size_inc += GetSerializeSize(txout_data, PROTOCOL_VERSION) + PER_UTXO_OVERHEAD;
+            transaction_data.utxo_size_inc += nSize;
+
+            std::vector<std::vector<unsigned char>> solutions_data;
+            txnouttype which_type = Solver(txout_data.scriptPubKey, solutions_data);
+            const char* script = GetTxnOutputType(which_type);
+
+            std::ostringstream oss;
+            oss << "";
+            oss << nSize << "," ;
+            oss << txout_data.nValue << ",";
+            oss << script;
+            oss << ";";
+            block_record.output_data += oss.str();
+
         }
 
         // Inputs
@@ -106,8 +120,21 @@ BlockToSql::BlockToSql(const CBlockIndex block_index, const CBlock block) : m_bl
             }
 
             const CTxOut& output_txout_data = output_transaction->vout[txin_data.prevout.n];
+            unsigned int nSize = GetSerializeSize(output_txout_data, PROTOCOL_VERSION) + PER_UTXO_OVERHEAD;
             transaction_data.total_input_value += output_txout_data.nValue;
-            transaction_data.utxo_size_inc -= (GetSerializeSize(output_txout_data, PROTOCOL_VERSION) + PER_UTXO_OVERHEAD);
+            transaction_data.utxo_size_inc -= nSize;
+
+            std::vector<std::vector<unsigned char>> solutions_data;
+            txnouttype which_type = Solver(output_txout_data.scriptPubKey, solutions_data);
+            const char* script = GetTxnOutputType(which_type);
+
+            std::ostringstream oss;
+            oss << "";
+            oss << nSize << "," ;
+            oss << output_txout_data.nValue << ",";
+            oss << script;
+            oss << ";";
+            block_record.input_data += oss.str();
         }
 
         block_record.segwit_spend_count += transaction_data.is_segwit_out_spend;

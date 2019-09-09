@@ -16,6 +16,8 @@
       <column name="difficulty" type="DOUBLE PRECISION" null="false"/>
       <column name="chain_work" type="TEXT" null="false"/>
       <column name="fee_data" type="TEXT" null="false"/>
+      <column name="output_data" type="TEXT" null="false"/>
+      <column name="input_data" type="TEXT" null="false"/>
       <column name="segwit_spend_count" type="BIGINT" null="false"/>
       <column name="outputs_count" type="BIGINT" null="false"/>
       <column name="inputs_count" type="BIGINT" null="false"/>

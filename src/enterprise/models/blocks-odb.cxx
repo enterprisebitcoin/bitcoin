@@ -61,6 +61,8 @@ namespace odb
     pgsql::float8_oid,
     pgsql::text_oid,
     pgsql::text_oid,
+    pgsql::text_oid,
+    pgsql::text_oid,
     pgsql::int8_oid,
     pgsql::int8_oid,
     pgsql::int8_oid,
@@ -92,6 +94,8 @@ namespace odb
     pgsql::int4_oid,
     pgsql::int8_oid,
     pgsql::float8_oid,
+    pgsql::text_oid,
+    pgsql::text_oid,
     pgsql::text_oid,
     pgsql::text_oid,
     pgsql::int8_oid,
@@ -244,37 +248,53 @@ namespace odb
       grew = true;
     }
 
+    // output_data
+    //
+    if (t[15UL])
+    {
+      i.output_data_value.capacity (i.output_data_size);
+      grew = true;
+    }
+
+    // input_data
+    //
+    if (t[16UL])
+    {
+      i.input_data_value.capacity (i.input_data_size);
+      grew = true;
+    }
+
     // segwit_spend_count
-    //
-    t[15UL] = 0;
-
-    // outputs_count
-    //
-    t[16UL] = 0;
-
-    // inputs_count
     //
     t[17UL] = 0;
 
-    // total_output_value
+    // outputs_count
     //
     t[18UL] = 0;
 
-    // total_fees
+    // inputs_count
     //
     t[19UL] = 0;
 
-    // total_size
+    // total_output_value
     //
     t[20UL] = 0;
 
-    // total_vsize
+    // total_fees
     //
     t[21UL] = 0;
 
-    // total_weight
+    // total_size
     //
     t[22UL] = 0;
+
+    // total_vsize
+    //
+    t[23UL] = 0;
+
+    // total_weight
+    //
+    t[24UL] = 0;
 
     return grew;
   }
@@ -404,6 +424,24 @@ namespace odb
     b[n].capacity = i.fee_data_value.capacity ();
     b[n].size = &i.fee_data_size;
     b[n].is_null = &i.fee_data_null;
+    n++;
+
+    // output_data
+    //
+    b[n].type = pgsql::bind::text;
+    b[n].buffer = i.output_data_value.data ();
+    b[n].capacity = i.output_data_value.capacity ();
+    b[n].size = &i.output_data_size;
+    b[n].is_null = &i.output_data_null;
+    n++;
+
+    // input_data
+    //
+    b[n].type = pgsql::bind::text;
+    b[n].buffer = i.input_data_value.data ();
+    b[n].capacity = i.input_data_value.capacity ();
+    b[n].size = &i.input_data_size;
+    b[n].is_null = &i.input_data_null;
     n++;
 
     // segwit_spend_count
@@ -707,6 +745,48 @@ namespace odb
       i.fee_data_null = is_null;
       i.fee_data_size = size;
       grew = grew || (cap != i.fee_data_value.capacity ());
+    }
+
+    // output_data
+    //
+    {
+      ::std::string const& v =
+        o.output_data;
+
+      bool is_null (false);
+      std::size_t size (0);
+      std::size_t cap (i.output_data_value.capacity ());
+      pgsql::value_traits<
+          ::std::string,
+          pgsql::id_string >::set_image (
+        i.output_data_value,
+        size,
+        is_null,
+        v);
+      i.output_data_null = is_null;
+      i.output_data_size = size;
+      grew = grew || (cap != i.output_data_value.capacity ());
+    }
+
+    // input_data
+    //
+    {
+      ::std::string const& v =
+        o.input_data;
+
+      bool is_null (false);
+      std::size_t size (0);
+      std::size_t cap (i.input_data_value.capacity ());
+      pgsql::value_traits<
+          ::std::string,
+          pgsql::id_string >::set_image (
+        i.input_data_value,
+        size,
+        is_null,
+        v);
+      i.input_data_null = is_null;
+      i.input_data_size = size;
+      grew = grew || (cap != i.input_data_value.capacity ());
     }
 
     // segwit_spend_count
@@ -1047,6 +1127,36 @@ namespace odb
         i.fee_data_null);
     }
 
+    // output_data
+    //
+    {
+      ::std::string& v =
+        o.output_data;
+
+      pgsql::value_traits<
+          ::std::string,
+          pgsql::id_string >::set_value (
+        v,
+        i.output_data_value,
+        i.output_data_size,
+        i.output_data_null);
+    }
+
+    // input_data
+    //
+    {
+      ::std::string& v =
+        o.input_data;
+
+      pgsql::value_traits<
+          ::std::string,
+          pgsql::id_string >::set_value (
+        v,
+        i.input_data_value,
+        i.input_data_size,
+        i.input_data_null);
+    }
+
     // segwit_spend_count
     //
     {
@@ -1190,6 +1300,8 @@ namespace odb
   "\"difficulty\", "
   "\"chain_work\", "
   "\"fee_data\", "
+  "\"output_data\", "
+  "\"input_data\", "
   "\"segwit_spend_count\", "
   "\"outputs_count\", "
   "\"inputs_count\", "
@@ -1199,7 +1311,7 @@ namespace odb
   "\"total_vsize\", "
   "\"total_weight\") "
   "VALUES "
-  "(DEFAULT, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22) "
+  "(DEFAULT, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24) "
   "RETURNING \"id\"";
 
   const char access::object_traits_impl< ::eBlocks, id_pgsql >::find_statement[] =
@@ -1219,6 +1331,8 @@ namespace odb
   "\"bitcoin\".\"eBlocks\".\"difficulty\", "
   "\"bitcoin\".\"eBlocks\".\"chain_work\", "
   "\"bitcoin\".\"eBlocks\".\"fee_data\", "
+  "\"bitcoin\".\"eBlocks\".\"output_data\", "
+  "\"bitcoin\".\"eBlocks\".\"input_data\", "
   "\"bitcoin\".\"eBlocks\".\"segwit_spend_count\", "
   "\"bitcoin\".\"eBlocks\".\"outputs_count\", "
   "\"bitcoin\".\"eBlocks\".\"inputs_count\", "
@@ -1247,15 +1361,17 @@ namespace odb
   "\"difficulty\"=$12, "
   "\"chain_work\"=$13, "
   "\"fee_data\"=$14, "
-  "\"segwit_spend_count\"=$15, "
-  "\"outputs_count\"=$16, "
-  "\"inputs_count\"=$17, "
-  "\"total_output_value\"=$18, "
-  "\"total_fees\"=$19, "
-  "\"total_size\"=$20, "
-  "\"total_vsize\"=$21, "
-  "\"total_weight\"=$22 "
-  "WHERE \"id\"=$23";
+  "\"output_data\"=$15, "
+  "\"input_data\"=$16, "
+  "\"segwit_spend_count\"=$17, "
+  "\"outputs_count\"=$18, "
+  "\"inputs_count\"=$19, "
+  "\"total_output_value\"=$20, "
+  "\"total_fees\"=$21, "
+  "\"total_size\"=$22, "
+  "\"total_vsize\"=$23, "
+  "\"total_weight\"=$24 "
+  "WHERE \"id\"=$25";
 
   const char access::object_traits_impl< ::eBlocks, id_pgsql >::erase_statement[] =
   "DELETE FROM \"bitcoin\".\"eBlocks\" "
@@ -1278,6 +1394,8 @@ namespace odb
   "\"bitcoin\".\"eBlocks\".\"difficulty\", "
   "\"bitcoin\".\"eBlocks\".\"chain_work\", "
   "\"bitcoin\".\"eBlocks\".\"fee_data\", "
+  "\"bitcoin\".\"eBlocks\".\"output_data\", "
+  "\"bitcoin\".\"eBlocks\".\"input_data\", "
   "\"bitcoin\".\"eBlocks\".\"segwit_spend_count\", "
   "\"bitcoin\".\"eBlocks\".\"outputs_count\", "
   "\"bitcoin\".\"eBlocks\".\"inputs_count\", "
