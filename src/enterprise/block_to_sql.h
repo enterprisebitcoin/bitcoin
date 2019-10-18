@@ -41,6 +41,11 @@ struct TransactionData
     {
         return is_coinbase ? 0 : total_input_value - total_output_value;
     };
+
+    CAmount GetFeeRate()
+    {
+        return this->GetFee()/this->vsize;
+    };
 };
 
 class BlockToSql

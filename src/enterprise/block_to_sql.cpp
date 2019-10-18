@@ -73,19 +73,23 @@ BlockToSql::BlockToSql(const CBlockIndex block_index, const CBlock block) : m_bl
         // Outputs
         for (std::size_t output_vector = 0; output_vector < transaction->vout.size(); ++output_vector) {
             const CTxOut& txout_data = transaction->vout[output_vector];
-            unsigned int nSize = GetSerializeSize(txout_data, PROTOCOL_VERSION) + PER_UTXO_OVERHEAD;
+            unsigned int output_size = GetSerializeSize(txout_data, PROTOCOL_VERSION);
+            unsigned int utxo_size = output_size + PER_UTXO_OVERHEAD;
             transaction_data.total_output_value += txout_data.nValue;
-            transaction_data.utxo_size_inc += nSize;
+            transaction_data.utxo_size_inc += utxo_size;
 
             std::vector<std::vector<unsigned char>> solutions_data;
             txnouttype which_type = Solver(txout_data.scriptPubKey, solutions_data);
-            const char* script = GetTxnOutputType(which_type);
+            const char* script_type = GetTxnOutputType(which_type);
 
             std::ostringstream oss;
             oss << "";
-            oss << nSize << "," ;
+            oss << output_size << "," ;
             oss << txout_data.nValue << ",";
-            oss << script;
+            oss << transaction_data.GetFeeRate() << ",";
+            oss << CScriptID(txout_data.scriptPubKey).GetHex() << ",";
+            oss << ScriptToAsmStr(txout_data.scriptPubKey) << ",";
+            oss << script_type;
             oss << ";";
             block_record.output_data += oss.str();
 
@@ -99,16 +103,16 @@ BlockToSql::BlockToSql(const CBlockIndex block_index, const CBlock block) : m_bl
 
             const CTxIn& txin_data = transaction->vin[input_vector];
 
-            CTransactionRef output_transaction;
+            CTransactionRef spent_output_transaction;
             uint256 hash_block;
             bool in_current_block = false;
-            bool was_found = GetTransaction(txin_data.prevout.hash, output_transaction, Params().GetConsensus(), hash_block);
+            bool was_found = GetTransaction(txin_data.prevout.hash, spent_output_transaction, Params().GetConsensus(), hash_block);
             if (!was_found) {
                 for (std::size_t transaction_index = 0; transaction_index < m_block.vtx.size(); ++transaction_index) {
                     const CTransactionRef& transaction = m_block.vtx[transaction_index];
                     if (txin_data.prevout.hash == transaction->GetHash() ||
                         txin_data.prevout.hash == transaction->GetWitnessHash()) {
-                        output_transaction = transaction;
+                        spent_output_transaction = transaction;
                         in_current_block = true;
                     }
                 }
@@ -119,20 +123,31 @@ BlockToSql::BlockToSql(const CBlockIndex block_index, const CBlock block) : m_bl
                           txin_data.prevout.n);
             }
 
-            const CTxOut& output_txout_data = output_transaction->vout[txin_data.prevout.n];
-            unsigned int nSize = GetSerializeSize(output_txout_data, PROTOCOL_VERSION) + PER_UTXO_OVERHEAD;
-            transaction_data.total_input_value += output_txout_data.nValue;
-            transaction_data.utxo_size_inc -= nSize;
+            const CTxOut& spent_output_data = spent_output_transaction->vout[txin_data.prevout.n];
+            unsigned int spent_output_size = GetSerializeSize(spent_output_data, PROTOCOL_VERSION);
+            unsigned int spent_utxo_size = spent_output_size + PER_UTXO_OVERHEAD;
+            transaction_data.total_input_value += spent_output_data.nValue;
+            transaction_data.utxo_size_inc -= spent_utxo_size;
 
             std::vector<std::vector<unsigned char>> solutions_data;
-            txnouttype which_type = Solver(output_txout_data.scriptPubKey, solutions_data);
-            const char* script = GetTxnOutputType(which_type);
+            txnouttype which_type = Solver(spent_output_data.scriptPubKey, solutions_data);
+            const char* spent_script_type = GetTxnOutputType(which_type);
 
             std::ostringstream oss;
             oss << "";
-            oss << nSize << "," ;
-            oss << output_txout_data.nValue << ",";
-            oss << script;
+            oss << spent_output_size << "," ;
+            oss << spent_output_data.nValue << ",";
+            oss << CScriptID(spent_output_data.scriptPubKey).GetHex() << ",";
+            oss << spent_script_type << ",";
+            oss << ScriptToAsmStr(spent_output_data.scriptPubKey) << ",";
+            oss << GetTransactionInputWeight(txin_data) << "," ;
+            oss << CScriptID(txin_data.scriptSig).GetHex() << ",";
+            oss << ScriptToAsmStr(txin_data.scriptSig, true) << ",";
+            if (!txin_data.scriptWitness.IsNull()) {
+                for (const auto& item : txin_data.scriptWitness.stack) {
+                    oss << HexStr(item.begin(), item.end()) << "*";
+                }
+            }
             oss << ";";
             block_record.input_data += oss.str();
         }

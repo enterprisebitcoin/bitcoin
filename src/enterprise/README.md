@@ -10,7 +10,13 @@ macOS
  
  Linux
  ==
- 
+
+0.
+
+`sudo apt-get update && sudo apt-get upgrade && sudo apt-get install nano tmux git build-essential libtool autotools-dev automake pkg-config bsdmainutils python3 libssl-dev libevent-dev libboost-system-dev libboost-filesystem-dev libboost-chrono-dev libboost-test-dev libboost-thread-dev
+`
+
+
 1. `sudo apt-get install libodb-2.4 libodb-dev libodb-pgsql-2.4 libodb-pgsql-dev libpq5 libodb-boost-2.4 libodb-boost-dev`
 
 2. Decompress and move the resulting folders to a more permanent folder than Downloads.
@@ -36,5 +42,5 @@ macOS
 Build
 ==
 1. `./autogen.sh`
-2. `./configure --disable-wallet --without-gui --enable-debug`
+2. `./configure --disable-wallet --without-gui --enable-debug --with-incompatible-bdb`
 3. `make -j 8`
