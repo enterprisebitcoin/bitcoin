@@ -1,0 +1,43 @@
+version: '3'
+services:
+  postgres:
+    image: postgres:alpine
+    restart: always
+    volumes:
+      - ${PWD}/data/postgres:/var/lib/postgresql/data
+    ports:
+      - 5438:5432
+    networks:
+      - enterprise-bitcoin-network
+    environment:
+      POSTGRES_USER: ${PGUSER}
+      POSTGRES_PASSWORD: ${PGPASSWORD}
+      POSTGRES_DB: ${PGDB}
+
+  bitcoind:
+    image: bitcoind
+    container_name: bitcoind
+    build:
+      context: ${PWD}/bitcoind/
+      dockerfile: ${PWD}/bitcoind/Dockerfile
+      args:
+        - BUILD_VERSION
+    volumes:
+      - ${PWD}/data/bitcoind:/root/.bitcoin
+    entrypoint: [ "./start-bitcoind.sh" ]
+    restart: always
+    depends_on:
+      - postgres
+    networks:
+      - enterprise-bitcoin-network
+    environment:
+      - PGHOST=postgres
+      - PGPORT=5432
+      - PGUSER=${PGUSER}
+      - PGPASSWORD=${PGPASSWORD}
+      - PGDB=${PGDB}
+
+
+networks:
+  enterprise-bitcoin-network:
+    driver: bridge

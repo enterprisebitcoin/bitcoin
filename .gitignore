@@ -128,3 +128,6 @@ db4/
 
 /src/enterprise/.env
 /.env
+
+/docker/.env
+/docker/bitcoind/.env
