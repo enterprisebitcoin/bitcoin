@@ -17,14 +17,10 @@ services:
   bitcoind:
     image: bitcoind
     container_name: bitcoind
-    build:
-      context: ${PWD}/bitcoind/
-      dockerfile: ${PWD}/bitcoind/Dockerfile
-      args:
-        - BUILD_VERSION
+    build: bitcoind
     volumes:
       - ${PWD}/data/bitcoind:/root/.bitcoin
-    entrypoint: [ "./start-bitcoind.sh" ]
+    command: /bitcoin/src/bitcoind -txindex -dbcache=10000
     restart: always
     depends_on:
       - postgres
@@ -45,7 +41,7 @@ services:
       dockerfile: ${PWD}/tweeter/Dockerfile
       args:
         - BUILD_VERSION
-    entrypoint: [ "./start-bitcoind.sh" ]
+    entrypoint: [ "./start-tweeter.sh" ]
     networks:
       - enterprise-bitcoin-network
 

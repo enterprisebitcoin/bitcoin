@@ -32,6 +32,3 @@ RUN pip3 install git+https://github.com/pierrerochard/enterprisebitcoin-db#egg=e
 
 COPY ".env" bitcoin/
 
-# Copy the entrypoint script.
-COPY "start-bitcoind.sh" .
-RUN chmod +x start-bitcoind.sh
