@@ -131,3 +131,4 @@ db4/
 
 /docker/.env
 /docker/bitcoind/.env
+/docker/tweeter/.env

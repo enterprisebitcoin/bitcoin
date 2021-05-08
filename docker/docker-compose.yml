@@ -37,7 +37,14 @@ services:
       - PGPASSWORD=${PGPASSWORD}
       - PGDB=${PGDB}
 
-
-networks:
-  enterprise-bitcoin-network:
-    driver: bridge
+  tweeter:
+    image: tweeter
+    container_name: tweeter
+    build:
+      context: ${PWD}/tweeter/
+      dockerfile: ${PWD}/tweeter/Dockerfile
+      args:
+        - BUILD_VERSION
+    entrypoint: [ "./start-bitcoind.sh" ]
+    networks:
+      - enterprise-bitcoin-network
