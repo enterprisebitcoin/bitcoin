@@ -7,7 +7,7 @@ RUN apt-get update && apt-get -y upgrade && apt-get -y install zsh bash nano tmu
     autotools-dev automake pkg-config bsdmainutils python3 libssl-dev libevent-dev libboost-system-dev \
     libboost-filesystem-dev libboost-chrono-dev libboost-test-dev libboost-thread-dev python3 python3-pip \
     libpq-dev python3-dev build-essential postgresql-server-dev-all libodb-2.4 libodb-dev libodb-pgsql-2.4 \
-    libodb-pgsql-dev libpq5 libodb-boost-2.4 libodb-boost-dev
+    libodb-pgsql-dev libpq5 libodb-boost-2.4 libodb-boost-dev libvips libvips-dev
 
 
 ARG BUILD_VERSION
