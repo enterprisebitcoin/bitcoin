@@ -48,3 +48,7 @@ services:
     entrypoint: [ "./start-bitcoind.sh" ]
     networks:
       - enterprise-bitcoin-network
+
+networks:
+  enterprise-bitcoin-network:
+    driver: bridge
