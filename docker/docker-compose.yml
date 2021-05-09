@@ -20,7 +20,7 @@ services:
     build: bitcoind
     volumes:
       - ${PWD}/data/bitcoind:/root/.bitcoin
-    command: /bin/bash -c "/bitcoin/src/bitcoind -txindex -dbcache=10000"
+    command: /bin/bash -c "cd /bitcoin && src/bitcoind -txindex -dbcache=10000"
     restart: always
     depends_on:
       - postgres
